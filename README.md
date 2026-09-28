@@ -30,7 +30,7 @@ site).
 | `packages/konfeti` | The library (published to npm as `konfeti`)                  |
 | `playground/`      | Site: playground (`/`), guide (`/docs/`), API (`/docs/api/`) |
 | `docs/PLAN.md`     | Roadmap and design notes                                     |
-| `render.yaml`      | Render static-site blueprint for the site                    |
+| `vercel.json`      | Vercel static-site config (konfeti.mbattaloglu.com)          |
 
 ## Scripts
 

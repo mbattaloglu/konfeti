@@ -63,7 +63,8 @@ packages/
       config/           # PaperDefaults, ShapeDefaults, FireDefaults, CreateDefaults, EasingFunctions
       utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils
     test/
-playground/             # private Vite demo on http://localhost:5199 — developer runs `pnpm dev`, never Claude
+playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`) on http://localhost:5199 — developer runs `pnpm dev`, never Claude
+vercel.json             # Vercel static site: `pnpm site:build` → playground/dist, base path /tools/konfeti/ rewritten to /
 docs/PLAN.md
 llms/guides/            # style guides (scripting-logic.md)
 ```
