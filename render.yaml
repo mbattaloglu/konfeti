@@ -1,0 +1,24 @@
+# Render blueprint — konfeti site (playground + docs + API reference) as a static site.
+# Same conventions as Framesheet and Recast: served on its own subdomain and proxied by the main site at
+# mbattaloglu.com/tools/konfeti (Vercel rewrite in mbattalogluwebsite/vercel.json).
+services:
+  - type: web
+    name: konfeti
+    runtime: static
+    autoDeployTrigger: commit
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm site:build
+    staticPublishPath: playground/dist
+    domains:
+      - konfeti.mbattaloglu.com
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+    routes:
+      # the build uses base /tools/konfeti/ (for the main-site proxy); on the subdomain map it back to the root
+      - type: rewrite
+        source: /tools/konfeti/*
+        destination: /*
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

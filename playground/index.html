@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>konfeti — canvas confetti playground</title>
+    <meta
+      name="description"
+      content="Playground for konfeti: zero-dependency, strictly typed canvas confetti with emoji, text, image and spritesheet particles."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://mbattaloglu.com/tools/konfeti" />
+    <meta name="theme-color" content="#0b0d10" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-brand">
+        <h1>konfeti</h1>
+        <span class="app-tag">canvas confetti</span>
+        <span id="version" class="app-version"></span>
+      </div>
+      <nav class="app-nav" aria-label="Site">
+        <a href="%BASE_URL%" aria-current="page">Playground</a>
+        <a href="%BASE_URL%docs/">Docs</a>
+        <a href="%BASE_URL%docs/api/">API</a>
+        <a class="app-nav-extra" href="https://github.com/mbattaloglu/konfeti">GitHub</a>
+      </nav>
+      <div id="status" class="app-status" data-status="idle">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="status-text">idle</span>
+      </div>
+    </header>
+
+    <main id="stage" class="stage">
+      <canvas id="stage-canvas" class="stage-canvas" aria-hidden="true"></canvas>
+      <div id="stage-hit" class="stage-hit" aria-hidden="true"></div>
+
+      <dl class="hud hud--stats stats" aria-label="Live stats">
+        <div>
+          <dt>Live</dt>
+          <dd id="stat-live">0</dd>
+        </div>
+        <div>
+          <dt>FPS</dt>
+          <dd id="stat-fps">–</dd>
+        </div>
+        <div>
+          <dt>Spawned</dt>
+          <dd id="stat-spawned">0</dd>
+        </div>
+        <div>
+          <dt>Died</dt>
+          <dd id="stat-died">0</dd>
+        </div>
+        <div>
+          <dt>Done</dt>
+          <dd id="stat-completed">0</dd>
+        </div>
+        <div>
+          <dt>Updates</dt>
+          <dd id="stat-updated">0</dd>
+        </div>
+      </dl>
+
+      <div class="hud hud--tools">
+        <label class="pill-toggle" title="stage.onClick(element, options)">
+          <span class="switch"
+            ><input id="click-fire" type="checkbox" checked /><span class="switch-track"></span
+          ></span>
+          <span>Click to Fire</span>
+          <code>onClick</code>
+        </label>
+      </div>
+
+      <details id="hook-log" class="hud hud--log" open>
+        <summary>
+          <span>Hook Events</span>
+          <code>onStart / onComplete</code>
+        </summary>
+        <ol id="event-log" class="event-log"></ol>
+      </details>
+
+      <p class="stage-hint">
+        Click the stage or press <kbd>F</kbd> · <code>KonfetiFactory.create(stageCanvas)</code>
+      </p>
+    </main>
+
+    <aside class="panel">
+      <header class="topbar">
+        <div class="actions">
+          <button id="fire" class="btn btn--fire" title="Fire (F)">Fire</button>
+          <div class="btn-group" role="group" aria-label="Last burst">
+            <button id="pause" class="btn btn--ghost" title="Pause last burst">❚❚</button>
+            <button id="resume" class="btn btn--ghost" title="Resume last burst">▶</button>
+            <button id="stop" class="btn btn--ghost" title="Stop last burst">■</button>
+          </div>
+          <button id="reset" class="btn btn--ghost" title="Clear every particle and counter">
+            Reset
+          </button>
+        </div>
+      </header>
+
+      <section class="block">
+        <h2 class="block-title">Presets <code>presets.*()</code></h2>
+        <div id="presets" class="presets"></div>
+      </section>
+
+      <section class="block">
+        <div class="block-head">
+          <h2 class="block-title">Options <code>fire(options)</code></h2>
+          <button id="reset-controls" class="btn btn--small btn--ghost">Reset Controls</button>
+        </div>
+        <div id="controls" class="sections"></div>
+      </section>
+
+      <section class="block">
+        <details class="section json" open>
+          <summary class="section-summary">
+            <span class="section-icon"
+              ><svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M8 3H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1" />
+                <path
+                  d="M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"
+                /></svg
+            ></span>
+            <span class="section-title">Options JSON</span>
+            <span id="json-state" class="section-badge">synced with controls</span>
+            <span class="section-chevron"></span>
+          </summary>
+          <div class="section-body">
+            <p class="section-description">
+              Functions and elements are omitted. <code>"$asset:…"</code> placeholders stand for the
+              demo canvases. Arrays fire several bursts at once.
+            </p>
+            <textarea id="json" spellcheck="false"></textarea>
+            <div class="json-actions">
+              <button id="fire-json" class="btn btn--primary btn--small">Fire JSON</button>
+              <button id="copy-json" class="btn btn--ghost btn--small">Copy</button>
+              <button id="sync-json" class="btn btn--ghost btn--small">Sync from Controls</button>
+            </div>
+          </div>
+        </details>
+      </section>
+    </aside>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

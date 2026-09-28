@@ -1,0 +1,19 @@
+{
+  "name": "playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "highlight.js": "^11.12.0",
+    "konfeti": "workspace:*",
+    "marked": "^18.0.14"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "vite": "^8.3.1"
+  }
+}

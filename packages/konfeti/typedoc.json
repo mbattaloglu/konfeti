@@ -1,0 +1,22 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "konfeti",
+  "entryPoints": ["src/index.ts"],
+  "tsconfig": "./tsconfig.typedoc.json",
+  "out": "../../playground/public/docs/api",
+  "readme": "none",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape"],
+  "customCss": "./typedoc/brand.css",
+  "hideGenerator": true,
+  "navigationLinks": {
+    "Playground": "/tools/konfeti/",
+    "Guide": "/tools/konfeti/docs/",
+    "GitHub": "https://github.com/mbattaloglu/konfeti"
+  },
+  "sort": ["kind", "alphabetical"],
+  "lightHighlightTheme": "github-dark",
+  "darkHighlightTheme": "github-dark"
+}

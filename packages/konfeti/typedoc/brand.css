@@ -1,0 +1,177 @@
+/*
+ * konfeti API reference — TypeDoc theme overrides in the Framesheet / Recast brand.
+ * Both TypeDoc color schemes map to the same dark palette, so the reference always matches the site.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap");
+
+:root {
+  --konfeti-bg: #0b0d10;
+  --konfeti-panel: #111418;
+  --konfeti-panel-2: #161a1f;
+  --konfeti-border: #1f242b;
+  --konfeti-fg: #e6e8eb;
+  --konfeti-fg-dim: #8b949e;
+  --konfeti-fg-mute: #5b6472;
+  --konfeti-accent: #d6ff3f;
+
+  --light-color-background: var(--konfeti-bg);
+  --light-color-background-secondary: var(--konfeti-panel);
+  --light-color-background-active: var(--konfeti-panel-2);
+  --light-color-background-warning: #1d160a;
+  --light-color-warning-text: #ff9f43;
+  --light-color-accent: var(--konfeti-border);
+  --light-color-active-menu-item: var(--konfeti-panel-2);
+  --light-color-text: var(--konfeti-fg);
+  --light-color-contrast-text: var(--konfeti-fg);
+  --light-color-text-aside: var(--konfeti-fg-dim);
+  --light-color-link: var(--konfeti-accent);
+  --light-color-focus-outline: var(--konfeti-accent);
+  --light-color-icon-background: var(--konfeti-panel-2);
+  --light-color-icon-text: var(--konfeti-accent);
+  --light-color-document: var(--konfeti-fg-dim);
+  --light-color-comment-tag: var(--konfeti-fg-dim);
+  --light-color-comment-tag-text: var(--konfeti-bg);
+  --light-color-ts-keyword: var(--konfeti-accent);
+  --light-color-ts-project: var(--konfeti-accent);
+  --light-color-ts-module: var(--konfeti-accent);
+  --light-color-ts-namespace: var(--konfeti-accent);
+  --light-color-ts-class: #b3e67a;
+  --light-color-ts-interface: #b3e67a;
+  --light-color-ts-type-alias: #b3e67a;
+  --light-color-ts-enum: #ffb86b;
+  --light-color-ts-enum-member: #ffb86b;
+  --light-color-ts-function: #9ecbff;
+  --light-color-ts-method: #9ecbff;
+  --light-color-ts-constructor: #9ecbff;
+  --light-color-ts-variable: #c9d1d9;
+  --light-color-ts-property: #c9d1d9;
+  --light-color-ts-parameter: #c9d1d9;
+  --light-color-ts-type-parameter: #ffb86b;
+  --light-color-ts-reference: #b3e67a;
+
+  --dark-color-background: var(--light-color-background);
+  --dark-color-background-secondary: var(--light-color-background-secondary);
+  --dark-color-background-active: var(--light-color-background-active);
+  --dark-color-background-warning: var(--light-color-background-warning);
+  --dark-color-warning-text: var(--light-color-warning-text);
+  --dark-color-accent: var(--light-color-accent);
+  --dark-color-active-menu-item: var(--light-color-active-menu-item);
+  --dark-color-text: var(--light-color-text);
+  --dark-color-contrast-text: var(--light-color-contrast-text);
+  --dark-color-text-aside: var(--light-color-text-aside);
+  --dark-color-link: var(--light-color-link);
+  --dark-color-focus-outline: var(--light-color-focus-outline);
+  --dark-color-icon-background: var(--light-color-icon-background);
+  --dark-color-icon-text: var(--light-color-icon-text);
+  --dark-color-document: var(--light-color-document);
+  --dark-color-comment-tag: var(--light-color-comment-tag);
+  --dark-color-comment-tag-text: var(--light-color-comment-tag-text);
+  --dark-color-ts-keyword: var(--light-color-ts-keyword);
+  --dark-color-ts-project: var(--light-color-ts-project);
+  --dark-color-ts-module: var(--light-color-ts-module);
+  --dark-color-ts-namespace: var(--light-color-ts-namespace);
+  --dark-color-ts-class: var(--light-color-ts-class);
+  --dark-color-ts-interface: var(--light-color-ts-interface);
+  --dark-color-ts-type-alias: var(--light-color-ts-type-alias);
+  --dark-color-ts-enum: var(--light-color-ts-enum);
+  --dark-color-ts-enum-member: var(--light-color-ts-enum-member);
+  --dark-color-ts-function: var(--light-color-ts-function);
+  --dark-color-ts-method: var(--light-color-ts-method);
+  --dark-color-ts-constructor: var(--light-color-ts-constructor);
+  --dark-color-ts-variable: var(--light-color-ts-variable);
+  --dark-color-ts-property: var(--light-color-ts-property);
+  --dark-color-ts-parameter: var(--light-color-ts-parameter);
+  --dark-color-ts-type-parameter: var(--light-color-ts-type-parameter);
+  --dark-color-ts-reference: var(--light-color-ts-reference);
+
+  --font-family-text: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-family-code: "Space Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-family-text);
+  font-size: 13px;
+}
+
+.tsd-page-toolbar {
+  border-bottom: 1px solid var(--konfeti-border);
+  background: linear-gradient(180deg, #0d1014, var(--konfeti-bg));
+}
+
+.tsd-page-toolbar .title {
+  font-family: "DM Serif Display", ui-serif, Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--konfeti-fg);
+}
+
+.tsd-navigation-links a,
+#tsd-toolbar-links a {
+  color: var(--konfeti-fg-dim);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.tsd-navigation-links a:hover,
+#tsd-toolbar-links a:hover {
+  color: var(--konfeti-accent);
+}
+
+h1,
+h2 {
+  font-family: "DM Serif Display", ui-serif, Georgia, serif;
+  font-weight: 400;
+  color: var(--konfeti-fg);
+}
+
+h3,
+h4,
+.tsd-panel-group > h2 {
+  letter-spacing: 0.08em;
+}
+
+pre,
+code {
+  border-radius: 0;
+}
+
+pre {
+  border: 1px solid var(--konfeti-border);
+  background: var(--konfeti-panel) !important;
+}
+
+.tsd-signature,
+.tsd-panel,
+.tsd-index-panel {
+  border-radius: 0;
+}
+
+.tsd-signature {
+  border: 1px solid var(--konfeti-border);
+  background: var(--konfeti-panel);
+}
+
+.tsd-kind-icon ~ span,
+.tsd-navigation a {
+  color: var(--konfeti-fg-dim);
+}
+
+.tsd-navigation a.current,
+.tsd-navigation a:hover {
+  color: var(--konfeti-accent);
+}
+
+input,
+.tsd-widget,
+#tsd-search .field input {
+  border-radius: 0;
+  font-family: var(--font-family-text);
+}
+
+/* the theme switch would only offer the same palette twice */
+.settings-label:has(+ #tsd-theme),
+#tsd-theme {
+  display: none;
+}

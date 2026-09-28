@@ -1,0 +1,35 @@
+{
+  "name": "konfeti-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.22.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm --filter konfeti build",
+    "dev": "pnpm run docs:api && pnpm --filter playground dev",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "pnpm -r test",
+    "size": "size-limit",
+    "changeset": "changeset",
+    "site:build": "pnpm run docs:api && pnpm --filter playground run build",
+    "docs:api": "pnpm --filter konfeti run docs"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "@eslint/js": "^10.0.1",
+    "@size-limit/preset-small-lib": "^14.1.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-tsdoc": "^0.5.3",
+    "prettier": "^3.9.9",
+    "size-limit": "^14.1.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.70.1"
+  }
+}

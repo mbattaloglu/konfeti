@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>konfeti — docs</title>
+    <meta
+      name="description"
+      content="konfeti documentation: canvas confetti with emoji, text, image and spritesheet particles, composable physics and a typed plugin API."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://mbattaloglu.com/tools/konfeti/docs/" />
+    <meta name="theme-color" content="#0b0d10" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap"
+    />
+    <link rel="stylesheet" href="/src/docs/docs.css" />
+  </head>
+  <body class="docs-page">
+    <header class="app-header">
+      <div class="app-brand">
+        <h1>konfeti</h1>
+        <span class="app-tag">docs</span>
+        <span id="version" class="app-version"></span>
+      </div>
+      <nav class="app-nav" aria-label="Site">
+        <a href="%BASE_URL%">Playground</a>
+        <a href="%BASE_URL%docs/" aria-current="page">Docs</a>
+        <a href="%BASE_URL%docs/api/">API</a>
+        <a class="app-nav-extra" href="https://github.com/mbattaloglu/konfeti">GitHub</a>
+      </nav>
+    </header>
+
+    <div class="docs-layout">
+      <aside class="docs-sidebar">
+        <p class="docs-sidebar-title">Guide</p>
+        <nav id="docs-toc" class="docs-toc" aria-label="Guide sections"></nav>
+        <p class="docs-sidebar-title">Reference</p>
+        <nav class="docs-toc" aria-label="Reference">
+          <a href="%BASE_URL%docs/api/">API reference ↗</a>
+          <a href="%BASE_URL%">Playground ↗</a>
+        </nav>
+      </aside>
+
+      <main id="docs-content" class="docs-content"></main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module" src="/src/docs/main.ts"></script>
+  </body>
+</html>

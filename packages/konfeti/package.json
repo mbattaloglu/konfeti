@@ -1,0 +1,76 @@
+{
+  "name": "konfeti",
+  "version": "0.1.0",
+  "description": "Zero-dependency, strictly typed, highly customizable canvas confetti with emoji, text, image and spritesheet particles.",
+  "license": "MIT",
+  "author": "mbattaloglu",
+  "homepage": "https://mbattaloglu.com/tools/konfeti",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mbattaloglu/konfeti.git",
+    "directory": "packages/konfeti"
+  },
+  "bugs": {
+    "url": "https://github.com/mbattaloglu/konfeti/issues"
+  },
+  "type": "module",
+  "sideEffects": [
+    "./dist/index.js",
+    "./dist/index.cjs",
+    "./dist/konfeti.iife.js"
+  ],
+  "keywords": [
+    "confetti",
+    "canvas",
+    "particles",
+    "emoji",
+    "sprite",
+    "animation",
+    "celebration",
+    "typescript"
+  ],
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./lite": {
+      "import": {
+        "types": "./dist/lite.d.ts",
+        "default": "./dist/lite.js"
+      },
+      "require": {
+        "types": "./dist/lite.d.cts",
+        "default": "./dist/lite.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/konfeti.iife.js",
+  "jsdelivr": "./dist/konfeti.iife.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "docs": "typedoc"
+  },
+  "devDependencies": {
+    "happy-dom": "^20.14.5",
+    "tsdown": "^0.23.0",
+    "typedoc": "^0.28.20",
+    "vitest": "^5.0.2",
+    "vitest-canvas-mock": "^1.2.0"
+  }
+}

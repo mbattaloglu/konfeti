@@ -1,0 +1,329 @@
+/* konfeti docs — guide page (brand tokens live in brand.css). */
+@import "../brand.css";
+
+/* ---------- layout ---------- */
+body.docs-page {
+  min-height: 100vh;
+}
+
+.docs-page .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.docs-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* ---------- sidebar ---------- */
+.docs-sidebar {
+  position: sticky;
+  top: var(--header-height);
+  align-self: start;
+  height: calc(100vh - var(--header-height));
+  padding: 26px 22px;
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+}
+
+.docs-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+.docs-sidebar-title::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  background: var(--accent);
+}
+
+.docs-sidebar-title + .docs-toc + .docs-sidebar-title {
+  margin-top: 26px;
+}
+
+.docs-toc {
+  display: grid;
+}
+
+.docs-toc a {
+  padding: 6px 0 6px 12px;
+  border-left: 1px solid var(--border);
+  color: var(--fg-dim);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.docs-toc a:hover {
+  border-left-color: var(--fg-mute);
+  color: var(--fg);
+}
+
+.docs-toc a.is-active {
+  border-left-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- content ---------- */
+.docs-content {
+  min-width: 0;
+  max-width: 860px;
+  padding: 34px 44px 120px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--fg-dim);
+}
+
+.docs-section {
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+  scroll-margin-top: calc(var(--header-height) + 12px);
+}
+
+.docs-content h2,
+.docs-content h3 {
+  position: relative;
+  scroll-margin-top: calc(var(--header-height) + 12px);
+}
+
+.docs-content h2 {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.3px;
+  color: var(--fg);
+}
+
+.docs-content h2 code {
+  font-family: var(--mono);
+  font-size: 0.7em;
+  color: var(--accent);
+}
+
+.docs-content h3 {
+  margin: 30px 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.anchor {
+  position: absolute;
+  left: -22px;
+  color: var(--fg-mute);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.docs-content h2:hover .anchor,
+.docs-content h3:hover .anchor {
+  opacity: 1;
+}
+
+.docs-content p {
+  margin: 0 0 14px;
+}
+
+.docs-content strong {
+  color: var(--fg);
+}
+
+.docs-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-dim);
+  text-underline-offset: 3px;
+}
+
+.docs-content a.anchor {
+  text-decoration: none;
+}
+
+.docs-content ul,
+.docs-content ol {
+  margin: 0 0 14px;
+  padding-left: 20px;
+}
+
+.docs-content li::marker {
+  color: var(--accent);
+}
+
+.docs-content :not(pre) > code {
+  padding: 1px 5px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--fg);
+  font-size: 0.86em;
+}
+
+.docs-intro p:first-child {
+  font-family: var(--serif);
+  font-size: 24px;
+  line-height: 1.35;
+  color: var(--fg);
+}
+
+.docs-intro p:first-child strong {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+/* ---------- tables ---------- */
+.docs-content table {
+  width: 100%;
+  margin: 0 0 18px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.docs-content th {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-2);
+  color: var(--fg-dim);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.docs-content td {
+  padding: 8px 10px;
+  border-bottom: 1px dotted var(--border);
+  color: var(--fg);
+  vertical-align: top;
+}
+
+/* ---------- code blocks ---------- */
+.code {
+  margin: 0 0 18px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.code-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px 6px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.code-lang {
+  margin-right: auto;
+  color: var(--fg-mute);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.code pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+.code code {
+  font-family: var(--mono);
+}
+
+/* highlight.js in brand colors */
+.hljs {
+  color: var(--fg);
+}
+
+.hljs-keyword,
+.hljs-built_in,
+.hljs-literal {
+  color: var(--accent);
+}
+
+.hljs-string,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-regexp {
+  color: #9ecbff;
+}
+
+.hljs-number {
+  color: #ffb86b;
+}
+
+.hljs-comment {
+  color: var(--fg-mute);
+  font-style: italic;
+}
+
+.hljs-title,
+.hljs-title.function_ {
+  color: #e6e8eb;
+  font-weight: 700;
+}
+
+.hljs-attr,
+.hljs-property,
+.hljs-params {
+  color: #c9d1d9;
+}
+
+.hljs-type,
+.hljs-title.class_ {
+  color: #b3e67a;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width: 880px) {
+  .docs-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .docs-sidebar {
+    position: static;
+    height: auto;
+    padding: 14px 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .docs-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+
+  .docs-toc a {
+    padding: 2px 0;
+    border-left: 0;
+  }
+
+  .docs-content {
+    padding: 20px 16px 80px;
+  }
+
+  .docs-content h2 {
+    font-size: 26px;
+  }
+
+  .anchor {
+    display: none;
+  }
+}

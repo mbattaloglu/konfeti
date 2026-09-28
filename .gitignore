@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+docs/api
+*.tsbuildinfo
+.DS_Store
+playground/dist
+*.tmp.json
+playground/public/docs/api
+llms/
