@@ -8,7 +8,7 @@
   "includeVersion": true,
   "excludePrivate": true,
   "excludeInternal": true,
-  "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape"],
+  "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape", "WorkerConnector"],
   "customCss": "./typedoc/brand.css",
   "hideGenerator": true,
   "navigationLinks": {

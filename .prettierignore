@@ -5,3 +5,4 @@ docs/api
 llms
 playground/dist
 playground/public/docs
+packages/konfeti/src/worker/generated

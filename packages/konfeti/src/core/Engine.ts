@@ -5,7 +5,7 @@ import type { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
 import type { FrameScheduler } from "../types/FrameScheduler";
 import type { Burst } from "./Burst";
 import type { BurstOwner } from "./BurstOwner";
-import type { CanvasSurface } from "./CanvasSurface";
+import type { RenderSurface } from "./RenderSurface";
 import { Emitter } from "./Emitter";
 import type { ParticlePool } from "./ParticlePool";
 
@@ -43,7 +43,7 @@ export class Engine implements BurstOwner {
   /**
    * Target Surface.
    */
-  private readonly surface: CanvasSurface;
+  private readonly surface: RenderSurface;
 
   /**
    * Renderer.
@@ -95,7 +95,7 @@ export class Engine implements BurstOwner {
    * @param maxParticles - Maximum Live Particles
    */
   public constructor(
-    surface: CanvasSurface,
+    surface: RenderSurface,
     renderer: Canvas2DRenderer,
     scheduler: FrameScheduler,
     pool: ParticlePool,

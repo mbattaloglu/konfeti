@@ -1,5 +1,5 @@
 import type { Burst } from "../core/Burst";
-import type { CanvasSurface } from "../core/CanvasSurface";
+import type { RenderSurface } from "../core/RenderSurface";
 
 /**
  * Canvas 2D Renderer.
@@ -23,7 +23,7 @@ export class Canvas2DRenderer {
    * @param surface - Target Surface
    * @param bursts - Bursts to Draw (oldest first)
    */
-  public render(surface: CanvasSurface, bursts: readonly Burst[]): void {
+  public render(surface: RenderSurface, bursts: readonly Burst[]): void {
     const context = surface.getContext();
     const pixelRatio = surface.getPixelRatio();
     let blendMode = Canvas2DRenderer.DEFAULT_BLEND_MODE;
@@ -62,12 +62,11 @@ export class Canvas2DRenderer {
    *
    * @param surface - Target Surface
    */
-  public clear(surface: CanvasSurface): void {
+  public clear(surface: RenderSurface): void {
     const context = surface.getContext();
-    const canvas = surface.getCanvas();
 
     context.setTransform(1, 0, 0, 1, 0, 0);
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, surface.getBackingWidth(), surface.getBackingHeight());
   }
 
   /**
@@ -75,7 +74,7 @@ export class Canvas2DRenderer {
    *
    * @param surface - Target Surface
    */
-  private resetState(surface: CanvasSurface): void {
+  private resetState(surface: RenderSurface): void {
     const context = surface.getContext();
 
     context.setTransform(1, 0, 0, 1, 0, 0);

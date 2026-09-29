@@ -3,6 +3,8 @@
 Zero-dependency, strictly typed, highly customizable canvas confetti — with first-class **emoji, text, image
 and spritesheet** particles, composable physics and a typed plugin API.
 
+**English** · [Türkçe](./README.tr.md)
+
 ```sh
 npm install konfeti
 ```
@@ -41,6 +43,7 @@ const options: FireOptions = { particleCount: 80 };
 - [Presets](#presets)
 - [Hooks](#hooks)
 - [Instances & canvases](#instances--canvases)
+- [Worker rendering](#worker-rendering)
 - [Custom shapes & physics](#custom-shapes--physics)
 - [Bundle size & `konfeti/lite`](#bundle-size--konfetilite)
 - [Units & ranges](#units--ranges)
@@ -209,6 +212,52 @@ stage.reset();
 stage.destroy(); // also removes its click listeners
 ```
 
+The first instance on a page logs a one-line banner with the version and renderer to the console. Call
+`disableBanner()` before firing to keep the console silent.
+
+## Worker rendering
+
+`KonfetiFactory.createWorker()` moves simulation and drawing into a Web Worker through an `OffscreenCanvas`, so
+large bursts keep animating while the main thread is busy (heavy React renders, long tasks, scrolling):
+
+```ts
+import { KonfetiFactory } from "konfeti";
+
+const stage = KonfetiFactory.createWorker(document.querySelector("canvas"), { maxParticles: 3000 });
+
+await stage.fire({
+  particleCount: 1500,
+  shapes: [{ type: "paper" }, { type: "emoji", emoji: "🎉" }],
+});
+stage.isWorker(); // false when the browser cannot render offscreen — it then runs on the main thread
+stage.destroy(); // terminates the worker
+```
+
+Pass `null` (or nothing) for the canvas to get a fullscreen overlay, like `Konfeti`.
+
+Options travel to the worker by `postMessage`, so they must be structured-cloneable. The types
+(`WorkerFireOptions`) enforce this:
+
+| Works in a worker                                      | Main thread only                                     |
+| ------------------------------------------------------ | ---------------------------------------------------- |
+| every paper, style, physics and emission option        | hooks (`onStart`, `onParticleSpawn`, `onComplete` …) |
+| built-in shapes, emoji and text                        | custom `defineShape` / `definePhysics` modules       |
+| `image` / `spritesheet` with a URL or an `ImageBitmap` | `HTMLImageElement`, `Path2D` and other DOM sources   |
+| `origin` as a point, an element or a click event       | —                                                    |
+
+Element and click origins are measured on the main thread before sending. Use `await` on the handle instead
+of `onComplete`.
+
+The worker script itself (~13.7 kB brotli) is loaded only when the first worker instance is created. With a
+bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
+strict Content-Security-Policy without `worker-src blob:`, host `konfeti/worker.js` yourself:
+
+```ts
+KonfetiFactory.createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
+```
+
+If the script cannot load, every burst rejects with a clear error instead of hanging.
+
 ## Custom shapes & physics
 
 Register your own shapes and physics modules — declare their options once and they are fully typed
@@ -251,11 +300,12 @@ with the transform already applied.
 
 ## Bundle size & `konfeti/lite`
 
-| Usage                         | Size (min + brotli) |
-| ----------------------------- | ------------------- |
-| `Konfeti` from `konfeti`      | ~13.9 kB            |
-| everything from `konfeti`     | ~15.3 kB            |
-| `Konfeti` from `konfeti/lite` | ~11.1 kB            |
+| Usage                                           | Size (min + brotli) |
+| ----------------------------------------------- | ------------------- |
+| `Konfeti` from `konfeti`                        | ~14.3 kB            |
+| everything from `konfeti`                       | ~17.2 kB            |
+| `Konfeti` from `konfeti/lite`                   | ~11.4 kB            |
+| worker script (loaded by `createWorker()` only) | ~13.7 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:

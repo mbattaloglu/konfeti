@@ -1,4 +1,11 @@
+import { fileURLToPath } from "node:url";
+
 import { defineConfig } from "tsdown";
+
+// the <script> build loads konfeti.worker.js from next to itself, so it swaps the inlined script for an empty one
+const WORKER_SOURCE_STUB = fileURLToPath(
+  new URL("src/worker/WorkerSourceStub.ts", import.meta.url),
+);
 
 export default defineConfig([
   {
@@ -12,8 +19,14 @@ export default defineConfig([
     fixedExtension: false,
   },
   {
-    entry: { konfeti: "src/index.ts" },
+    entry: { konfeti: "src/iife.ts" },
     format: "iife",
+    plugins: [
+      {
+        name: "konfeti:external-worker-script",
+        resolveId: (source) => (source === "./generated/WorkerSource" ? WORKER_SOURCE_STUB : null),
+      },
+    ],
     globalName: "konfeti",
     platform: "browser",
     target: "es2022",

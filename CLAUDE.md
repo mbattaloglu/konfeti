@@ -15,7 +15,7 @@ Full roadmap, feature list and API sketch: **`docs/PLAN.md`**. Read it before st
 
 - **Builds are allowed in this repo** (developer granted 2026-09-28, this project only): `pnpm build` (tsdown), `pnpm size` (size-limit) and bundle analysis may be run without asking. The global no-build rule still applies to every other project.
 - **NEVER start a dev / watch / preview server** (`pnpm dev`, `vite`, playground, docs server). The developer runs these.
-- Other allowed checks: `pnpm typecheck` (`tsc --noEmit`), `pnpm lint`, `pnpm format`, `pnpm test` (Vitest, single run — never `--watch`).
+- Other allowed checks: `pnpm typecheck` (`tsc --noEmit`), `pnpm lint`, `pnpm format`, `pnpm test` (Vitest, single run — never `--watch`), `pnpm e2e` (build + Playwright in the installed Chrome; pages are served by request interception, no server).
 - **No "done" without proof.** "Fixed / works / verified" only with the test output, type-check output, or screenshot in the same message. Otherwise say "I expect X — not yet verified".
 - Before guessing, read `llms/` and `docs/`. Measure before tuning (particle counts, frame times, bundle size).
 - Every new function / class / field / type / enum member gets a TSDoc comment (use the `tsdoc` skill).
@@ -24,17 +24,17 @@ Full roadmap, feature list and API sketch: **`docs/PLAN.md`**. Read it before st
 
 ## 2. Tech Stack
 
-| Concern         | Choice                                                                                                                                                                          |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Language        | TypeScript **6.0** (`~6.0.3`; TS 7 not yet supported by typescript-eslint/TypeDoc), `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `noImplicitOverride` |
-| Runtime deps    | **None.** Core must stay dependency-free                                                                                                                                        |
-| Package manager | pnpm monorepo (workspace: `packages/*`, `playground/`)                                                                                                                          |
-| Bundler         | tsdown (rolldown) → ESM + CJS + IIFE (`window.konfeti`) + `.d.ts`                                                                                                               |
-| Tests           | Vitest + happy-dom, canvas via `vitest-canvas-mock`; Playwright visual snapshots later                                                                                          |
-| Lint / format   | ESLint flat config + `typescript-eslint` `strict-type-checked` + Prettier                                                                                                       |
-| Size budget     | `size-limit` (brotli): `Konfeti` full ≤ 14 kB, everything ≤ 16 kB, `konfeti/lite` `Konfeti` ≤ 11.5 kB — measured 13.91 / 15.31 / 11.06 kB (2026-09-28)                          |
-| Docs            | TypeDoc (API) + playground (Vite) for live option tuning                                                                                                                        |
-| Release         | Changesets, semver, GitHub Actions CI (typecheck, lint, test, size)                                                                                                             |
+| Concern         | Choice                                                                                                                                                                                                              |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language        | TypeScript **6.0** (`~6.0.3`; TS 7 not yet supported by typescript-eslint/TypeDoc), `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `noImplicitOverride`                                     |
+| Runtime deps    | **None.** Core must stay dependency-free                                                                                                                                                                            |
+| Package manager | pnpm monorepo (workspace: `packages/*`, `playground/`)                                                                                                                                                              |
+| Bundler         | tsdown (rolldown) → ESM + CJS + IIFE (`window.konfeti`) + `.d.ts`                                                                                                                                                   |
+| Tests           | Vitest + happy-dom, canvas via `vitest-canvas-mock` (unit); Playwright in real Chrome against the built `dist` (`e2e/`, `pnpm e2e`)                                                                                 |
+| Lint / format   | ESLint flat config + `typescript-eslint` `strict-type-checked` + Prettier                                                                                                                                           |
+| Size budget     | `size-limit` (brotli): `Konfeti` full ≤ 14.4 kB, everything (initial) ≤ 17.4 kB, `konfeti/lite` `Konfeti` ≤ 11.5 kB, worker script ≤ 16 kB — measured 14.33 / 17.34 / 11.44 / 13.69 kB (2026-09-29, 0.2.0 + banner) |
+| Docs            | TypeDoc (API) + playground (Vite) for live option tuning                                                                                                                                                            |
+| Release         | Changesets, semver, GitHub Actions CI (typecheck, lint, test, size)                                                                                                                                                 |
 
 Targets: evergreen browsers (**ES2022** — native static class fields keep classes tree-shakeable). `OffscreenCanvas` / Web Worker path is optional and feature-detected.
 
@@ -48,25 +48,35 @@ pnpm monorepo. **No framework adapters** (React/Vue/Svelte/Web Component are out
 packages/
   konfeti/              # published as `konfeti` — engine, renderer, built-in shapes, presets
     src/
-      index.ts          # public entry: fire(), create(), reset(), presets, onClick(), loadImage(), types
-      api/              # fire, create, reset, onClick, loadImage, DefaultInstance
-      core/             # Konfeti, Engine (rAF loop), Burst (emission + hooks), GroupHandle, Emitter, ParticlePool, CanvasSurface
+      index.ts          # full entry: everything in lite.ts + presets + registers every built-in shape
+      lite.ts           # lite entry: Konfeti, KonfetiFactory, KonfetiInstance, define*/registerShapes, loadImage, handlers, types
+      api/              # Konfeti (shared object), KonfetiFactory, DefaultInstance, defineShape, definePhysics, registerShapes, loadImage
+      core/             # KonfetiInstance, Engine (rAF loop), Burst (emission + hooks), GroupHandle, Emitter, ParticlePool, CanvasSurface
         resolve/        # OptionResolver → StyleResolver / ShapeResolver / PhysicsResolver (public → Resolved*)
       particles/        # Particle (pooled data record), SpriteAnimator
       shapes/
         abstracts/      # IShape, BaseShape (fade, flip, wobble, tilt, shine, life scale/color)
-        concretes/      # PaperShape, VectorShape, BitmapShape, SpriteShape
+        concretes/      # PaperShape, VectorShape, BitmapShape, SpriteShape, CustomShape (renderers)
+        handlers/       # one ShapeHandler per shape type (resolve + spawn), BuiltinShapes list
+        spawn/          # Paper/Vector/Bitmap/Sprite/CustomSpawner
+      registry/         # ShapeHandlers, PhysicsDefinitions
       physics/          # PhysicsPipeline + abstracts/IPhysicsModule + concretes/{Force,Swirl,Drag,TerminalVelocity,Floor}Module
-      renderers/        # Canvas2DRenderer (blend/shadow state), OffscreenRenderer later
+      renderers/        # Canvas2DRenderer (blend/shadow state) — draws to any RenderSurface (DOM or offscreen)
       presets/          # Presets (10 built-ins), PresetUtils
       types/            # public option types (types/shapes/* per shape), types/resolved/* internal
       config/           # PaperDefaults, ShapeDefaults, FireDefaults, CreateDefaults, EasingFunctions
-      utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils
+      utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils, CanvasFactory
+      worker/           # WorkerKonfetiInstance (main thread), WorkerRuntime + worker.ts (worker side), WorkerProtocol, OffscreenSurface, BitmapLoader
+        generated/      # WorkerSource.ts + konfeti.worker.js — written by scripts/build-worker.mjs, git-ignored, never edit
+      iife.ts           # <script> build entry: points the worker at konfeti.worker.js next to the script
     test/
 playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`) on http://localhost:5199 — developer runs `pnpm dev`, never Claude
+                        # i18n EN/TR: UI strings in src/i18n/messages.ts (both languages, TR type-checked for every key),
+                        # control text in src/i18n/controlsTr.ts; the guide renders README.md / README.tr.md; API reference stays English
+e2e/                    # Playwright browser tests: pages/ (esm, iife), support/site.ts (disk routing on http://konfeti.test), tests/
 vercel.json             # Vercel static site: `pnpm site:build` → playground/dist, base path /tools/konfeti/ rewritten to /
 docs/PLAN.md
-llms/guides/            # style guides (scripting-logic.md)
+llms/guides/            # style guides (scripting-logic.md) — local only, git-ignored
 ```
 
 Folder for implementations is spelled **`concretes/`** (deliberately NOT the playable guide's `concreates`).
@@ -88,13 +98,15 @@ Adapted from `llms/guides/scripting-logic.md` (that guide is written for Gearbox
 - **Setup/teardown symmetry:** every `register*` / `attach*` (resize observer, visibility listener, worker) has a matching `unregister*` / `detach*` called from `destroy()`. The loop must stop itself when no particles remain.
 - **Imports order:** external → relative. **No path aliases** in library source (they leak into emitted `.d.ts`).
 - Inline comments lowercase, explain _why_. Intent goes in TSDoc.
+- **Two languages on the site:** every README change is mirrored into `packages/konfeti/README.tr.md`; every new playground string/control gets its Turkish text (`messages.ts`, `controlsTr.ts`).
 
 ### Tree-shaking rules
 
 - Shape code lives in `shapes/handlers/*` and is only reached through the `ShapeHandlers` registry — never import a handler (or its spawner/renderer) from core modules.
+- Worker-only code (bitmap URL loading, offscreen scratch canvases) is installed from `worker/worker.ts` via setters (`ImageSource.setUrlLoader`, `CanvasFactory.setFallback`) so main-thread bundles don't carry it. The inlined worker script is only reachable through the dynamic `import("./spawnWorker")`.
 - `package.json` `sideEffects` must list the full-entry files: `dist/index.*` registers the built-ins at import time (guarded by `test/Package.test.ts`).
 - Check `pnpm build && pnpm size` after any change that adds imports to core modules.
-- **Public API shape:** `Konfeti` is the shared fullscreen instance object (`fire`, `onClick`, `reset`, `getParticleCount`). `KonfetiFactory.create()` builds dedicated `KonfetiInstance`s (worker instances come from the factory in 0.2.0). Global tools stay named exports: types, `presets`, `defineShape`, `definePhysics`, `registerShapes`, `loadImage`, shape handlers. Don't add standalone `fire`/`create` exports back.
+- **Public API shape:** `Konfeti` is the shared fullscreen instance object (`fire`, `onClick`, `reset`, `getParticleCount`). `KonfetiFactory.create()` builds dedicated `KonfetiInstance`s and `KonfetiFactory.createWorker()` builds `WorkerKonfetiInstance`s (0.2.0). Global tools stay named exports: types, `presets`, `defineShape`, `definePhysics`, `registerShapes`, `loadImage`, shape handlers. Don't add standalone `fire`/`create` exports back.
 
 ### Hot-path performance rules (the frame loop)
 

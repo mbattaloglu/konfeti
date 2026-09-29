@@ -1,3 +1,4 @@
+import { CanvasFactory } from "./CanvasFactory";
 import { ImageSource } from "./ImageSource";
 
 /**
@@ -19,6 +20,14 @@ export class GlyphRasterizer {
    * Fallback Descent Factor when Font Metrics Are Missing.
    */
   private static readonly FALLBACK_DESCENT = 0.25;
+
+  /**
+   * Zero-Size Placeholder Used when No Canvas Implementation Exists (never ready to draw).
+   */
+  private static readonly EMPTY: CanvasImageSource = {
+    width: 0,
+    height: 0,
+  } as unknown as CanvasImageSource;
 
   /**
    * Raster Cache.
@@ -71,13 +80,14 @@ export class GlyphRasterizer {
     font: string,
     color: string,
     size: number,
-  ): HTMLCanvasElement {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+  ): CanvasImageSource {
+    const scratch = CanvasFactory.create(1, 1);
 
-    if (context === null) {
-      return canvas;
+    if (scratch === null) {
+      return GlyphRasterizer.EMPTY;
     }
+
+    const { canvas, context } = scratch;
 
     context.font = font;
     const metrics = context.measureText(text);

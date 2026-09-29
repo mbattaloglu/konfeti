@@ -12,9 +12,14 @@ export class ImageSource {
   private static readonly urlCache = new Map<string, HTMLImageElement>();
 
   /**
-   * Wrapped Image.
+   * URL Loader Used without the DOM (installed by the worker entry), or Null.
    */
-  private readonly image: CanvasImageSource;
+  private static urlLoader: ((url: string) => ImageSource) | null = null;
+
+  /**
+   * Wrapped Image (replaced once for bitmaps loaded asynchronously).
+   */
+  private image: CanvasImageSource;
 
   /**
    * Raster Font Size for Glyph Bitmaps (`0` for regular images).
@@ -50,7 +55,35 @@ export class ImageSource {
    * @returns Image Source
    */
   public static from(input: ImageInput): ImageSource {
-    return new ImageSource(typeof input === "string" ? ImageSource.loadUrl(input) : input);
+    if (typeof input !== "string") {
+      return new ImageSource(input);
+    }
+
+    // only the worker entry installs a loader; the main thread always uses <img>
+    if (ImageSource.urlLoader) {
+      return ImageSource.urlLoader(input);
+    }
+
+    return new ImageSource(ImageSource.loadUrl(input));
+  }
+
+  /**
+   * Install URL Loader for Environments without `Image` (workers).
+   * Kept out of the main bundle, so only the worker script pays for it.
+   *
+   * @param loader - Loader Returning a (possibly pending) Image Source
+   */
+  public static setUrlLoader(loader: (url: string) => ImageSource): void {
+    ImageSource.urlLoader = loader;
+  }
+
+  /**
+   * Replace Wrapped Image (async loaders swap in the finished bitmap).
+   *
+   * @param image - Drawable Image
+   */
+  public setImage(image: CanvasImageSource): void {
+    this.image = image;
   }
 
   /**

@@ -1,4 +1,5 @@
 import type { Rgba } from "../types/resolved/Rgba";
+import { CanvasFactory } from "./CanvasFactory";
 
 /**
  * Static Color Parsing and Formatting Helpers.
@@ -313,9 +314,7 @@ export class ColorUtils {
    * @returns Canvas Context or Null outside the Browser
    */
   private static getProbe(): CanvasRenderingContext2D | null {
-    if (ColorUtils.probe === null && typeof document !== "undefined") {
-      ColorUtils.probe = document.createElement("canvas").getContext("2d");
-    }
+    ColorUtils.probe ??= CanvasFactory.create(1, 1)?.context ?? null;
 
     return ColorUtils.probe;
   }

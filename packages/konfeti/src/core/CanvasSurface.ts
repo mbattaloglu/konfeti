@@ -1,18 +1,14 @@
 import type { ResolvedCreateOptions } from "../types/resolved/ResolvedCreateOptions";
 import { EnvUtils } from "../utils/EnvUtils";
+import { OverlayCanvas } from "./OverlayCanvas";
+import type { RenderSurface } from "./RenderSurface";
 
 /**
  * Canvas Surface.
  * Owns the canvas element and 2D context, keeps pixel size in sync with CSS size and maps DOM positions
  * into canvas coordinates.
  */
-export class CanvasSurface {
-  /**
-   * Overlay Canvas Inline Style.
-   */
-  private static readonly OVERLAY_STYLE =
-    "position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;";
-
+export class CanvasSurface implements RenderSurface {
   /**
    * Canvas Element.
    */
@@ -68,7 +64,7 @@ export class CanvasSurface {
   public constructor(canvas: HTMLCanvasElement | null, options: ResolvedCreateOptions) {
     this.options = options;
     this._isOwned = canvas === null;
-    this.canvas = canvas ?? CanvasSurface.createOverlay(options.zIndex);
+    this.canvas = canvas ?? OverlayCanvas.create(options.zIndex);
 
     const context = this.canvas.getContext("2d");
 
@@ -88,8 +84,8 @@ export class CanvasSurface {
       return;
     }
 
-    if (this._isOwned && !this.canvas.isConnected) {
-      document.body.appendChild(this.canvas);
+    if (this._isOwned) {
+      OverlayCanvas.mount(this.canvas);
     }
 
     this._isMounted = true;
@@ -168,6 +164,24 @@ export class CanvasSurface {
   }
 
   /**
+   * Return Backing Store Width in Canvas Pixels.
+   *
+   * @returns Canvas Width
+   */
+  public getBackingWidth(): number {
+    return this.canvas.width;
+  }
+
+  /**
+   * Return Backing Store Height in Canvas Pixels.
+   *
+   * @returns Canvas Height
+   */
+  public getBackingHeight(): number {
+    return this.canvas.height;
+  }
+
+  /**
    * Return CSS Width.
    *
    * @returns CSS Width
@@ -239,17 +253,4 @@ export class CanvasSurface {
   private readonly onResize = (): void => {
     this.measure();
   };
-
-  /**
-   * Create Fullscreen Overlay Canvas.
-   *
-   * @param zIndex - Overlay z-index
-   * @returns Canvas Element
-   */
-  private static createOverlay(zIndex: number): HTMLCanvasElement {
-    const canvas = document.createElement("canvas");
-    canvas.style.cssText = `${CanvasSurface.OVERLAY_STYLE}z-index:${String(zIndex)};`;
-    canvas.setAttribute("aria-hidden", "true");
-    return canvas;
-  }
 }

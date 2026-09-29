@@ -8,7 +8,7 @@ import type { Random } from "../utils/Random";
 import { RangeUtils } from "../utils/RangeUtils";
 import { WeightedListUtils } from "../utils/WeightedListUtils";
 import type { Burst } from "./Burst";
-import type { CanvasSurface } from "./CanvasSurface";
+import type { RenderSurface } from "./RenderSurface";
 import type { ParticlePool } from "./ParticlePool";
 
 /**
@@ -34,7 +34,7 @@ export class Emitter {
     burst: Burst,
     count: number,
     pool: ParticlePool,
-    surface: CanvasSurface,
+    surface: RenderSurface,
     perShotOrigin: boolean,
   ): void {
     const options = burst.getOptions();
@@ -82,7 +82,7 @@ export class Emitter {
    * @param surface - Canvas Surface
    * @returns Horizontal and Vertical Pixel Ranges
    */
-  private static resolveOriginBox(options: ResolvedFireOptions, surface: CanvasSurface): OriginBox {
+  private static resolveOriginBox(options: ResolvedFireOptions, surface: RenderSurface): OriginBox {
     const origin = options.origin;
 
     switch (origin.kind) {

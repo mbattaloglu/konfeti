@@ -1,6 +1,6 @@
 {
   "name": "konfeti",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Zero-dependency, strictly typed, highly customizable canvas confetti with emoji, text, image and spritesheet particles.",
   "license": "MIT",
   "author": "mbattaloglu",
@@ -17,7 +17,8 @@
   "sideEffects": [
     "./dist/index.js",
     "./dist/index.cjs",
-    "./dist/konfeti.iife.js"
+    "./dist/konfeti.iife.js",
+    "./dist/konfeti.worker.js"
   ],
   "keywords": [
     "confetti",
@@ -50,7 +51,8 @@
         "default": "./dist/lite.cjs"
       }
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./worker.js": "./dist/konfeti.worker.js"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -58,16 +60,19 @@
   "unpkg": "./dist/konfeti.iife.js",
   "jsdelivr": "./dist/konfeti.iife.js",
   "files": [
-    "dist"
+    "dist",
+    "README.tr.md"
   ],
   "scripts": {
-    "build": "tsdown",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
-    "docs": "typedoc"
+    "build": "node scripts/build-worker.mjs && tsdown && cp src/worker/generated/konfeti.worker.js dist/konfeti.worker.js",
+    "typecheck": "node scripts/build-worker.mjs && tsc --noEmit -p tsconfig.json",
+    "test": "node scripts/build-worker.mjs && vitest run",
+    "docs": "typedoc",
+    "build:worker": "node scripts/build-worker.mjs"
   },
   "devDependencies": {
     "happy-dom": "^20.14.5",
+    "rolldown": "1.2.11",
     "tsdown": "^0.23.0",
     "typedoc": "^0.28.20",
     "vitest": "^5.0.2",

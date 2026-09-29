@@ -1,3 +1,4 @@
+import { Banner } from "../utils/Banner";
 import { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
 import type { CreateOptions } from "../types/CreateOptions";
 import type { FireInput } from "../types/FireInput";
@@ -25,6 +26,11 @@ import { ParticlePool } from "./ParticlePool";
  * ```
  */
 export class KonfetiInstance {
+  /**
+   * Renderer Name Shown in the Console Banner.
+   */
+  private static readonly RENDERER_NAME = "canvas 2d";
+
   /**
    * Resolved Instance Options.
    */
@@ -73,6 +79,7 @@ export class KonfetiInstance {
       this.options.maxParticles,
     );
     this.registerVisibilityEvents();
+    Banner.show(KonfetiInstance.RENDERER_NAME);
   }
 
   /**
