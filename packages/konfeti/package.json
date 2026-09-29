@@ -75,10 +75,12 @@
   "jsdelivr": "./dist/konfeti.iife.js",
   "files": [
     "dist",
+    "!dist/**/*.map",
     "README.tr.md"
   ],
   "scripts": {
     "build": "node scripts/build-worker.mjs && tsdown && cp src/worker/generated/konfeti.worker.js dist/konfeti.worker.js",
+    "prepublishOnly": "npm run build",
     "typecheck": "node scripts/build-worker.mjs && tsc --noEmit -p tsconfig.json",
     "test": "node scripts/build-worker.mjs && vitest run",
     "docs": "typedoc",
