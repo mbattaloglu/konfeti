@@ -1,4 +1,4 @@
-// konfeti worker entry: bundled into a standalone script (inlined as a blob and shipped as konfeti/worker.js).
+// konfeti worker entry: bundled into a standalone script (inlined as a blob and shipped as konfeti/konfeti.worker.js).
 import { registerShapes } from "../api/registerShapes";
 import { BUILTIN_SHAPES } from "../shapes/handlers/BuiltinShapes";
 import { CanvasFactory } from "../utils/CanvasFactory";

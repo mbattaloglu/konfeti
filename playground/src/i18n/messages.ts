@@ -31,7 +31,10 @@ const EN = {
     "Counted by hooks, which only run on the main thread — unavailable in worker mode",
   "tools.clickToFire": "Click to Fire",
   "tools.workerMode": "Worker Mode",
-  "tools.workerModeTitle": "KonfetiFactory.createWorker(canvas) — renders in a Web Worker",
+  "tools.workerModeTitle": "createWorker(canvas) from konfeti/worker — renders in a Web Worker",
+  "tools.pointerStream": "Pointer Stream",
+  "tools.pointerStreamTitle":
+    'emit({ rate, follow: "pointer" }) — Particle Count becomes particles per second',
   "hooks.log": "Hook Events",
   "stage.hintBefore": "Click the stage or press",
   "stage.hintAfter": "",
@@ -113,7 +116,10 @@ const TR: Readonly<Record<MessageKey, string>> = {
     "Hook'larla sayılır; hook'lar yalnızca ana thread'de çalışır — worker modunda yok",
   "tools.clickToFire": "Tıkla, Patlat",
   "tools.workerMode": "Worker Modu",
-  "tools.workerModeTitle": "KonfetiFactory.createWorker(canvas) — Web Worker içinde çizer",
+  "tools.workerModeTitle": "konfeti/worker içinden createWorker(canvas) — Web Worker içinde çizer",
+  "tools.pointerStream": "İmleçten Akış",
+  "tools.pointerStreamTitle":
+    'emit({ rate, follow: "pointer" }) — Parçacık Sayısı saniyedeki parçacık olur',
   "hooks.log": "Hook Olayları",
   "stage.hintBefore": "Sahneye tıkla ya da",
   "stage.hintAfter": "tuşuna bas",

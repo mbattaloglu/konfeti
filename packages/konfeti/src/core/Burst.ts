@@ -17,6 +17,11 @@ export type SpawnCallback = (burst: Burst, count: number, perShotOrigin: boolean
  */
 export class Burst implements KonfetiHandle {
   /**
+   * Milliseconds per Second (continuous emission rates are per second).
+   */
+  private static readonly MS_PER_SECOND = 1000;
+
+  /**
    * Live Particle List (oldest first).
    */
   private readonly particles: Particle[] = [];
@@ -167,6 +172,18 @@ export class Burst implements KonfetiHandle {
   }
 
   /**
+   * End Emission but Keep Live Particles (continuous emitters' stop()).
+   */
+  public endEmission(): void {
+    if (this._isEmissionDone) {
+      return;
+    }
+
+    this._isEmissionDone = true;
+    this.owner?.requestFrame();
+  }
+
+  /**
    * Advance Emission Schedule and Request Spawns.
    *
    * @param dtMs - Time Step in Milliseconds
@@ -193,6 +210,13 @@ export class Burst implements KonfetiHandle {
         this.requestSpawn(spawn, due - this.emittedCount, false);
         this.emittedCount = Math.max(this.emittedCount, due);
         this._isEmissionDone = this.emittedCount >= count || progress >= 1;
+        break;
+      }
+      case "continuous": {
+        // everything due so far, minus what was already requested: fractional rates add up over time
+        const due = Math.floor((this.emissionElapsed / Burst.MS_PER_SECOND) * emission.rate);
+        this.requestSpawn(spawn, due - this.emittedCount, false);
+        this.emittedCount = due;
         break;
       }
       case "interval": {

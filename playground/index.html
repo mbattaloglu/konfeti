@@ -81,7 +81,7 @@
         </label>
         <label
           class="pill-toggle"
-          title="KonfetiFactory.createWorker(canvas) — renders in a Web Worker"
+          title="createWorker(canvas) from konfeti/worker — renders in a Web Worker"
           data-i18n-title="tools.workerModeTitle"
         >
           <span class="switch"
@@ -89,6 +89,17 @@
           ></span>
           <span data-i18n="tools.workerMode">Worker Mode</span>
           <code>createWorker</code>
+        </label>
+        <label
+          class="pill-toggle"
+          title='emit({ rate, follow: "pointer" }) — Particle Count becomes particles per second'
+          data-i18n-title="tools.pointerStreamTitle"
+        >
+          <span class="switch"
+            ><input id="pointer-stream" type="checkbox" /><span class="switch-track"></span
+          ></span>
+          <span data-i18n="tools.pointerStream">Pointer Stream</span>
+          <code>emit</code>
         </label>
       </div>
 

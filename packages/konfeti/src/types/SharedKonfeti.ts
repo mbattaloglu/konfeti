@@ -7,5 +7,5 @@ import type { KonfetiInstance } from "../core/KonfetiInstance";
  */
 export type SharedKonfeti = Pick<
   KonfetiInstance,
-  "fire" | "onClick" | "pause" | "resume" | "isPaused" | "reset" | "getParticleCount"
+  "fire" | "emit" | "onClick" | "pause" | "resume" | "isPaused" | "reset" | "getParticleCount"
 >;

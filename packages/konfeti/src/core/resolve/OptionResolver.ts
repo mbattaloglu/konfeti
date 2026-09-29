@@ -9,7 +9,7 @@ import type { Origin } from "../../types/Origin";
 import type { ResolvedCreateOptions } from "../../types/resolved/ResolvedCreateOptions";
 import type { ResolvedEmission } from "../../types/resolved/ResolvedEmission";
 import type { ResolvedFireOptions } from "../../types/resolved/ResolvedFireOptions";
-import type { ResolvedOrigin } from "../../types/resolved/ResolvedOrigin";
+import type { PlacedOrigin } from "../../types/resolved/PlacedOrigin";
 import { Random } from "../../utils/Random";
 import { RangeUtils } from "../../utils/RangeUtils";
 import { PhysicsResolver } from "./PhysicsResolver";
@@ -113,9 +113,9 @@ export class OptionResolver {
    * Resolve Spawn Origin.
    *
    * @param origin - Public Origin
-   * @returns Resolved Origin
+   * @returns Placed Origin
    */
-  private static resolveOrigin(origin: Origin | undefined): ResolvedOrigin {
+  public static resolveOrigin(origin: Origin | undefined): PlacedOrigin {
     if (origin === undefined) {
       return {
         kind: "point",

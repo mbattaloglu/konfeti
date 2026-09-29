@@ -12,7 +12,7 @@ import type { Cloneable } from "./Cloneable";
  *
  * @example
  * ```ts
- * const stage = KonfetiFactory.createWorker(canvas);
+ * const stage = createWorker(canvas);
  * stage.fire({ particleCount: 200, paper: { fadeOut: { easing: "easeInQuad" } } });
  * ```
  */

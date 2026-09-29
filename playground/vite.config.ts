@@ -61,10 +61,12 @@ export default defineConfig(({ command }) => ({
     strictPort: true,
   },
   resolve: {
-    alias: {
-      // use library source directly so the site reflects edits without a library build
-      konfeti: local("../packages/konfeti/src/index.ts"),
-    },
+    // use library source directly so the site reflects edits without a library build; exact matches, so
+    // "konfeti/worker" is not rewritten as "konfeti" + "/worker"
+    alias: [
+      { find: /^konfeti$/, replacement: local("../packages/konfeti/src/index.ts") },
+      { find: /^konfeti\/worker$/, replacement: local("../packages/konfeti/src/workerEntry.ts") },
+    ],
   },
   build: {
     outDir: "dist",

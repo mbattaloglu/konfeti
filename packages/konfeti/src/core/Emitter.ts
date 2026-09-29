@@ -40,7 +40,14 @@ export class Emitter {
     const options = burst.getOptions();
     const random = burst.getRandom();
     const context = surface.getContext();
-    let origin = Emitter.resolveOriginBox(options, surface);
+    const box = Emitter.resolveOriginBox(options, surface);
+
+    // a tracked origin without a place (pointer not seen yet): nothing to emit this time
+    if (box === null) {
+      return;
+    }
+
+    let origin = box;
 
     if (perShotOrigin) {
       const x = RangeUtils.sample(origin.x, random);
@@ -80,10 +87,18 @@ export class Emitter {
    *
    * @param options - Resolved Burst Options
    * @param surface - Canvas Surface
-   * @returns Horizontal and Vertical Pixel Ranges
+   * @returns Horizontal and Vertical Pixel Ranges, or Null when a Tracked Origin Has No Place Yet
    */
-  private static resolveOriginBox(options: ResolvedFireOptions, surface: RenderSurface): OriginBox {
-    const origin = options.origin;
+  private static resolveOriginBox(
+    options: ResolvedFireOptions,
+    surface: RenderSurface,
+  ): OriginBox | null {
+    const origin =
+      options.origin.kind === "tracked" ? options.origin.tracker.getOrigin() : options.origin;
+
+    if (origin === null) {
+      return null;
+    }
 
     switch (origin.kind) {
       case "element": {

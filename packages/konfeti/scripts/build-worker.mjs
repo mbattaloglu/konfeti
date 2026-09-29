@@ -1,7 +1,7 @@
 // Bundles src/worker/worker.ts into a standalone classic worker script.
 // Output:
 //   src/worker/generated/WorkerSource.ts — the script as a string, inlined as a blob: URL by spawnWorker()
-//   src/worker/generated/konfeti.worker.js — the same script, published as `konfeti/worker.js` for CSP setups
+//   src/worker/generated/konfeti.worker.js — the same script, published as `konfeti/konfeti.worker.js` for CSP setups
 // Both files are generated (git-ignored); every script that compiles the library runs this first.
 
 import { mkdirSync, writeFileSync } from "node:fs";

@@ -2,6 +2,7 @@
 import { WorkerScriptLocation } from "./worker/WorkerScriptLocation";
 
 export * from "./index";
+export * from "./workerEntry";
 
 // document.currentScript is only set during the script's first run
 const script = typeof document === "undefined" ? null : document.currentScript;

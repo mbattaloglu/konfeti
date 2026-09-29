@@ -22,9 +22,16 @@ describe("package.json", () => {
     );
   });
 
-  it("keeps the source entry's registration too (the site bundles src/index.ts)", () => {
+  it("keeps the other entries' registration too (worker entry; the site bundles the sources)", () => {
     // without it, a production site build drops the call and only paper works (only dev looked fine)
-    expect(manifest.sideEffects).toEqual(expect.arrayContaining(["./src/index.ts"]));
+    expect(manifest.sideEffects).toEqual(
+      expect.arrayContaining([
+        "./src/index.ts",
+        "./src/workerEntry.ts",
+        "./dist/worker.js",
+        "./dist/worker.cjs",
+      ]),
+    );
   });
 
   it("exports the same VERSION as the manifest", () => {

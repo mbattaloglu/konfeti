@@ -1,5 +1,8 @@
 import type { ClickOptions } from "../types/ClickOptions";
 import type { FireOptions } from "../types/FireOptions";
+import type { KonfetiEmitter } from "../types/KonfetiEmitter";
+import type { OriginPoint } from "../types/OriginPoint";
+import type { WorkerEmitOptions } from "../types/worker/WorkerEmitOptions";
 import type { WorkerStats } from "../types/worker/WorkerStats";
 import { Announcer } from "../utils/Announcer";
 import { GroupHandle } from "../core/GroupHandle";
@@ -13,6 +16,7 @@ import type { WorkerFireInput } from "../types/worker/WorkerFireInput";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 import { EnvUtils } from "../utils/EnvUtils";
 import { WorkerBurstHandle } from "./WorkerBurstHandle";
+import { WorkerEmitterHandle } from "./WorkerEmitterHandle";
 import { WorkerOptionsPreparer } from "./WorkerOptionsPreparer";
 import type { WorkerPort } from "./WorkerPort";
 import type { MainToWorker, WorkerToMain } from "./WorkerProtocol";
@@ -26,7 +30,7 @@ export type WorkerConnector = (url: string | URL | undefined) => Promise<WorkerP
  * Konfeti Instance that Simulates and Draws in a Web Worker.
  * The canvas is handed to the worker as an `OffscreenCanvas`, so confetti stays smooth while the page is busy.
  * Without `OffscreenCanvas` support it transparently falls back to the main thread (`isWorker()` is `false`).
- * Created by `KonfetiFactory.createWorker()`.
+ * Created by `createWorker()`.
  */
 export class WorkerKonfetiInstance {
   /**
@@ -207,7 +211,7 @@ export class WorkerKonfetiInstance {
    * @throws Error when destroyed, TypeError when the options cannot be sent to the worker
    * @example
    * ```ts
-   * const stage = KonfetiFactory.createWorker(canvas);
+   * const stage = createWorker(canvas);
    * await stage.fire({ particleCount: 300, spread: 360 });
    * ```
    */
@@ -217,19 +221,7 @@ export class WorkerKonfetiInstance {
     }
 
     if (this.fallback !== null) {
-      // same counters as the worker reports, so getStats() works in both modes
-      const counted = (options: WorkerFireOptions): FireOptions => ({
-        ...options,
-        onParticleSpawn: () => {
-          this.spawned++;
-        },
-        onParticleDeath: () => {
-          this.died++;
-        },
-        onComplete: () => {
-          this.completed++;
-        },
-      });
+      const counted = (options: WorkerFireOptions): FireOptions => this.counted(options);
       return this.fallback.fire(
         WorkerKonfetiInstance.isList(input) ? input.map(counted) : counted(input),
       );
@@ -240,6 +232,79 @@ export class WorkerKonfetiInstance {
     }
 
     return this.fireOne(input);
+  }
+
+  /**
+   * Start a Continuous Emitter.
+   * Streams particles at `rate` per second until `stop()`. What it follows is measured on the main thread and
+   * sent to the worker.
+   *
+   * @param options - Worker-Safe Emitter Options
+   * @returns Emitter Handle
+   * @throws Error when destroyed, TypeError for an invalid `rate` or options that cannot be sent to a worker
+   * @example
+   * ```ts
+   * const stage = createWorker(canvas);
+   * const trail = stage.emit({ rate: 80, follow: "pointer", spread: 360 });
+   * trail.stop();
+   * ```
+   */
+  public emit(options: WorkerEmitOptions): KonfetiEmitter {
+    if (this._isDestroyed) {
+      throw new Error("konfeti: cannot emit on a destroyed instance");
+    }
+
+    const { rate, follow, ...fireOptions } = options;
+
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new TypeError(`konfeti: "rate" must be a positive number, got ${String(rate)}`);
+    }
+
+    if (this.fallback !== null) {
+      return this.fallback.emit({
+        ...this.counted(fireOptions),
+        rate,
+        ...(follow === undefined ? {} : { follow }),
+      });
+    }
+
+    const id = this.nextId++;
+    const handle = new WorkerBurstHandle((action) => {
+      this.send({ type: "control", id, action });
+    });
+    const measure = (origin: Element | { clientX: number; clientY: number }): OriginPoint =>
+      WorkerOptionsPreparer.toPoint(origin, this.getBounds());
+    const target = follow ?? {};
+
+    if (this.failure !== null) {
+      handle.fail(this.failure);
+    } else if (this.options.disableForReducedMotion && EnvUtils.prefersReducedMotion()) {
+      handle.complete();
+    } else {
+      if (this._isOverlay) {
+        OverlayCanvas.mount(this.canvas);
+        this.syncSize();
+      }
+
+      const prepared = WorkerOptionsPreparer.prepare(fireOptions, this.getBounds());
+      this.handles.set(id, handle);
+      this.send({
+        type: "emit",
+        id,
+        options: prepared,
+        rate,
+        at: WorkerEmitterHandle.initialPlace(target, measure),
+      });
+    }
+
+    return new WorkerEmitterHandle(
+      handle,
+      (at) => {
+        this.send({ type: "move", id, at });
+      },
+      measure,
+      target,
+    );
   }
 
   /**
@@ -366,7 +431,7 @@ export class WorkerKonfetiInstance {
    * @returns Counters (worker mode: updated a few times per second)
    * @example
    * ```ts
-   * const stage = KonfetiFactory.createWorker(canvas);
+   * const stage = createWorker(canvas);
    * await stage.fire({ particleCount: 200 });
    * stage.getStats(); // { live: 0, spawned: 200, died: 200, completed: 1 }
    * ```
@@ -511,6 +576,27 @@ export class WorkerKonfetiInstance {
     }
 
     return handle;
+  }
+
+  /**
+   * Add the Counting Hooks Used in Fallback Mode (same counters the worker reports, for getStats()).
+   *
+   * @param options - Worker-Safe Options
+   * @returns Options with Counting Hooks
+   */
+  private counted<T extends object>(options: T): T & FireOptions {
+    return {
+      ...options,
+      onParticleSpawn: () => {
+        this.spawned++;
+      },
+      onParticleDeath: () => {
+        this.died++;
+      },
+      onComplete: () => {
+        this.completed++;
+      },
+    };
   }
 
   /**

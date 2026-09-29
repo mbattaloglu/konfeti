@@ -21,7 +21,7 @@ Konfeti.fire(); // klasik konfeti patlaması
 ```ts
 import {
   Konfeti, // hazır, paylaşılan instance: tam ekran bir katman canvas'ına çizer
-  KonfetiFactory, // ek instance'lar kurar (kendi canvas'ın ya da bir Web Worker)
+  KonfetiFactory, // kendi canvas'ında ek instance'lar kurar (Web Worker: konfeti/worker içinde createWorker)
   KonfetiPresets, // hazır görünümler: SNOW, FIREWORKS, STARS …
   extendPreset, // bir hazır ayar + senin ayarların
   type FireOptions, // tüm fire() ayarlarının tipi, otomatik tamamlama için
@@ -37,6 +37,9 @@ const burst = Konfeti.fire(); // her fire() o patlamanın handle'ını döndür�
 burst.pause(); // …sadece bu patlamayı dondur
 burst.resume(); // …devam ettir
 await burst; // …ya da son parçacığı yok olana kadar bekle
+
+const trail = Konfeti.emit({ rate: 40, follow: "pointer" }); // imleci takip eden bir akış…
+trail.stop(); // …sen durdurana kadar
 
 Konfeti.onClick(button, { particleCount: 30 }); // her tıklamada tıklanan noktadan patlat
 Konfeti.pause(); // her şeyi dondur (ör. reklam görünür değilken)
@@ -61,6 +64,7 @@ Konfeti.fire(options);
 - [Şekiller](#şekiller)
 - [Fizik](#fizik)
 - [Atış düzeni](#atış-düzeni)
+- [Sürekli yayıcı](#sürekli-yayıcı)
 - [Hazır ayarlar](#hazır-ayarlar)
 - [Hook'lar](#hooklar)
 - [Instance'lar ve canvas'lar](#instancelar-ve-canvaslar)
@@ -192,6 +196,30 @@ Konfeti.fire({
 Aralıklı atışlarda çıkış noktası her atışta bir kez seçilir; aralık olarak verilen bir `origin` farklı
 noktalarda havai fişek etkisi yaratır.
 
+## Sürekli yayıcı
+
+`emit()` sen durdurana kadar parçacık akıtır — bir fıskiye, imlecin arkasında bir iz, bir elementten çıkan
+kıvılcımlar. `particleCount` / `origin` / `emission` dışında tüm `fire()` ayarlarını alır; bunlara ek olarak
+`rate` (saniyedeki parçacık) ve `follow`:
+
+```ts run
+const trail = Konfeti.emit({
+  rate: 60, // saniyedeki parçacık sayısı
+  follow: "pointer", // ya da bir element (her yayında ölçülür) ya da { x: 0.5, y: 1 } gibi bir nokta
+  spread: 360,
+  startVelocity: [50, 150],
+  lifetime: 800,
+  shapes: [{ type: "star", size: [6, 10] }],
+});
+
+setTimeout(() => trail.stop(), 3000); // yaymayı durdur; çıkmış parçacıklar ömürlerini tamamlar
+await trail; // sonuncusu da yok olunca tamamlanır
+```
+
+`trail.moveTo(hedef)` neyi takip ettiğini değiştirir, `clear()` her şeyi bir anda kaldırır, `pause()` /
+`resume()` dondurur. Worker instance'ları (`konfeti/worker`) da yayabilir; imleç ya da element ana thread'de
+takip edilir.
+
 ## Hazır ayarlar
 
 ```ts run
@@ -261,13 +289,13 @@ tutmak için patlatmadan önce `disableBanner()` çağır (`konfeti/lite` bu ban
 
 ## Worker ile çizim
 
-`KonfetiFactory.createWorker()`, simülasyonu ve çizimi bir `OffscreenCanvas` üzerinden Web Worker'a taşır.
+`konfeti/worker` içindeki `createWorker()`, simülasyonu ve çizimi bir `OffscreenCanvas` üzerinden Web Worker'a taşır.
 Böylece ana thread meşgulken (ağır React render'ları, uzun görevler, kaydırma) büyük patlamalar akıcı kalır:
 
 ```ts
-import { KonfetiFactory } from "konfeti";
+import { createWorker } from "konfeti/worker"; // ayrı bir giriş: diğer bundle'lar worker kodu taşımaz
 
-const stage = KonfetiFactory.createWorker(document.querySelector("canvas"), { maxParticles: 3000 });
+const stage = createWorker(document.querySelector("canvas"), { maxParticles: 3000 });
 
 await stage.fire({
   particleCount: 1500,
@@ -292,13 +320,13 @@ Tipler (`WorkerFireOptions`) bunu zorunlu kılar:
 Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de ölçülür. `onComplete` yerine dönen handle'ı
 `await` et.
 
-Worker betiği (~13.7 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
+Worker betiği (~14.2 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
 betik bir `blob:` URL olarak gömülür; `<script>` sürümü ise `konfeti.worker.js` dosyasını kendi klasöründen
-yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/worker.js` dosyasını
+yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/konfeti.worker.js` dosyasını
 kendin barındır:
 
 ```ts
-KonfetiFactory.createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
+createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
 ```
 
 Betik yüklenemezse her patlama asılı kalmak yerine açık bir hatayla reddedilir.
@@ -309,7 +337,7 @@ Hook'lar worker içinde çalışamaz, bu yüzden worker instance'ı sayımı ken
 ## Playable reklamlar ve webview'lar
 
 konfeti tek dosyalık playable reklamlarda çalışır: bağımlılığı yoktur, kendi başına ağ isteği yapmaz, depolama ve
-`eval` kullanmaz. `Konfeti.fire()` yaklaşık 47 kB minified (14 kB brotli) ekler; reklam ağları genelde
+`eval` kullanmaz. `Konfeti.fire()` yaklaşık 51 kB minified (15 kB brotli) ekler; reklam ağları genelde
 sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
 
 - **Görseller:** `data:` URI ya da motorunun zaten yüklediği bir görsel / canvas ver — `/coin.png` gibi bir URL
@@ -323,7 +351,7 @@ sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
   `origin: { x, y }` (0–1) veya pointer olayıyla patlat.
 - **Görünürlük:** MRAID `viewableChange` olayında `Konfeti.pause()` / `Konfeti.resume()` çağır.
 - **Worker ile çizim:** reklamlarda kullanma — bazı webview'lar `blob:` worker'ları engeller ve dinamik importları
-  gömen tek dosyalık bir build, `KonfetiFactory` import edersen 44 kB'lık worker betiğini de taşır.
+  gömen tek dosyalık bir build, `konfeti/worker` import ettiğin anda 44 kB'lık worker betiğini de taşır.
 - **Konsol:** production build'lerinde `disableBanner()` çağır.
 - **Hedef:** build ES2022'dir (Chrome 85+ / iOS 14.5+); daha eski webview'lar için bundler'ın dönüştürsün.
 
@@ -368,12 +396,13 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 
 ## Paket boyutu ve `konfeti/lite`
 
-| Kullanım                                         | Boyut (min + brotli) |
-| ------------------------------------------------ | -------------------- |
-| `konfeti` içinden `Konfeti`                      | ~14.3 kB             |
-| `konfeti` içinden her şey                        | ~17.2 kB             |
-| `konfeti/lite` içinden `Konfeti`                 | ~11.4 kB             |
-| worker betiği (yalnızca `createWorker()` yükler) | ~13.7 kB             |
+| Kullanım                                                 | Boyut (min + brotli) |
+| -------------------------------------------------------- | -------------------- |
+| `konfeti` içinden `Konfeti`                              | ~15.0 kB             |
+| `konfeti` içinden her şey                                | ~16.4 kB             |
+| `konfeti/lite` içinden `Konfeti`                         | ~11.8 kB             |
+| `konfeti/worker` içinden `createWorker`                  | ~16.8 kB             |
+| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~14.2 kB             |
 
 `konfeti` tüm yerleşik şekilleri senin için kaydeder. `konfeti/lite` ise **yalnızca kağıt** ile başlar; sadece
 kullandığın şekilleri kaydedersen bundler geri kalanını atar:

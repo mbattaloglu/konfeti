@@ -55,7 +55,7 @@ export class WorkerOptionsPreparer {
    * @param bounds - Canvas Bounds
    * @returns Normalized Point
    */
-  private static toPoint(origin: Origin, bounds: Bounds): OriginPoint {
+  public static toPoint(origin: Origin, bounds: Bounds): OriginPoint {
     let clientX: number;
     let clientY: number;
 

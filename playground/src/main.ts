@@ -1,11 +1,7 @@
-import { KonfetiFactory, KonfetiPresets, loadImage, VERSION, WorkerKonfetiInstance } from "konfeti";
-import type {
-  FireInput,
-  KonfetiHandle,
-  KonfetiInstance,
-  WorkerFireInput,
-  WorkerStats,
-} from "konfeti";
+import { KonfetiFactory, KonfetiPresets, loadImage, VERSION } from "konfeti";
+import type { FireInput, KonfetiEmitter, KonfetiHandle, KonfetiInstance } from "konfeti";
+import { createWorker, WorkerKonfetiInstance } from "konfeti/worker";
+import type { WorkerEmitOptions, WorkerFireInput, WorkerStats } from "konfeti/worker";
 
 import { buildOptions } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
@@ -92,7 +88,7 @@ function createStage(useWorker: boolean): Stage {
   canvas.setAttribute("aria-hidden", "true");
   previous.replaceWith(canvas);
 
-  return useWorker ? KonfetiFactory.createWorker(canvas) : KonfetiFactory.create(canvas);
+  return useWorker ? createWorker(canvas) : KonfetiFactory.create(canvas);
 }
 
 /**
@@ -227,6 +223,7 @@ async function init(): Promise<void> {
       }
 
       syncJson();
+      restartStream();
     },
   );
 
@@ -305,14 +302,49 @@ async function init(): Promise<void> {
   clickToggle.addEventListener("change", applyClickToggle);
   applyClickToggle();
 
-  // worker mode (KonfetiFactory.createWorker)
+  // pointer stream (emit): Particle Count is the rate; settings changes restart it so tuning is live
+  const streamToggle = byId("pointer-stream", HTMLInputElement);
+  let stream: KonfetiEmitter | null = null;
+  const startStream = (): void => {
+    // emit() replaces particleCount / emission / origin itself, so the fire options pass through as they are
+    const options = buildOptions(state, assets, { includeOrigin: false });
+    const settings = {
+      ...options,
+      rate: Math.max(1, options.particleCount ?? 60),
+      follow: "pointer" as const,
+    };
+
+    try {
+      // worker stages get worker-safe options (no hooks); main-thread stages also run the hooks
+      stream =
+        main instanceof WorkerKonfetiInstance
+          ? main.emit(settings as WorkerEmitOptions)
+          : main.emit({ ...settings, ...buildHooks(state, counters, logEvent) });
+    } catch (error) {
+      streamToggle.checked = false;
+      showToast(error instanceof Error ? error.message : String(error), true);
+    }
+  };
+  function restartStream(): void {
+    stream?.stop();
+    stream = null;
+
+    if (streamToggle.checked) {
+      startStream();
+    }
+  }
+  streamToggle.addEventListener("change", restartStream);
+
+  // worker mode (createWorker from konfeti/worker)
   const workerToggle = byId("worker-mode", HTMLInputElement);
   workerToggle.addEventListener("change", () => {
+    stream = null;
     main.destroy();
     main = createStage(workerToggle.checked);
     lastHandle = null;
     statsBase = noStats;
     applyClickToggle();
+    restartStream();
 
     for (const id of HOOK_STATS) {
       const stat = byId(id, HTMLElement).parentElement;

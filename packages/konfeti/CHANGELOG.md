@@ -4,6 +4,13 @@
 
 ### Minor Changes
 
+- Continuous emitter: `emit({ rate, follow })` streams particles from an element, the pointer or a point
+  until `stop()` (live particles finish, the handle resolves); `moveTo()`, `clear()`, `pause()` / `resume()`.
+  Works on worker instances too.
+- **Breaking:** worker rendering moved to its own entry — `import { createWorker } from "konfeti/worker"`
+  replaces `KonfetiFactory.createWorker()`, so other bundles carry no worker code; the self-hosted script is
+  `konfeti/konfeti.worker.js`.
+
 - `pause()` / `resume()` / `isPaused()` on `Konfeti` and every instance (e.g. for MRAID `viewableChange`).
 - `onClick(target, options, { trigger, onFire })`: fire on `pointerdown` (works when touch events are
   cancelled) and receive every click burst's handle.
@@ -18,6 +25,6 @@
 - Console banner on the first instance (turn off with `disableBanner()`); homepage links point to
   konfeti.mbattaloglu.com.
 
-- Worker rendering: `KonfetiFactory.createWorker()` runs simulation and drawing in a Web Worker through an
+- Worker rendering: `createWorker()` from the new `konfeti/worker` entry runs simulation and drawing in a Web Worker through an
   `OffscreenCanvas`, with typed worker-safe options (`WorkerFireOptions`), a lazily loaded inlined worker script,
-  a self-hostable `konfeti/worker.js` for strict CSP, and an automatic main-thread fallback.
+  a self-hostable `konfeti/konfeti.worker.js` for strict CSP, and an automatic main-thread fallback.

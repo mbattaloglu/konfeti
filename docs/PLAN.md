@@ -131,7 +131,7 @@ Notes
 
 ### 3.8 Advanced (post-MVP)
 
-- `OffscreenCanvas` + Web Worker renderer (`KonfetiFactory.createWorker()`, shipped in 0.2.0)
+- `OffscreenCanvas` + Web Worker renderer (`createWorker()` from `konfeti/worker`, shipped in 0.2.0)
 - SSR-safe import (no `window` access at import time)
 - Playground: live option editor + "copy config" button
 
@@ -141,6 +141,7 @@ Notes
 
 ```ts
 import { Konfeti, KonfetiFactory, KonfetiPresets, defineShape, extendPreset } from "konfeti";
+import { createWorker } from "konfeti/worker";
 
 // 1) one call (shared fullscreen instance)
 await Konfeti.fire();
@@ -174,7 +175,7 @@ Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", dur
 
 // 4) instances: own canvas, or rendered in a Web Worker
 const stage = KonfetiFactory.create(myCanvas, { maxParticles: 800 });
-const worker = KonfetiFactory.createWorker(myCanvas, { resize: true });
+const worker = createWorker(myCanvas, { resize: true });
 const handle = worker.fire(KonfetiPresets.SNOW);
 handle.pause();
 
@@ -216,16 +217,16 @@ fire(options)
 
 ## 6. Milestones
 
-| #     | Milestone         | Content                                                                                                                                                                      |
-| ----- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M0    | Scaffolding ✅    | pnpm workspace, tsconfig (strict), ESLint/Prettier, Vitest, tsdown config, CI, size-limit                                                                                    |
-| M1    | Core engine ✅    | Engine, ParticlePool, Emitter, Canvas2DRenderer, **fully customisable default paper particle** (§3.0), `fire()`                                                              |
-| M2 ✅ | Shapes            | star/triangle/heart/ribbon/path, **emoji/text + BitmapCache**, **image, spritesheet**                                                                                        |
-| M3 ✅ | Physics + visual  | composable physics, flip/wobble/tilt, opacity/scale curves, colour utilities                                                                                                 |
-| M4 ✅ | Presets + helpers | `KonfetiPresets` + `extendPreset`, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                         |
-| M5 ✅ | Advanced          | ✅ `defineShape` / `definePhysics` (typed registries) · ✅ tree-shakeable shape handlers + `konfeti/lite` · ✅ Worker/OffscreenCanvas (`KonfetiFactory.createWorker`, 0.2.0) |
-| M6    | Docs & playground | playground with live option editor, TypeDoc site, README examples · ✅ package README                                                                                        |
-| M7    | 1.0               | API freeze, benchmarks (1k/5k/10k particles), visual regression tests, release                                                                                               |
+| #     | Milestone         | Content                                                                                                                                                                          |
+| ----- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0    | Scaffolding ✅    | pnpm workspace, tsconfig (strict), ESLint/Prettier, Vitest, tsdown config, CI, size-limit                                                                                        |
+| M1    | Core engine ✅    | Engine, ParticlePool, Emitter, Canvas2DRenderer, **fully customisable default paper particle** (§3.0), `fire()`                                                                  |
+| M2 ✅ | Shapes            | star/triangle/heart/ribbon/path, **emoji/text + BitmapCache**, **image, spritesheet**                                                                                            |
+| M3 ✅ | Physics + visual  | composable physics, flip/wobble/tilt, opacity/scale curves, colour utilities                                                                                                     |
+| M4 ✅ | Presets + helpers | `KonfetiPresets` + `extendPreset`, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                             |
+| M5 ✅ | Advanced          | ✅ `defineShape` / `definePhysics` (typed registries) · ✅ tree-shakeable shape handlers + `konfeti/lite` · ✅ Worker/OffscreenCanvas (`konfeti/worker` → `createWorker`, 0.2.0) |
+| M6    | Docs & playground | playground with live option editor, TypeDoc site, README examples · ✅ package README                                                                                            |
+| M7    | 1.0               | API freeze, benchmarks (1k/5k/10k particles), visual regression tests, release                                                                                                   |
 
 ---
 

@@ -8,7 +8,8 @@
     <canvas id="stage" style="width: 400px; height: 300px; display: block"></canvas>
     <script type="module">
       import * as konfeti from "/dist/index.js";
-      window.konfeti = konfeti;
+      import * as worker from "/dist/worker.js";
+      window.konfeti = { ...konfeti, ...worker };
       document.body.dataset.ready = "true";
     </script>
   </body>

@@ -1,3 +1,4 @@
+import type { OriginPoint } from "../types/OriginPoint";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 
 /**
@@ -27,7 +28,15 @@ export type MainToWorker =
       readonly settings: WorkerRuntimeSettings;
     }
   | { readonly type: "fire"; readonly id: number; readonly options: WorkerFireOptions }
-  | { readonly type: "control"; readonly id: number; readonly action: "pause" | "resume" | "stop" }
+  | {
+      readonly type: "emit";
+      readonly id: number;
+      readonly options: WorkerFireOptions;
+      readonly rate: number;
+      readonly at: OriginPoint | null;
+    }
+  | { readonly type: "move"; readonly id: number; readonly at: OriginPoint | null }
+  | { readonly type: "control"; readonly id: number; readonly action: BurstAction }
   | { readonly type: "reset" }
   | {
       readonly type: "resize";
@@ -38,6 +47,11 @@ export type MainToWorker =
   | { readonly type: "visibility"; readonly hidden: boolean }
   | { readonly type: "pause"; readonly paused: boolean }
   | { readonly type: "destroy" };
+
+/**
+ * Burst Control Action (`end` stops a continuous emitter but keeps its particles).
+ */
+export type BurstAction = "pause" | "resume" | "stop" | "end";
 
 /**
  * Message from the Worker to the Main Thread.

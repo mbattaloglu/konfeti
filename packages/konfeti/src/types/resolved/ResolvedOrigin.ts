@@ -1,10 +1,9 @@
-import type { RangeTuple } from "../Range";
+import type { OriginTracker } from "../../core/OriginTracker";
+import type { PlacedOrigin } from "./PlacedOrigin";
 
 /**
  * Fully Resolved Origin.
- * Element origins are measured at each emission; client points are mapped into canvas space.
+ * A placed origin, or a tracker whose current place is read at every emission (continuous emitters).
  */
 export type ResolvedOrigin =
-  | { readonly kind: "point"; readonly x: RangeTuple; readonly y: RangeTuple }
-  | { readonly kind: "element"; readonly element: Element }
-  | { readonly kind: "client"; readonly clientX: number; readonly clientY: number };
+  PlacedOrigin | { readonly kind: "tracked"; readonly tracker: OriginTracker };

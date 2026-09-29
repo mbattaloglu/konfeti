@@ -1,7 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "name": "konfeti",
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": ["src/index.ts", "src/workerEntry.ts"],
   "tsconfig": "./tsconfig.typedoc.json",
   "out": "../../playground/public/docs/api",
   "readme": "none",

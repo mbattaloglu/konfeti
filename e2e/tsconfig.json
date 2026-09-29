@@ -3,7 +3,8 @@
   "compilerOptions": {
     "types": ["node"],
     "paths": {
-      "konfeti": ["../packages/konfeti/src/index.ts"]
+      "konfeti": ["../packages/konfeti/src/index.ts"],
+      "konfeti/worker": ["../packages/konfeti/src/workerEntry.ts"]
     }
   },
   "include": ["tests", "support", "playwright.config.ts"]

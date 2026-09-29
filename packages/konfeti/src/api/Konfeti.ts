@@ -19,6 +19,7 @@ import { DefaultInstance } from "./DefaultInstance";
  */
 export const Konfeti: SharedKonfeti = {
   fire: (input) => DefaultInstance.getInstance().fire(input),
+  emit: (options) => DefaultInstance.getInstance().emit(options),
   onClick: (target, options, settings) =>
     DefaultInstance.getInstance().onClick(target, options, settings),
   pause: () => {

@@ -9,7 +9,7 @@ const WORKER_SOURCE_STUB = fileURLToPath(
 
 export default defineConfig([
   {
-    entry: { index: "src/index.ts", lite: "src/lite.ts" },
+    entry: { index: "src/index.ts", lite: "src/lite.ts", worker: "src/workerEntry.ts" },
     format: ["esm", "cjs"],
     platform: "browser",
     target: "es2022",

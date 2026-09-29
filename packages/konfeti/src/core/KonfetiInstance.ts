@@ -2,16 +2,20 @@ import { Announcer } from "../utils/Announcer";
 import { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
 import type { ClickOptions } from "../types/ClickOptions";
 import type { CreateOptions } from "../types/CreateOptions";
+import type { EmitOptions } from "../types/EmitOptions";
 import type { FireInput } from "../types/FireInput";
 import type { FireOptions } from "../types/FireOptions";
 import type { FrameScheduler } from "../types/FrameScheduler";
+import type { KonfetiEmitter } from "../types/KonfetiEmitter";
 import type { KonfetiHandle } from "../types/KonfetiHandle";
 import type { ResolvedCreateOptions } from "../types/resolved/ResolvedCreateOptions";
 import { EnvUtils } from "../utils/EnvUtils";
 import { Burst } from "./Burst";
 import { CanvasSurface } from "./CanvasSurface";
+import { EmitterHandle } from "./EmitterHandle";
 import { Engine } from "./Engine";
 import { GroupHandle } from "./GroupHandle";
+import { OriginTracker } from "./OriginTracker";
 import { OptionResolver } from "./resolve/OptionResolver";
 import { ParticlePool } from "./ParticlePool";
 
@@ -100,6 +104,59 @@ export class KonfetiInstance {
     }
 
     return this.fireOne(input);
+  }
+
+  /**
+   * Start a Continuous Emitter.
+   * Streams particles at `rate` per second from what it follows (an element, the pointer or a point) until
+   * you call `stop()`; the particles already out then finish their lives and the handle resolves.
+   *
+   * @param options - Emitter Options (every `fire()` setting except `particleCount`, `origin`, `emission`)
+   * @returns Emitter Handle
+   * @throws TypeError for a missing, zero, negative or non-finite `rate` (and any invalid fire setting)
+   * @example
+   * ```ts
+   * const trail = Konfeti.emit({ rate: 40, follow: "pointer", spread: 360, startVelocity: [50, 150] });
+   * setTimeout(() => trail.stop(), 3000);
+   * await trail;
+   * ```
+   */
+  public emit(options: EmitOptions): KonfetiEmitter {
+    if (this._isDestroyed) {
+      throw new Error("konfeti: cannot emit on a destroyed instance");
+    }
+
+    const { rate, follow, ...fireOptions } = options;
+
+    if (!Number.isFinite(rate) || rate <= 0) {
+      throw new TypeError(`konfeti: "rate" must be a positive number, got ${String(rate)}`);
+    }
+
+    this.surface.mount();
+    const tracker = new OriginTracker();
+    tracker.moveTo(follow ?? {});
+    const resolved = {
+      ...OptionResolver.resolveFire([this.options.defaults, fireOptions], {
+        pixelRatio: this.surface.getPixelRatio(),
+      }),
+      emission: { mode: "continuous", rate },
+      origin: { kind: "tracked", tracker },
+    } as const;
+    const burst = new Burst(
+      resolved,
+      this.options.disableForReducedMotion && EnvUtils.prefersReducedMotion() ? null : this.engine,
+    );
+
+    // pointer listeners live exactly as long as the emitter
+    void burst.then(() => {
+      tracker.detach();
+    });
+
+    if (!burst.isFinished()) {
+      this.engine.add(burst);
+    }
+
+    return new EmitterHandle(burst, tracker);
   }
 
   /**

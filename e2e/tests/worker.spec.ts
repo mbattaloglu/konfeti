@@ -8,7 +8,7 @@ test.describe("worker rendering (ESM build)", () => {
     const blank = await stage.screenshot();
 
     const result = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
       const handle = worker.fire({
         particleCount: 120,
         lifetime: 1200,
@@ -44,7 +44,7 @@ test.describe("worker rendering (ESM build)", () => {
     await openPage(page, "esm.html");
 
     const outcome = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
       await worker.fire({ particleCount: 30, lifetime: 300 });
       // counters arrive with the next stats report
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -64,7 +64,7 @@ test.describe("worker rendering (ESM build)", () => {
     await openPage(page, "esm.html");
 
     const message = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
       try {
         await worker.fire({ paper: { colors: "nope" as "red" } });
         return "resolved";
@@ -80,7 +80,7 @@ test.describe("worker rendering (ESM build)", () => {
     await openPage(page, "esm.html");
 
     const message = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"), {
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"), {
         workerUrl: "/missing-worker.js",
       });
       try {
@@ -101,7 +101,7 @@ test.describe("worker rendering (ESM build)", () => {
     await openPage(page, "esm.html");
 
     const result = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
       const handle = worker.fire({ particleCount: 20, lifetime: 200 });
       const during = worker.getParticleCount();
       await handle;
@@ -110,5 +110,39 @@ test.describe("worker rendering (ESM build)", () => {
 
     expect(result).toEqual({ isWorker: false, during: 20 });
     expect(site.errors).toEqual([]);
+  });
+
+  test("emit() streams in the worker and follows the pointer", async ({ page }) => {
+    await openPage(page, "esm.html");
+    await page.evaluate(() => {
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
+      const trail = worker.emit({ rate: 120, lifetime: 400, follow: "pointer" });
+      Object.assign(window, { worker, trail });
+    });
+
+    await page.mouse.move(100, 100);
+    await page.mouse.move(180, 140);
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (window as unknown as { worker: { getStats(): { spawned: number } } }).worker.getStats()
+              .spawned,
+        ),
+      )
+      .toBeGreaterThan(0);
+
+    const stats = await page.evaluate(async () => {
+      const { worker, trail } = window as unknown as {
+        worker: { getStats(): { live: number; completed: number } };
+        trail: { stop(): void } & PromiseLike<void>;
+      };
+      trail.stop();
+      await trail;
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return worker.getStats();
+    });
+    expect(stats.completed).toBe(1);
+    expect(stats.live).toBe(0);
   });
 });

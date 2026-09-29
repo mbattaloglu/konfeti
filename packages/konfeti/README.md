@@ -20,7 +20,7 @@ Konfeti.fire(); // classic confetti pop
 ```ts
 import {
   Konfeti, // the ready-made, shared instance: draws on a fullscreen overlay canvas
-  KonfetiFactory, // builds extra instances (your own canvas, or a Web Worker)
+  KonfetiFactory, // builds extra instances on your own canvas (Web Worker: createWorker in konfeti/worker)
   KonfetiPresets, // ready-to-fire looks: SNOW, FIREWORKS, STARS …
   extendPreset, // a preset plus your own settings
   type FireOptions, // the type of every fire() setting, for autocomplete
@@ -36,6 +36,9 @@ const burst = Konfeti.fire(); // every fire() returns a handle for that burst…
 burst.pause(); // …freeze just this burst
 burst.resume(); // …continue it
 await burst; // …or wait until its last particle is gone
+
+const trail = Konfeti.emit({ rate: 40, follow: "pointer" }); // a stream that follows the pointer…
+trail.stop(); // …until you stop it
 
 Konfeti.onClick(button, { particleCount: 30 }); // fire from the click position on every click
 Konfeti.pause(); // freeze everything (e.g. while an ad is not visible)
@@ -60,6 +63,7 @@ Konfeti.fire(options);
 - [Shapes](#shapes)
 - [Physics](#physics)
 - [Emission](#emission)
+- [Continuous emitter](#continuous-emitter)
 - [Presets](#presets)
 - [Hooks](#hooks)
 - [Instances & canvases](#instances--canvases)
@@ -189,6 +193,30 @@ Konfeti.fire({
 
 Interval shots sample the origin once per shot — ranged origins produce fireworks at different spots.
 
+## Continuous emitter
+
+`emit()` streams particles until you stop it — a fountain, a trail behind the pointer, sparks from an
+element. It takes every `fire()` setting except `particleCount` / `origin` / `emission`, plus `rate`
+(particles per second) and `follow`:
+
+```ts run
+const trail = Konfeti.emit({
+  rate: 60, // particles per second
+  follow: "pointer", // or an element (measured every emission), or a point like { x: 0.5, y: 1 }
+  spread: 360,
+  startVelocity: [50, 150],
+  lifetime: 800,
+  shapes: [{ type: "star", size: [6, 10] }],
+});
+
+setTimeout(() => trail.stop(), 3000); // stop emitting; particles already out finish their lives
+await trail; // resolves once the last one is gone
+```
+
+`trail.moveTo(target)` switches what it follows, `clear()` removes everything at once, and `pause()` /
+`resume()` freeze it. Worker instances (`konfeti/worker`) emit too; the pointer or element is tracked on the
+main thread.
+
 ## Presets
 
 ```ts run
@@ -256,13 +284,13 @@ The first instance on a page logs a one-line banner with the version and rendere
 
 ## Worker rendering
 
-`KonfetiFactory.createWorker()` moves simulation and drawing into a Web Worker through an `OffscreenCanvas`, so
+`createWorker()` from `konfeti/worker` moves simulation and drawing into a Web Worker through an `OffscreenCanvas`, so
 large bursts keep animating while the main thread is busy (heavy React renders, long tasks, scrolling):
 
 ```ts
-import { KonfetiFactory } from "konfeti";
+import { createWorker } from "konfeti/worker"; // its own entry: other bundles carry no worker code
 
-const stage = KonfetiFactory.createWorker(document.querySelector("canvas"), { maxParticles: 3000 });
+const stage = createWorker(document.querySelector("canvas"), { maxParticles: 3000 });
 
 await stage.fire({
   particleCount: 1500,
@@ -287,12 +315,12 @@ Options travel to the worker by `postMessage`, so they must be structured-clonea
 Element and click origins are measured on the main thread before sending. Use `await` on the handle instead
 of `onComplete`.
 
-The worker script itself (~13.7 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~14.2 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
-strict Content-Security-Policy without `worker-src blob:`, host `konfeti/worker.js` yourself:
+strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
 ```ts
-KonfetiFactory.createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
+createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
 ```
 
 If the script cannot load, every burst rejects with a clear error instead of hanging.
@@ -303,7 +331,7 @@ Hooks cannot run inside a worker, so a worker instance counts for you: `stage.ge
 ## Playable ads & webviews
 
 konfeti works in single-file playable ads: it has no dependencies, makes no network requests of its own, uses
-no storage and no `eval`. `Konfeti.fire()` adds about 47 kB minified (14 kB brotli); ad networks usually count
+no storage and no `eval`. `Konfeti.fire()` adds about 51 kB minified (15 kB brotli); ad networks usually count
 uncompressed size. Keep these in mind:
 
 - **Images:** pass a `data:` URI or an image / canvas your engine already loaded — a URL like `/coin.png` is a
@@ -317,7 +345,7 @@ uncompressed size. Keep these in mind:
   `origin: { x, y }` (0–1) or the pointer event.
 - **Visibility:** call `Konfeti.pause()` / `Konfeti.resume()` from MRAID `viewableChange`.
 - **Worker rendering:** avoid it in ads — some webviews block `blob:` workers, and a single-file build that
-  inlines dynamic imports would carry the 44 kB worker script if you import `KonfetiFactory`.
+  inlines dynamic imports carries the 44 kB worker script once you import `konfeti/worker`.
 - **Console:** call `disableBanner()` in production builds.
 - **Targets:** the build is ES2022 (Chrome 85+ / iOS 14.5+); let your bundler lower it for older webviews.
 
@@ -363,12 +391,13 @@ with the transform already applied.
 
 ## Bundle size & `konfeti/lite`
 
-| Usage                                           | Size (min + brotli) |
-| ----------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                        | ~14.3 kB            |
-| everything from `konfeti`                       | ~17.2 kB            |
-| `Konfeti` from `konfeti/lite`                   | ~11.4 kB            |
-| worker script (loaded by `createWorker()` only) | ~13.7 kB            |
+| Usage                                                | Size (min + brotli) |
+| ---------------------------------------------------- | ------------------- |
+| `Konfeti` from `konfeti`                             | ~15.0 kB            |
+| everything from `konfeti`                            | ~16.4 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~11.8 kB            |
+| `createWorker` from `konfeti/worker`                 | ~16.8 kB            |
+| worker script (loaded on the first `createWorker()`) | ~14.2 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:

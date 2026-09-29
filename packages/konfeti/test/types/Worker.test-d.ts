@@ -1,13 +1,12 @@
 import { describe, expectTypeOf, it } from "vitest";
 
+import type { ClickOptions, KonfetiInstance } from "../../src/index";
 import type {
-  ClickOptions,
-  KonfetiFactory,
-  KonfetiInstance,
+  createWorker,
   WorkerFireOptions,
   WorkerKonfetiInstance,
   WorkerStats,
-} from "../../src/index";
+} from "../../src/workerEntry";
 
 describe("worker option types", () => {
   it("accepts worker-safe options", () => {
@@ -31,9 +30,7 @@ describe("worker option types", () => {
   });
 
   it("creates worker instances from the factory", () => {
-    expectTypeOf<
-      ReturnType<typeof KonfetiFactory.createWorker>
-    >().toEqualTypeOf<WorkerKonfetiInstance>();
+    expectTypeOf<ReturnType<typeof createWorker>>().toEqualTypeOf<WorkerKonfetiInstance>();
   });
 });
 

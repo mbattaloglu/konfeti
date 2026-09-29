@@ -19,7 +19,7 @@ test.describe("<script> build (IIFE)", () => {
     await openPage(page, "iife.html");
 
     const isWorker = await page.evaluate(async () => {
-      const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
+      const worker = window.konfeti.createWorker(document.querySelector("canvas"));
       await worker.fire({ particleCount: 30, lifetime: 300 });
       return worker.isWorker();
     });

@@ -125,4 +125,30 @@ test.describe("main thread (ESM build)", () => {
 
     expect(await page.evaluate(() => (window as unknown as { fired: number }).fired)).toBe(7);
   });
+
+  test("emit() streams from the pointer until stopped, then finishes", async ({ page }) => {
+    await openPage(page, "esm.html");
+    await page.evaluate(() => {
+      const trail = window.konfeti.Konfeti.emit({ rate: 120, lifetime: 300, follow: "pointer" });
+      (window as unknown as { trail: typeof trail }).trail = trail;
+    });
+
+    // nothing before the pointer shows up
+    await page.waitForTimeout(200);
+    expect(await page.evaluate(() => window.konfeti.Konfeti.getParticleCount())).toBe(0);
+
+    await page.mouse.move(200, 150);
+    await page.mouse.move(260, 180);
+    await expect
+      .poll(() => page.evaluate(() => window.konfeti.Konfeti.getParticleCount()))
+      .toBeGreaterThan(0);
+
+    const finished = await page.evaluate(async () => {
+      const trail = (window as unknown as { trail: { stop(): void } & PromiseLike<void> }).trail;
+      trail.stop();
+      await trail;
+      return window.konfeti.Konfeti.getParticleCount();
+    });
+    expect(finished).toBe(0);
+  });
 });

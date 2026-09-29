@@ -176,6 +176,56 @@ describe("WorkerKonfetiInstance", () => {
     stage.destroy();
   });
 
+  it("streams from the worker, follows the pointer and ends gracefully", async () => {
+    const fake = createFakeWorker();
+    const canvas = transferableCanvas();
+    const stage = new WorkerKonfetiInstance(canvas, {}, () => Promise.resolve(fake.port));
+    await flush();
+
+    const emitter = stage.emit({ rate: 120, lifetime: 100, follow: "pointer" });
+    const emit = fake.sent.find((message) => message.type === "emit");
+    expect(emit?.type === "emit" && emit.at).toBeNull();
+
+    // the pointer arrives: the main thread sends its normalized position
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 0, clientY: 0 }));
+    const move = fake.sent.find((message) => message.type === "move");
+    expect(move?.type === "move" && move.at).toEqual({ x: 0.5, y: 0.5 });
+
+    fake.scheduler.step(20);
+    fake.tickStats();
+    expect(stage.getStats().spawned).toBeGreaterThan(0);
+
+    emitter.stop();
+    expect(emitter.isEmitting()).toBe(false);
+    expect(fake.sent.at(-1)).toMatchObject({ type: "control", action: "end" });
+    fake.scheduler.step(20);
+    await expect(emitter).resolves.toBeUndefined();
+    stage.destroy();
+  });
+
+  it("emits in main-thread fallback mode too", () => {
+    vi.stubGlobal("OffscreenCanvas", undefined);
+    const stage = new WorkerKonfetiInstance(document.createElement("canvas"), {}, () =>
+      Promise.reject(new Error("must not connect")),
+    );
+
+    const emitter = stage.emit({ rate: 30, follow: { x: 0.5, y: 0.5 } });
+
+    expect(emitter.isEmitting()).toBe(true);
+    emitter.clear();
+    stage.destroy();
+  });
+
+  it("rejects an invalid rate", () => {
+    const fake = createFakeWorker();
+    const stage = new WorkerKonfetiInstance(transferableCanvas(), {}, () =>
+      Promise.resolve(fake.port),
+    );
+
+    expect(() => stage.emit({ rate: -1 })).toThrow(/"rate" must be a positive number/);
+    stage.destroy();
+  });
+
   it("queues messages until the worker connects", async () => {
     const fake = createFakeWorker();
     let connect: (port: WorkerPort) => void = () => undefined;

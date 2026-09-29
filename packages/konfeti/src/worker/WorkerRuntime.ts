@@ -1,14 +1,22 @@
 import { Burst } from "../core/Burst";
 import { Engine } from "../core/Engine";
+import { OriginTracker } from "../core/OriginTracker";
 import { ParticlePool } from "../core/ParticlePool";
 import { OptionResolver } from "../core/resolve/OptionResolver";
 import { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
 import type { FrameScheduler } from "../types/FrameScheduler";
 import type { FireOptions } from "../types/FireOptions";
+import type { OriginPoint } from "../types/OriginPoint";
+import type { ResolvedFireOptions } from "../types/resolved/ResolvedFireOptions";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 import type { OffscreenCanvasLike } from "./OffscreenSurface";
 import { OffscreenSurface } from "./OffscreenSurface";
-import type { MainToWorker, WorkerRuntimeSettings, WorkerToMain } from "./WorkerProtocol";
+import type {
+  BurstAction,
+  MainToWorker,
+  WorkerRuntimeSettings,
+  WorkerToMain,
+} from "./WorkerProtocol";
 
 /**
  * Interval Timer Functions (injectable for tests).
@@ -79,6 +87,11 @@ export class WorkerRuntime {
    * Stats Interval Id.
    */
   private statsTimer: number | null = null;
+
+  /**
+   * Origin Trackers of Continuous Emitters by Burst Id.
+   */
+  private readonly trackers = new Map<number, OriginTracker>();
 
   /**
    * Last Reported Stats Key (skips identical reports).
@@ -177,6 +190,17 @@ export class WorkerRuntime {
       case "fire":
         this.fire(message.id, message.options);
         break;
+      case "emit":
+        this.fire(message.id, message.options, { rate: message.rate, at: message.at });
+        break;
+      case "move": {
+        const tracker = this.trackers.get(message.id);
+
+        if (tracker !== undefined) {
+          WorkerRuntime.place(tracker, message.at);
+        }
+        break;
+      }
       case "control":
         this.control(message.id, message.action);
         break;
@@ -241,7 +265,11 @@ export class WorkerRuntime {
    * @param id - Main-Thread Burst Id
    * @param options - Worker-Safe Burst Options
    */
-  private fire(id: number, options: WorkerFireOptions): void {
+  private fire(
+    id: number,
+    options: WorkerFireOptions,
+    stream: { readonly rate: number; readonly at: OriginPoint | null } | null = null,
+  ): void {
     const engine = this.engine;
     const surface = this.surface;
 
@@ -251,14 +279,29 @@ export class WorkerRuntime {
     }
 
     try {
-      const resolved = OptionResolver.resolveFire([this.defaults, options, this.countingHooks], {
+      const base = OptionResolver.resolveFire([this.defaults, options, this.countingHooks], {
         pixelRatio: surface.getPixelRatio(),
       });
+      let resolved: ResolvedFireOptions = base;
+
+      // continuous emitter: the main thread keeps its origin up to date with "move" messages
+      if (stream !== null) {
+        const tracker = new OriginTracker();
+        WorkerRuntime.place(tracker, stream.at);
+        this.trackers.set(id, tracker);
+        resolved = {
+          ...base,
+          emission: { mode: "continuous", rate: stream.rate },
+          origin: { kind: "tracked", tracker },
+        };
+      }
+
       const burst = new Burst(resolved, engine);
       this.bursts.set(id, burst);
       engine.add(burst);
       void burst.then(() => {
         this.bursts.delete(id);
+        this.trackers.delete(id);
         this.post({ type: "complete", id });
       });
     } catch (error) {
@@ -271,12 +314,26 @@ export class WorkerRuntime {
   }
 
   /**
+   * Place or Hide a Continuous Emitter's Origin.
+   *
+   * @param tracker - Emitter Origin Tracker
+   * @param at - Normalized Point, or Null to Emit Nothing for Now
+   */
+  private static place(tracker: OriginTracker, at: OriginPoint | null): void {
+    if (at === null) {
+      tracker.hide();
+    } else {
+      tracker.moveTo(at);
+    }
+  }
+
+  /**
    * Pause, Resume or Stop Burst.
    *
    * @param id - Main-Thread Burst Id
    * @param action - Control Action
    */
-  private control(id: number, action: "pause" | "resume" | "stop"): void {
+  private control(id: number, action: BurstAction): void {
     const burst = this.bursts.get(id);
 
     switch (action) {
@@ -288,6 +345,9 @@ export class WorkerRuntime {
         break;
       case "stop":
         burst?.stop();
+        break;
+      case "end":
+        burst?.endEmission();
         break;
     }
   }

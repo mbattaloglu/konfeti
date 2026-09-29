@@ -1,5 +1,10 @@
-// konfeti — batteries included: every built-in shape is registered, presets are exported and new instances
-// print the console banner (konfeti/lite does none of these, so its bundles stay minimal).
+/**
+ * The full entry: `import { Konfeti } from "konfeti"`.
+ * Every built-in shape is registered, presets are exported and new instances print the console banner
+ * (`konfeti/lite` does none of these, so its bundles stay minimal).
+ *
+ * @module konfeti
+ */
 import { registerShapes } from "./api/registerShapes";
 import { BUILTIN_SHAPES } from "./shapes/handlers/BuiltinShapes";
 import { Announcer } from "./utils/Announcer";

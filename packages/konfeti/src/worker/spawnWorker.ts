@@ -6,7 +6,7 @@ import { WorkerScriptLocation } from "./WorkerScriptLocation";
  * Start the konfeti Worker.
  * Loaded lazily (dynamic import) so the inlined worker script only downloads when a worker instance is created.
  *
- * @param url - Self-Hosted Worker Script (`konfeti/worker.js`); omitted uses the default location or the inlined script
+ * @param url - Self-Hosted Worker Script (`konfeti/konfeti.worker.js`); omitted uses the default location or the inlined script
  * @returns Worker Port
  */
 export function spawnWorker(url?: string | URL): WorkerPort {
@@ -19,7 +19,7 @@ export function spawnWorker(url?: string | URL): WorkerPort {
 
   if (WORKER_SOURCE === "") {
     throw new Error(
-      "konfeti: cannot locate konfeti.worker.js — pass { workerUrl } to KonfetiFactory.createWorker()",
+      "konfeti: cannot locate konfeti.worker.js — pass { workerUrl } to createWorker()",
     );
   }
 

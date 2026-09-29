@@ -19,7 +19,10 @@
     "./dist/index.cjs",
     "./dist/konfeti.iife.js",
     "./dist/konfeti.worker.js",
-    "./src/index.ts"
+    "./dist/worker.js",
+    "./dist/worker.cjs",
+    "./src/index.ts",
+    "./src/workerEntry.ts"
   ],
   "keywords": [
     "confetti",
@@ -52,8 +55,18 @@
         "default": "./dist/lite.cjs"
       }
     },
-    "./package.json": "./package.json",
-    "./worker.js": "./dist/konfeti.worker.js"
+    "./worker": {
+      "import": {
+        "types": "./dist/worker.d.ts",
+        "default": "./dist/worker.js"
+      },
+      "require": {
+        "types": "./dist/worker.d.cts",
+        "default": "./dist/worker.cjs"
+      }
+    },
+    "./konfeti.worker.js": "./dist/konfeti.worker.js",
+    "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

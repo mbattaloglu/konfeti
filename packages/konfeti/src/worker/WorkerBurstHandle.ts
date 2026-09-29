@@ -1,4 +1,5 @@
 import type { KonfetiHandle } from "../types/KonfetiHandle";
+import type { BurstAction } from "./WorkerProtocol";
 
 /**
  * Handle for a Burst Running in the Worker.
@@ -23,7 +24,7 @@ export class WorkerBurstHandle implements KonfetiHandle {
   /**
    * Control Sender.
    */
-  private readonly send: (action: "pause" | "resume" | "stop") => void;
+  private readonly send: (action: BurstAction) => void;
 
   /**
    * Last Reported Particle Count.
@@ -45,7 +46,7 @@ export class WorkerBurstHandle implements KonfetiHandle {
    *
    * @param send - Control Sender
    */
-  public constructor(send: (action: "pause" | "resume" | "stop") => void) {
+  public constructor(send: (action: BurstAction) => void) {
     let resolver: () => void = () => undefined;
     let rejecter: (error: Error) => void = () => undefined;
     this.promise = new Promise<void>((resolve, reject) => {
@@ -98,6 +99,15 @@ export class WorkerBurstHandle implements KonfetiHandle {
   public stop(): void {
     if (!this._isFinished) {
       this.send("stop");
+    }
+  }
+
+  /**
+   * End a Continuous Emitter (live particles finish in the worker).
+   */
+  public end(): void {
+    if (!this._isFinished) {
+      this.send("end");
     }
   }
 
