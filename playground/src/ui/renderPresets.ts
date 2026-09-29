@@ -1,5 +1,7 @@
 import type { presets } from "konfeti";
 
+import { PRESETS_TR } from "../i18n/controlsTr";
+import { getLocale } from "../i18n/Locale";
 import { el } from "./dom";
 
 /**
@@ -54,7 +56,11 @@ export function renderPresets(root: HTMLElement, onPick: (name: PresetName) => v
     button.title = `presets.${card.name}()`;
     button.append(
       el("span", "preset-icon", card.icon),
-      el("span", "preset-label", card.label),
+      el(
+        "span",
+        "preset-label",
+        (getLocale() === "tr" ? PRESETS_TR[card.name] : undefined) ?? card.label,
+      ),
       el("code", "preset-code", `${card.name}()`),
     );
     button.addEventListener("click", () => {

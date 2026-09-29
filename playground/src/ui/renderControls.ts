@@ -14,9 +14,11 @@ import type {
   TextControl,
   ToggleControl,
 } from "../controlTypes";
+import { t } from "../i18n/messages";
 import { splitList } from "../stateReaders";
 import { readableTextColor } from "./colorContrast";
 import { el } from "./dom";
+import { createHint } from "./hintTooltip";
 import { optionLabel } from "./optionLabel";
 import { createSectionIcon } from "./sectionIcons";
 
@@ -138,10 +140,7 @@ function renderHead(control: Pick<Control, "label" | "param" | "hint">): HTMLEle
   head.append(label, param);
 
   if (control.hint !== undefined) {
-    const hint = el("span", "control-hint", "?");
-    hint.title = control.hint;
-    head.title = control.hint;
-    head.append(hint);
+    head.append(createHint(control.hint, t("hint.label", { label: control.label })));
   }
 
   return head;
@@ -400,8 +399,8 @@ function renderPalette(control: PaletteControl, write: (value: ControlValue) => 
   const empty = el("span", "palette-empty", control.emptyLabel);
   const add = el("button", "palette-add", "+");
   add.type = "button";
-  add.title = "Add color";
-  add.setAttribute("aria-label", `Add color to ${control.label}`);
+  add.title = t("palette.add");
+  add.setAttribute("aria-label", t("palette.addTo", { label: control.label }));
   row.append(renderHead(control), list);
   let colors: string[] = [];
   let disabled = false;
@@ -419,8 +418,8 @@ function renderPalette(control: PaletteControl, write: (value: ControlValue) => 
       });
       const remove = el("button", "palette-remove", "×");
       remove.type = "button";
-      remove.title = "Remove color";
-      remove.setAttribute("aria-label", `Remove ${hex}`);
+      remove.title = t("palette.remove");
+      remove.setAttribute("aria-label", t("palette.removeHex", { hex }));
       remove.addEventListener("click", () => {
         colors.splice(index, 1);
         render();
@@ -531,10 +530,10 @@ function renderFile(control: FileControl, write: (value: ControlValue) => void):
   const picker = el("label", "file-button");
   const input = el("input");
   const preview = el("img", "file-preview");
-  const name = el("span", "file-name", "No file chosen");
+  const name = el("span", "file-name", t("file.none"));
   input.type = "file";
   input.accept = control.accept;
-  picker.append(input, el("span", undefined, "Choose…"));
+  picker.append(input, el("span", undefined, t("file.choose")));
   const body = el("div", "file-row");
   body.append(picker, preview, name);
   row.append(renderHead(control), body);
@@ -552,7 +551,7 @@ function renderFile(control: FileControl, write: (value: ControlValue) => void):
     preview.src = url;
 
     if (url === "") {
-      name.textContent = "No file chosen";
+      name.textContent = t("file.none");
       input.value = "";
     }
   };

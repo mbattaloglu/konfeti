@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- phones get the desktop layout zoomed out to fit (like editor tools), not a reflowed mobile layout -->
+    <meta name="viewport" content="width=1024" />
     <title>konfeti — canvas confetti playground</title>
     <meta
       name="description"
@@ -23,18 +24,19 @@
     <header class="app-header">
       <div class="app-brand">
         <h1>konfeti</h1>
-        <span class="app-tag">canvas confetti</span>
+        <span class="app-tag" data-i18n="playground.tag">canvas confetti</span>
         <span id="version" class="app-version"></span>
       </div>
-      <nav class="app-nav" aria-label="Site">
-        <a href="%BASE_URL%" aria-current="page">Playground</a>
-        <a href="%BASE_URL%docs/">Docs</a>
-        <a href="%BASE_URL%docs/api/">API</a>
+      <nav class="app-nav" aria-label="Site" data-i18n-aria-label="nav.site">
+        <a href="%BASE_URL%" aria-current="page" data-i18n="nav.playground">Playground</a>
+        <a href="%BASE_URL%docs/" data-i18n="nav.docs">Docs</a>
+        <a href="%BASE_URL%docs/api/" data-i18n="nav.api">API</a>
         <a class="app-nav-extra" href="https://github.com/mbattaloglu/konfeti">GitHub</a>
       </nav>
+      <div id="lang-switch" class="lang-switch"></div>
       <div id="status" class="app-status" data-status="idle">
         <span class="dot" aria-hidden="true"></span>
-        <span id="status-text">idle</span>
+        <span id="status-text" data-i18n="status.idle">idle</span>
       </div>
     </header>
 
@@ -42,29 +44,29 @@
       <canvas id="stage-canvas" class="stage-canvas" aria-hidden="true"></canvas>
       <div id="stage-hit" class="stage-hit" aria-hidden="true"></div>
 
-      <dl class="hud hud--stats stats" aria-label="Live stats">
+      <dl class="hud hud--stats stats" aria-label="Live stats" data-i18n-aria-label="stats.label">
         <div>
-          <dt>Live</dt>
+          <dt data-i18n="stats.live">Live</dt>
           <dd id="stat-live">0</dd>
         </div>
         <div>
-          <dt>FPS</dt>
+          <dt data-i18n="stats.fps">FPS</dt>
           <dd id="stat-fps">–</dd>
         </div>
         <div>
-          <dt>Spawned</dt>
+          <dt data-i18n="stats.spawned">Spawned</dt>
           <dd id="stat-spawned">0</dd>
         </div>
         <div>
-          <dt>Died</dt>
+          <dt data-i18n="stats.died">Died</dt>
           <dd id="stat-died">0</dd>
         </div>
         <div>
-          <dt>Done</dt>
+          <dt data-i18n="stats.done">Done</dt>
           <dd id="stat-completed">0</dd>
         </div>
         <div>
-          <dt>Updates</dt>
+          <dt data-i18n="stats.updates">Updates</dt>
           <dd id="stat-updated">0</dd>
         </div>
       </dl>
@@ -74,48 +76,113 @@
           <span class="switch"
             ><input id="click-fire" type="checkbox" checked /><span class="switch-track"></span
           ></span>
-          <span>Click to Fire</span>
+          <span data-i18n="tools.clickToFire">Click to Fire</span>
           <code>onClick</code>
+        </label>
+        <label
+          class="pill-toggle"
+          title="KonfetiFactory.createWorker(canvas) — renders in a Web Worker"
+          data-i18n-title="tools.workerModeTitle"
+        >
+          <span class="switch"
+            ><input id="worker-mode" type="checkbox" /><span class="switch-track"></span
+          ></span>
+          <span data-i18n="tools.workerMode">Worker Mode</span>
+          <code>createWorker</code>
         </label>
       </div>
 
       <details id="hook-log" class="hud hud--log" open>
         <summary>
-          <span>Hook Events</span>
+          <span data-i18n="hooks.log">Hook Events</span>
           <code>onStart / onComplete</code>
         </summary>
         <ol id="event-log" class="event-log"></ol>
       </details>
 
       <p class="stage-hint">
-        Click the stage or press <kbd>F</kbd> · <code>KonfetiFactory.create(stageCanvas)</code>
+        <span data-i18n="stage.hintBefore">Click the stage or press</span> <kbd>F</kbd>
+        <span data-i18n="stage.hintAfter"></span> · <code>KonfetiFactory.create(stageCanvas)</code>
       </p>
     </main>
 
     <aside class="panel">
       <header class="topbar">
         <div class="actions">
-          <button id="fire" class="btn btn--fire" title="Fire (F)">Fire</button>
-          <div class="btn-group" role="group" aria-label="Last burst">
-            <button id="pause" class="btn btn--ghost" title="Pause last burst">❚❚</button>
-            <button id="resume" class="btn btn--ghost" title="Resume last burst">▶</button>
-            <button id="stop" class="btn btn--ghost" title="Stop last burst">■</button>
+          <button
+            id="fire"
+            class="btn btn--fire"
+            title="Fire (F)"
+            data-i18n="actions.fire"
+            data-i18n-title="actions.fireTitle"
+          >
+            Fire
+          </button>
+          <div
+            class="btn-group"
+            role="group"
+            aria-label="Last burst"
+            data-i18n-aria-label="actions.lastBurst"
+          >
+            <button
+              id="pause"
+              class="btn btn--ghost"
+              title="Pause last burst"
+              data-i18n-title="actions.pause"
+              data-i18n-aria-label="actions.pause"
+            >
+              ❚❚
+            </button>
+            <button
+              id="resume"
+              class="btn btn--ghost"
+              title="Resume last burst"
+              data-i18n-title="actions.resume"
+              data-i18n-aria-label="actions.resume"
+            >
+              ▶
+            </button>
+            <button
+              id="stop"
+              class="btn btn--ghost"
+              title="Stop last burst"
+              data-i18n-title="actions.stop"
+              data-i18n-aria-label="actions.stop"
+            >
+              ■
+            </button>
           </div>
-          <button id="reset" class="btn btn--ghost" title="Clear every particle and counter">
+          <button
+            id="reset"
+            class="btn btn--ghost"
+            title="Clear every particle and counter"
+            data-i18n="actions.reset"
+            data-i18n-title="actions.resetTitle"
+          >
             Reset
           </button>
         </div>
       </header>
 
       <section class="block">
-        <h2 class="block-title">Presets <code>presets.*()</code></h2>
+        <h2 class="block-title">
+          <span data-i18n="block.presets">Presets</span> <code>presets.*()</code>
+        </h2>
         <div id="presets" class="presets"></div>
       </section>
 
       <section class="block">
         <div class="block-head">
-          <h2 class="block-title">Options <code>fire(options)</code></h2>
-          <button id="reset-controls" class="btn btn--small btn--ghost">Reset Controls</button>
+          <h2 class="block-title">
+            <span data-i18n="block.options">Options</span> <code>fire(options)</code>
+          </h2>
+          <button
+            id="reset-controls"
+            class="btn btn--small btn--ghost"
+            data-i18n="block.resetControls"
+          >
+            Reset Controls
+          </button>
         </div>
         <div id="controls" class="sections"></div>
       </section>
@@ -138,20 +205,28 @@
                   d="M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"
                 /></svg
             ></span>
-            <span class="section-title">Options JSON</span>
-            <span id="json-state" class="section-badge">synced with controls</span>
+            <span class="section-title" data-i18n="json.title">Options JSON</span>
+            <span id="json-state" class="section-badge" data-i18n="json.synced"
+              >synced with controls</span
+            >
             <span class="section-chevron"></span>
           </summary>
           <div class="section-body">
-            <p class="section-description">
+            <p class="section-description" data-i18n-html="json.description">
               Functions and elements are omitted. <code>"$asset:…"</code> placeholders stand for the
               demo canvases. Arrays fire several bursts at once.
             </p>
             <textarea id="json" spellcheck="false"></textarea>
             <div class="json-actions">
-              <button id="fire-json" class="btn btn--primary btn--small">Fire JSON</button>
-              <button id="copy-json" class="btn btn--ghost btn--small">Copy</button>
-              <button id="sync-json" class="btn btn--ghost btn--small">Sync from Controls</button>
+              <button id="fire-json" class="btn btn--primary btn--small" data-i18n="json.fire">
+                Fire JSON
+              </button>
+              <button id="copy-json" class="btn btn--ghost btn--small" data-i18n="json.copy">
+                Copy
+              </button>
+              <button id="sync-json" class="btn btn--ghost btn--small" data-i18n="json.sync">
+                Sync from Controls
+              </button>
             </div>
           </div>
         </details>

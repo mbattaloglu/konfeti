@@ -305,8 +305,10 @@ body {
   flex: 0 0 auto;
   width: 14px;
   height: 14px;
+  padding: 0;
   border: 1px solid var(--border-2);
   border-radius: 50%;
+  background: transparent;
   color: var(--fg-mute);
   font-family: var(--serif);
   font-size: 11px;
@@ -314,9 +316,38 @@ body {
   cursor: help;
 }
 
-.control-hint:hover {
+.control-hint:hover,
+.control-hint:focus-visible,
+.control-hint[aria-describedby] {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+/* one shared tooltip on <body>, positioned next to the hovered / focused / tapped "?" */
+.hint-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  max-width: min(280px, calc(100vw - 16px));
+  padding: 8px 10px;
+  border: 1px solid var(--accent);
+  background: var(--panel-2);
+  color: var(--fg);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+
+.hint-tooltip.is-visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .control-value {
@@ -948,6 +979,14 @@ body.is-click-fire .stage-hit {
   font-size: 13px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+.stats div.is-unavailable dd {
+  color: var(--fg-mute);
+}
+
+.stats div.is-unavailable {
+  cursor: help;
 }
 
 .stats div:first-child dd {

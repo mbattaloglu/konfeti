@@ -315,6 +315,41 @@ kbd {
   color: var(--accent);
 }
 
+/* ---------- language switch ---------- */
+.lang-switch {
+  display: flex;
+  align-self: center;
+  margin-right: 18px;
+}
+
+.lang-option {
+  padding: 4px 7px;
+  border: 1px solid var(--border-2);
+  background: transparent;
+  color: var(--fg-mute);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.lang-option + .lang-option {
+  margin-left: -1px;
+}
+
+.lang-option:hover {
+  position: relative;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.lang-option[aria-pressed="true"] {
+  position: relative;
+  border-color: var(--accent);
+  background: var(--accent-soft-2);
+  color: var(--accent);
+}
+
 @media (max-width: 720px) {
   .app-header {
     padding: 10px 12px;
@@ -341,5 +376,13 @@ kbd {
 
   .app-nav .app-nav-extra {
     display: none;
+  }
+
+  .lang-switch {
+    margin-right: 8px;
+  }
+
+  .lang-option {
+    padding: 3px 5px;
   }
 }

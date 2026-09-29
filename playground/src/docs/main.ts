@@ -4,7 +4,12 @@ import { VERSION } from "konfeti";
 import { marked } from "marked";
 import type { Token, Tokens } from "marked";
 
-import readme from "../../../packages/konfeti/README.md?raw";
+import readmeEn from "../../../packages/konfeti/README.md?raw";
+import readmeTr from "../../../packages/konfeti/README.tr.md?raw";
+import { getLocale, localizedHref } from "../i18n/Locale";
+import type { Locale } from "../i18n/Locale";
+import { t } from "../i18n/messages";
+import { applyStaticText, mountLanguageSwitch } from "../i18n/staticText";
 import { byId, el } from "../ui/dom";
 import { runExample } from "./runExample";
 
@@ -14,9 +19,22 @@ import { runExample } from "./runExample";
 const REPO_URL = "https://github.com/mbattaloglu/konfeti/blob/main/";
 
 /**
- * README Sections that the Sidebar Already Covers.
+ * Guide Source by Language (the package README and its Turkish translation).
  */
-const SKIPPED_SECTIONS = new Set(["contents"]);
+const READMES: Readonly<Record<Locale, string>> = { en: readmeEn, tr: readmeTr };
+
+/**
+ * README Language Links, Mapped to the Same Page in That Language.
+ */
+const README_LINKS: Readonly<Record<string, Locale>> = {
+  "./README.md": "en",
+  "./README.tr.md": "tr",
+};
+
+/**
+ * README Sections that the Sidebar Already Covers (English and Turkish headings).
+ */
+const SKIPPED_SECTIONS = new Set([slugify("Contents"), slugify("İçindekiler")]);
 
 /**
  * Toast Visibility Duration.
@@ -32,9 +50,10 @@ hljs.registerLanguage("ts", typescript);
  * @returns Anchor Id
  */
 function slugify(text: string): string {
+  // letters of any script survive (Turkish headings), like GitHub's own anchors
   return text
     .toLowerCase()
-    .replace(/[^\w\- ]+/g, "")
+    .replace(/[^\p{L}\p{M}\p{N}\-_ ]+/gu, "")
     .replace(/ /g, "-");
 }
 
@@ -69,8 +88,8 @@ function renderCode(token: Tokens.Code): string {
   return `<figure class="code" data-source="${source}">
     <figcaption class="code-bar">
       <span class="code-lang">${escapeHtml(language || "text")}</span>
-      ${runnable ? '<button type="button" class="btn btn--small btn--primary" data-action="run">▶ Run</button>' : ""}
-      <button type="button" class="btn btn--small" data-action="copy">Copy</button>
+      ${runnable ? `<button type="button" class="btn btn--small btn--primary" data-action="run">${t("docs.run")}</button>` : ""}
+      <button type="button" class="btn btn--small" data-action="copy">${t("docs.copy")}</button>
     </figcaption>
     <pre><code class="hljs">${highlighted}</code></pre>
   </figure>`;
@@ -88,7 +107,13 @@ marked.use({
     link: ({ href, tokens }) => {
       const inner = marked.Parser.parseInline(tokens);
       // README links like ../../LICENSE point into the repository, not the site
-      const target = href.startsWith("../../") ? REPO_URL + href.slice("../../".length) : href;
+      const language = README_LINKS[href];
+      const target =
+        language !== undefined
+          ? localizedHref(location.pathname, language)
+          : href.startsWith("../../")
+            ? REPO_URL + href.slice("../../".length)
+            : href;
       const external = /^https?:/.test(target) ? ' target="_blank" rel="noopener"' : "";
       return `<a href="${target}"${external}>${inner}</a>`;
     },
@@ -157,7 +182,9 @@ function init(): void {
   const content = byId("docs-content", HTMLElement);
   const toc = byId("docs-toc", HTMLElement);
   const toast = byId("toast", HTMLElement);
-  const { intro, sections } = splitSections(marked.lexer(readme));
+  applyStaticText(document, "docs.title");
+  mountLanguageSwitch(byId("lang-switch", HTMLElement));
+  const { intro, sections } = splitSections(marked.lexer(READMES[getLocale()]));
   let toastTimer = 0;
 
   byId("version", HTMLElement).textContent = `v${VERSION}`;
@@ -203,10 +230,10 @@ function init(): void {
     if (button.dataset["action"] === "copy") {
       navigator.clipboard.writeText(source).then(
         () => {
-          showToast("Copied");
+          showToast(t("docs.copied"));
         },
         () => {
-          showToast("Clipboard unavailable", true);
+          showToast(t("clipboard.unavailable"), true);
         },
       );
       return;

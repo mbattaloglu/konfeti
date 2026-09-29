@@ -1,3 +1,6 @@
+import { OPTION_LABELS_TR } from "../i18n/controlsTr";
+import { getLocale } from "../i18n/Locale";
+
 /**
  * Hand-Picked Display Names for Option Values.
  * Values not listed here are converted automatically (`easeInQuad` → `Ease In Quad`).
@@ -29,7 +32,8 @@ const WORD_BOUNDARY = /(?<=[a-z0-9])(?=[A-Z])|[-_\s]+/;
  * @returns Display Label
  */
 export function optionLabel(value: string): string {
-  const known = OPTION_LABELS[value];
+  const known =
+    (getLocale() === "tr" ? OPTION_LABELS_TR[value] : undefined) ?? OPTION_LABELS[value];
 
   if (known !== undefined) {
     return known;
