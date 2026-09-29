@@ -108,7 +108,12 @@
           <span data-i18n="hooks.log">Hook Events</span>
           <code>onStart / onComplete</code>
         </summary>
-        <ol id="event-log" class="event-log"></ol>
+        <ol
+          id="event-log"
+          class="event-log"
+          data-empty="Fire something…"
+          data-i18n-empty="hooks.empty"
+        ></ol>
       </details>
 
       <p class="stage-hint">
@@ -173,75 +178,160 @@
             Reset
           </button>
         </div>
-      </header>
-
-      <section class="block">
-        <h2 class="block-title">
-          <span data-i18n="block.presets">Presets</span> <code>KonfetiPresets.*</code>
-        </h2>
-        <div id="presets" class="presets"></div>
-      </section>
-
-      <section class="block">
-        <div class="block-head">
-          <h2 class="block-title">
-            <span data-i18n="block.options">Options</span> <code>fire(options)</code>
-          </h2>
+        <div class="panel-tabs" role="tablist" aria-label="Panel" data-i18n-aria-label="tabs.label">
           <button
-            id="reset-controls"
-            class="btn btn--small btn--ghost"
-            data-i18n="block.resetControls"
+            id="tab-btn-controls"
+            class="panel-tab"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="tab-controls"
+            data-tab="controls"
+            data-i18n="tabs.controls"
           >
-            Reset Controls
+            Controls
+          </button>
+          <button
+            id="tab-btn-export"
+            class="panel-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-export"
+            data-tab="export"
+            data-i18n="tabs.export"
+          >
+            Share &amp; Export
           </button>
         </div>
-        <div id="controls" class="sections"></div>
-      </section>
+      </header>
 
-      <section class="block">
-        <details class="section json" open>
-          <summary class="section-summary">
-            <span class="section-icon"
-              ><svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
-              >
-                <path d="M8 3H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1" />
-                <path
-                  d="M16 3h1a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2 2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-1"
-                /></svg
-            ></span>
-            <span class="section-title" data-i18n="json.title">Options JSON</span>
+      <div id="tab-controls" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-controls">
+        <section class="block">
+          <h2 class="block-title">
+            <span data-i18n="block.presets">Presets</span> <code>KonfetiPresets.*</code>
+          </h2>
+          <div id="presets" class="presets"></div>
+        </section>
+
+        <section class="block">
+          <div class="block-head">
+            <h2 class="block-title">
+              <span data-i18n="block.options">Options</span> <code>fire(options)</code>
+            </h2>
+            <button
+              id="reset-controls"
+              class="btn btn--small btn--ghost"
+              data-i18n="block.resetControls"
+            >
+              Reset Controls
+            </button>
+          </div>
+          <div id="controls" class="sections"></div>
+        </section>
+      </div>
+
+      <div
+        id="tab-export"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-export"
+        hidden
+      >
+        <section class="block">
+          <h2 class="block-title">
+            <span data-i18n="share.heading">Share Link</span> <code>?s=…</code>
+          </h2>
+          <p class="section-description" data-i18n="share.description">
+            Only the settings you changed travel in the link. It opens in the receiver's language.
+          </p>
+          <div class="share-row">
+            <input
+              id="share-link"
+              class="text-input share-link"
+              type="text"
+              readonly
+              aria-label="Share link"
+              data-i18n-aria-label="share.heading"
+            />
+            <button
+              id="share"
+              class="btn btn--primary btn--small"
+              title="Copy a link that opens the playground with these settings"
+              data-i18n="share.button"
+              data-i18n-title="share.title"
+            >
+              Copy
+            </button>
+          </div>
+        </section>
+
+        <section class="block">
+          <div class="block-head">
+            <h2 class="block-title">
+              <span data-i18n="code.heading">Code</span> <code>Konfeti.fire()</code>
+            </h2>
+            <button
+              id="copy-code"
+              class="btn btn--primary btn--small"
+              title="Copy the current settings as a Konfeti.fire() TypeScript snippet"
+              data-i18n="code.copy"
+              data-i18n-title="code.title"
+            >
+              Copy Code
+            </button>
+          </div>
+          <p class="section-description" data-i18n="code.description">
+            Ready to paste: only what you changed, or every setting written out.
+          </p>
+          <div class="code-mode" role="group" aria-label="Code" data-i18n-aria-label="code.heading">
+            <button
+              class="code-mode-option"
+              type="button"
+              data-mode="changed"
+              aria-pressed="true"
+              data-i18n="code.modeChanged"
+            >
+              Changed only
+            </button>
+            <button
+              class="code-mode-option"
+              type="button"
+              data-mode="all"
+              aria-pressed="false"
+              data-i18n="code.modeAll"
+            >
+              All settings
+            </button>
+          </div>
+          <pre class="code-preview"><code id="code-preview"></code></pre>
+        </section>
+
+        <section class="block json">
+          <div class="block-head">
+            <h2 class="block-title"><span data-i18n="json.title">Options JSON</span></h2>
             <span id="json-state" class="section-badge" data-i18n="json.synced"
               >synced with controls</span
             >
-            <span class="section-chevron"></span>
-          </summary>
-          <div class="section-body">
-            <p class="section-description" data-i18n-html="json.description">
-              Functions and elements are omitted. <code>"$asset:…"</code> placeholders stand for the
-              demo canvases. Arrays fire several bursts at once.
-            </p>
-            <textarea id="json" spellcheck="false"></textarea>
-            <div class="json-actions">
-              <button id="fire-json" class="btn btn--primary btn--small" data-i18n="json.fire">
-                Fire JSON
-              </button>
-              <button id="copy-json" class="btn btn--ghost btn--small" data-i18n="json.copy">
-                Copy
-              </button>
-              <button id="sync-json" class="btn btn--ghost btn--small" data-i18n="json.sync">
-                Sync from Controls
-              </button>
-            </div>
           </div>
-        </details>
-      </section>
+          <p class="section-description" data-i18n-html="json.description">
+            Functions and elements are omitted. <code>"$asset:…"</code> placeholders stand for the
+            demo canvases. Arrays fire several bursts at once.
+          </p>
+          <textarea id="json" spellcheck="false"></textarea>
+          <div class="json-actions">
+            <button id="fire-json" class="btn btn--primary btn--small" data-i18n="json.fire">
+              Fire JSON
+            </button>
+            <button id="copy-json" class="btn btn--ghost btn--small" data-i18n="json.copy">
+              Copy
+            </button>
+            <button id="sync-json" class="btn btn--ghost btn--small" data-i18n="json.sync">
+              Sync from Controls
+            </button>
+          </div>
+        </section>
+      </div>
     </aside>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

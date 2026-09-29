@@ -16,6 +16,8 @@ import { str } from "./stateReaders";
 import { byId, el } from "./ui/dom";
 import { renderControls } from "./ui/renderControls";
 import { renderPresets } from "./ui/renderPresets";
+import { toCode } from "./share/codeExport";
+import { createShareLink, readShareLink } from "./share/shareLink";
 
 /**
  * Stats Refresh Interval.
@@ -199,6 +201,9 @@ async function init(): Promise<void> {
   };
 
   // declarative controls
+  // assigned once the export tab is wired up (below); settings changes call it to keep link and code live
+  let refreshExport = (): void => undefined;
+
   const controls = renderControls(
     byId("controls", HTMLElement),
     localizeSections(CONTROL_SECTIONS),
@@ -224,6 +229,7 @@ async function init(): Promise<void> {
 
       syncJson();
       restartStream();
+      refreshExport();
     },
   );
 
@@ -424,6 +430,85 @@ async function init(): Promise<void> {
     statusChip.dataset["status"] = status;
     requestAnimationFrame(tick);
   };
+
+  // defaults before a shared link is applied: Copy Code writes only what differs from these
+  const defaultOptions = buildOptions({ ...state }, assets);
+
+  // share link: only settings that differ from the defaults travel in the URL
+  const shared = readShareLink();
+
+  if (shared !== null) {
+    controls.restore(shared);
+    showToast(t("share.loaded"));
+  }
+
+  const copyText = (text: string, done: string): void => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        showToast(done);
+      },
+      () => {
+        showToast(t("clipboard.unavailable"), true);
+      },
+    );
+  };
+  const shareLink = byId("share-link", HTMLInputElement);
+  const codePreview = byId("code-preview", HTMLElement);
+  const exportTab = byId("tab-export", HTMLElement);
+  let codeMode: "changed" | "all" = "changed";
+  const currentCode = (): string =>
+    toCode(buildOptions(state, assets), codeMode === "all" ? null : defaultOptions, assets);
+  const modeButtons = [...document.querySelectorAll<HTMLButtonElement>(".code-mode-option")];
+
+  for (const button of modeButtons) {
+    button.addEventListener("click", () => {
+      codeMode = button.dataset["mode"] === "all" ? "all" : "changed";
+
+      for (const other of modeButtons) {
+        other.setAttribute("aria-pressed", String(other === button));
+      }
+
+      refreshExport();
+    });
+  }
+
+  // the export tab shows the live link and code; skipped while it is hidden
+  refreshExport = (): void => {
+    if (exportTab.hidden) {
+      return;
+    }
+
+    shareLink.value = createShareLink(controls.snapshot());
+    codePreview.textContent = currentCode();
+  };
+
+  byId("share", HTMLButtonElement).addEventListener("click", () => {
+    const link = createShareLink(controls.snapshot());
+    // the address bar shows the link too, so a reload keeps the settings
+    history.replaceState(history.state, "", link);
+    copyText(link, t("share.copied"));
+  });
+  shareLink.addEventListener("focus", () => {
+    shareLink.select();
+  });
+  byId("copy-code", HTMLButtonElement).addEventListener("click", () => {
+    copyText(currentCode(), t("code.copied"));
+  });
+
+  // panel tabs: controls / share & export
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>(".panel-tab")];
+  for (const tab of tabs) {
+    tab.addEventListener("click", () => {
+      for (const other of tabs) {
+        const selected = other === tab;
+        other.setAttribute("aria-selected", String(selected));
+        byId(`tab-${other.dataset["tab"] ?? ""}`, HTMLElement).hidden = !selected;
+      }
+
+      document.querySelector(".panel")?.scrollTo({ top: 0 });
+      refreshExport();
+    });
+  }
 
   syncJson(true);
   requestAnimationFrame(tick);

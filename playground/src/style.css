@@ -46,6 +46,101 @@ body {
   gap: 8px;
 }
 
+/* ---------- panel tabs (in the sticky top bar, so they are always in reach) ---------- */
+.panel-tabs {
+  display: flex;
+  margin: 12px -22px -14px;
+  padding: 0 22px;
+}
+
+.panel-tab {
+  flex: 1 1 0;
+  padding: 10px 8px 9px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--fg-mute);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.panel-tab:hover {
+  color: var(--fg-dim);
+}
+
+.panel-tab[aria-selected="true"] {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
+/* ---------- share & export ---------- */
+.share-row {
+  display: flex;
+  gap: 6px;
+}
+
+.share-link {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.code-mode {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.code-mode-option {
+  flex: 1 1 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border-2);
+  background: transparent;
+  color: var(--fg-mute);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.code-mode-option + .code-mode-option {
+  margin-left: -1px;
+}
+
+.code-mode-option:hover {
+  position: relative;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.code-mode-option[aria-pressed="true"] {
+  position: relative;
+  border-color: var(--accent);
+  background: var(--accent-soft-2);
+  color: var(--accent);
+}
+
+.code-preview {
+  max-height: 320px;
+  margin: 0;
+  padding: 10px 12px;
+  overflow: auto;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--fg);
+  font-size: 11px;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
 .block {
   padding: 18px 22px 4px;
 }
@@ -832,11 +927,6 @@ textarea:focus {
 }
 
 /* ---------- json ---------- */
-/* the JSON block lives outside the options list; pull it up so it reads as the list's last row */
-.block:has(> .json) {
-  padding-top: 0;
-}
-
 .json textarea {
   min-height: 240px;
   font-size: 11px;
@@ -897,16 +987,21 @@ body.is-click-fire .stage-hit {
   pointer-events: none;
 }
 
+/* stacked switches of equal width; the code names line up on the right */
 .hud--tools {
   top: 14px;
   right: 14px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: stretch;
   gap: 6px;
   padding: 0;
   border: 0;
   background: none;
+}
+
+.hud--tools .pill-toggle code {
+  margin-left: auto;
 }
 
 .hud--log {
@@ -1018,18 +1113,21 @@ body.is-click-fire .stage-hit {
   text-transform: none;
 }
 
+/* bottom right: clear of the hook log in the bottom-left corner, whatever the language's text length */
 .stage-hint {
   position: absolute;
+  right: 18px;
   bottom: 18px;
-  left: 50%;
   z-index: 1;
+  /* the hook log takes 14px + 300px on the left; wrap instead of sliding under it */
+  max-width: calc(100% - 350px);
   margin: 0;
-  transform: translateX(-50%);
+  text-align: right;
   color: var(--fg-mute);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  white-space: nowrap;
+  line-height: 1.8;
   pointer-events: none;
 }
 
@@ -1055,7 +1153,7 @@ body.is-click-fire .stage-hit {
 }
 
 .event-log:empty::before {
-  content: "Fire something…";
+  content: attr(data-empty);
   color: var(--fg-mute);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -1119,6 +1217,11 @@ body.is-click-fire .stage-hit {
 
   .topbar {
     padding: 10px;
+  }
+
+  .panel-tabs {
+    margin: 10px -10px -10px;
+    padding: 0 10px;
   }
 
   .actions {
@@ -1193,8 +1296,6 @@ body.is-click-fire .stage-hit {
     top: auto;
     right: 8px;
     bottom: 8px;
-    flex-direction: column;
-    align-items: flex-end;
   }
 
   .pill-toggle code,

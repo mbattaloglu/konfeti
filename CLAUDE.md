@@ -24,17 +24,17 @@ Full roadmap, feature list and API sketch: **`docs/PLAN.md`**. Read it before st
 
 ## 2. Tech Stack
 
-| Concern         | Choice                                                                                                                                                                                                                                                                                                                                                                             |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Language        | TypeScript **6.0** (`~6.0.3`; TS 7 not yet supported by typescript-eslint/TypeDoc), `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `noImplicitOverride`                                                                                                                                                                                                    |
-| Runtime deps    | **None.** Core must stay dependency-free                                                                                                                                                                                                                                                                                                                                           |
-| Package manager | pnpm monorepo (workspace: `packages/*`, `playground/`)                                                                                                                                                                                                                                                                                                                             |
-| Bundler         | tsdown (rolldown) → ESM + CJS + IIFE (`window.konfeti`) + `.d.ts`                                                                                                                                                                                                                                                                                                                  |
-| Tests           | Vitest + happy-dom, canvas via `vitest-canvas-mock` (unit); Playwright in real Chrome against the built `dist` (`e2e/`, `pnpm e2e`)                                                                                                                                                                                                                                                |
-| Lint / format   | ESLint flat config + `typescript-eslint` `strict-type-checked` + Prettier                                                                                                                                                                                                                                                                                                          |
-| Size budget     | `size-limit` (brotli): `Konfeti` full ≤ 15.1 kB, everything ≤ 16.5 kB, `konfeti/lite` `Konfeti` ≤ 11.9 kB, `konfeti/worker` `createWorker` ≤ 17 kB (+ lazily loaded worker script ≤ 31.4 kB total), worker script ≤ 16 kB — measured 14.98 / 16.39 / 11.75 / 16.83 (31.22) / 14.24 kB (2026-09-29, continuous emitter; `emit` is on the shared object, so it is never tree-shaken) |
-| Docs            | TypeDoc (API) + playground (Vite) for live option tuning                                                                                                                                                                                                                                                                                                                           |
-| Release         | Changesets, semver, GitHub Actions CI (typecheck, lint, test, size)                                                                                                                                                                                                                                                                                                                |
+| Concern         | Choice                                                                                                                                                                                                                                                                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Language        | TypeScript **6.0** (`~6.0.3`; TS 7 not yet supported by typescript-eslint/TypeDoc), `strict` + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` + `noImplicitOverride`                                                                                                                                                   |
+| Runtime deps    | **None.** Core must stay dependency-free                                                                                                                                                                                                                                                                                          |
+| Package manager | pnpm monorepo (workspace: `packages/*`, `playground/`)                                                                                                                                                                                                                                                                            |
+| Bundler         | tsdown (rolldown) → ESM + CJS + IIFE (`window.konfeti`) + `.d.ts`                                                                                                                                                                                                                                                                 |
+| Tests           | Vitest + happy-dom, canvas via `vitest-canvas-mock` (unit); Playwright in real Chrome against the built `dist` (`e2e/`, `pnpm e2e`)                                                                                                                                                                                               |
+| Lint / format   | ESLint flat config + `typescript-eslint` `strict-type-checked` + Prettier                                                                                                                                                                                                                                                         |
+| Size budget     | `size-limit` (brotli), see **Size policy** in §4: `Konfeti` full ≤ 15.4 kB, everything ≤ 16.8 kB, `konfeti/lite` `Konfeti` ≤ 12.2 kB, `konfeti/worker` `createWorker` ≤ 17.3 kB (+ lazily loaded worker script ≤ 31.7 kB total), worker script ≤ 14.7 kB — measured 14.98 / 16.39 / 11.75 / 16.83 (31.22) / 14.24 kB (2026-09-29) |
+| Docs            | TypeDoc (API) + playground (Vite) for live option tuning                                                                                                                                                                                                                                                                          |
+| Release         | Changesets, semver, GitHub Actions CI (typecheck, lint, test, size)                                                                                                                                                                                                                                                               |
 
 Targets: evergreen browsers (**ES2022** — native static class fields keep classes tree-shakeable). `OffscreenCanvas` / Web Worker path is optional and feature-detected.
 
@@ -74,6 +74,7 @@ packages/
 playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`) on http://localhost:5199 — developer runs `pnpm dev`, never Claude
                         # i18n EN/TR: UI strings in src/i18n/messages.ts (both languages, TR type-checked for every key),
                         # control text in src/i18n/controlsTr.ts; the guide renders README.md / README.tr.md; API reference stays English
+                        # src/share: share link (?s= changed settings, base64url JSON) and Copy Code (only settings that differ from the defaults)
 e2e/                    # Playwright browser tests: pages/ (esm, iife), support/site.ts (disk routing on http://konfeti.test), tests/
 vercel.json             # Vercel static site: `pnpm site:build` → playground/dist, base path /tools/konfeti/ rewritten to /
 docs/PLAN.md
@@ -109,6 +110,19 @@ Adapted from `llms/guides/scripting-logic.md` (that guide is written for Gearbox
 - `package.json` `sideEffects` must list the full-entry files: `dist/index.*` registers the built-ins at import time, and `./src/index.ts` too — the playground aliases `konfeti` to the source, and without it the production site drops the registration (only paper works; dev hides it). Guarded by `test/Package.test.ts` and `e2e/tests/site.spec.ts`.
 - Check `pnpm build && pnpm size` after any change that adds imports to core modules.
 - **Public API shape:** `Konfeti` is the shared fullscreen instance object (`fire`, `onClick`, `reset`, `getParticleCount`). `KonfetiFactory.create()` builds dedicated `KonfetiInstance`s. Worker rendering is its own entry: `import { createWorker } from "konfeti/worker"` (so main-thread bundles carry no worker code; the entry also registers the built-in shapes for its fallback). Global tools stay named exports: types, `KonfetiPresets` (+ `extendPreset`), `defineShape`, `definePhysics`, `registerShapes`, `loadImage`, shape handlers. Don't add standalone `fire`/`create` exports back.
+
+### Size policy (agreed 2026-09-29)
+
+At ~15 kB brotli a few hundred bytes don't matter to users; the budgets exist to **catch accidents**
+(tree-shaking regressions such as presets leaking into bundles, worker code inside `create()`, the IIFE
+carrying the worker twice), not to fight every byte.
+
+- Budgets sit **~0.3–0.5 kB above the measured size**. A new feature may grow a bundle: raise the budget to the
+  new measurement + margin and mention it in one sentence — no need to ask.
+- **Investigate** (build + inspect the bundle) when a bundle grows unexpectedly: an import that didn't change
+  got bigger, or a jump of ~1 kB+ from a small change. That is almost always a tree-shaking mistake.
+- Don't micro-optimize (20–50 B hunts) unless a budget is tight for a real reason.
+- Keep README size tables roughly current (`~x.y kB`), measured with `pnpm build && pnpm size`.
 
 ### Hot-path performance rules (the frame loop)
 

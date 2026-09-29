@@ -39,6 +39,14 @@ export type ControlsHandle = {
    * Restore Every Control to Its Initial Value.
    */
   readonly reset: () => void;
+  /**
+   * Return the Values that Differ from the Initial Ones (local-only values such as picked files excluded).
+   */
+  readonly snapshot: () => Record<string, ControlValue>;
+  /**
+   * Apply Values from a Snapshot; unknown keys and values of the wrong type are ignored.
+   */
+  readonly restore: (values: Readonly<Record<string, unknown>>) => void;
 };
 
 /**
@@ -65,6 +73,10 @@ type Binding = {
    * Enable Condition.
    */
   readonly when?: ControlCondition;
+  /**
+   * Value Only Makes Sense in This Browser (object URLs of picked files), so share links skip it.
+   */
+  readonly isLocal?: true;
 };
 
 /**
@@ -572,6 +584,7 @@ function renderFile(control: FileControl, write: (value: ControlValue) => void):
   return {
     row,
     initial: "",
+    isLocal: true,
     apply,
     setDisabled: (disabled) => (input.disabled = disabled),
     ...(control.when === undefined ? {} : { when: control.when }),
@@ -692,13 +705,16 @@ export function renderControls(
 
     for (const { badge, cards } of badges) {
       const enabled = cards.filter((card) => state[card.enableKey] === true).length;
-      badge.textContent = enabled === 0 ? "paper only" : `${enabled} on`;
+      badge.textContent =
+        enabled === 0 ? t("shapes.paperOnly") : t("shapes.enabled", { count: enabled });
       badge.classList.toggle("is-on", enabled > 0);
     }
   };
 
   const register = (key: string, binding: Binding): HTMLElement => {
     bindings.set(key, binding);
+    // lets tests (and devtools) find a control by its state key
+    binding.row.dataset["key"] = key;
     state[key] = binding.initial;
     binding.apply(binding.initial);
 
@@ -794,5 +810,70 @@ export function renderControls(
       refresh();
       onChange("*");
     },
+    snapshot: () => {
+      const changed: Record<string, ControlValue> = {};
+
+      for (const [key, binding] of bindings) {
+        const value = state[key];
+
+        if (value !== undefined && binding.isLocal !== true && !sameValue(value, binding.initial)) {
+          changed[key] = value;
+        }
+      }
+
+      return changed;
+    },
+    restore: (values) => {
+      for (const [key, value] of Object.entries(values)) {
+        const binding = bindings.get(key);
+
+        // a shared link is outside input: accept only values shaped like the control's own
+        if (
+          binding !== undefined &&
+          binding.isLocal !== true &&
+          isSameKind(value, binding.initial)
+        ) {
+          state[key] = value;
+          binding.apply(value);
+        }
+      }
+
+      refresh();
+      onChange("*");
+    },
   };
+}
+
+/**
+ * Compare Two Control Values (arrays by content).
+ *
+ * @param a - First Value
+ * @param b - Second Value
+ * @returns Equal Flag
+ */
+function sameValue(a: ControlValue, b: ControlValue): boolean {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((item, index) => item === b[index]);
+  }
+
+  return a === b;
+}
+
+/**
+ * Check Whether an Untrusted Value Has the Same Kind as a Control's Initial Value.
+ *
+ * @param value - Untrusted Value
+ * @param initial - Control's Initial Value
+ * @returns Same-Kind Flag (narrowed to a control value)
+ */
+function isSameKind(value: unknown, initial: ControlValue): value is ControlValue {
+  if (Array.isArray(initial)) {
+    return Array.isArray(value) && value.every((item) => typeof item === "string");
+  }
+
+  if (typeof initial === "number") {
+    return typeof value === "number" && Number.isFinite(value);
+  }
+
+  return typeof value === typeof initial;
 }

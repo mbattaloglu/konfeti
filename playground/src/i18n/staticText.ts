@@ -30,6 +30,12 @@ const TARGETS: readonly (readonly [
     },
   ],
   [
+    "data-i18n-empty",
+    (element, text) => {
+      element.setAttribute("data-empty", text);
+    },
+  ],
+  [
     "data-i18n-aria-label",
     (element, text) => {
       element.setAttribute("aria-label", text);

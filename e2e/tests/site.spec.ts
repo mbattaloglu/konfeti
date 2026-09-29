@@ -1,3 +1,5 @@
+import type { Page } from "@playwright/test";
+
 import { expect, openSite, test } from "../support/site";
 
 test.describe("built site (playground)", () => {
@@ -52,5 +54,120 @@ test.describe("built site (language switch after following a section link)", () 
 
     await expect(page.locator("#docs-content h2").first()).toContainText("Bir bakışta API");
     await expect(page).not.toHaveURL(/#/);
+  });
+});
+
+/**
+ * Record Clipboard Writes (the fake http origin is not a secure context, so the real clipboard is unavailable).
+ */
+const RECORD_CLIPBOARD = (): void => {
+  const copied: string[] = [];
+  Object.assign(window, { copied });
+  Object.defineProperty(navigator, "clipboard", {
+    configurable: true,
+    value: {
+      writeText: (text: string) => {
+        copied.push(text);
+        return Promise.resolve();
+      },
+    },
+  });
+};
+
+/**
+ * Return the Last Recorded Clipboard Text.
+ *
+ * @param page - Page
+ * @returns Copied Text
+ */
+async function lastCopied(page: Page): Promise<string> {
+  await expect
+    .poll(() => page.evaluate(() => (window as unknown as { copied: string[] }).copied.length))
+    .toBeGreaterThan(0);
+  return page.evaluate(() => (window as unknown as { copied: string[] }).copied.at(-1) ?? "");
+}
+
+test.describe("built site (share link and code export)", () => {
+  test("a share link restores the settings it was made with", async ({ page }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await page.goto("http://konfeti.test/tools/konfeti/?lang=en");
+    await page.locator('[data-key="particleCount"] input[type="range"]').fill("123");
+
+    await page.locator("#tab-btn-export").click();
+    await page.locator("#share").click();
+    const link = await lastCopied(page);
+    expect(link).toMatch(/[?&]s=/);
+    expect(link).not.toMatch(/lang=/);
+
+    expect(await page.locator("#share-link").inputValue()).toBe(link);
+
+    await page.goto(link);
+    await expect(page.locator('[data-key="particleCount"] input[type="range"]')).toHaveValue("123");
+  });
+
+  test("Copy Code produces a snippet that fires the current settings", async ({ page }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await page.goto("http://konfeti.test/tools/konfeti/?lang=en");
+    await page.locator('[data-key="particleCount"] input[type="range"]').fill("77");
+
+    await page.locator("#tab-btn-export").click();
+    // the tab previews the same snippet the button copies
+    await expect(page.locator("#code-preview")).toContainText("particleCount: 77");
+    await page.locator("#copy-code").click();
+    const code = await lastCopied(page);
+    expect(code).toContain('import { Konfeti } from "konfeti";');
+
+    // run the snippet against a stub Konfeti: it must be valid code and carry the current settings
+    await page.evaluate(() => {
+      Object.assign(window, {
+        stub: {
+          fire: (options: unknown) => {
+            Object.assign(window, { fired: options });
+          },
+        },
+      });
+    });
+    await page.addScriptTag({
+      content: code.replace(/^import .*$/m, "const Konfeti = window.stub;"),
+    });
+    const fired = await page.evaluate(
+      () => (window as unknown as { fired?: { particleCount?: number } }).fired,
+    );
+
+    expect(fired?.particleCount).toBe(77);
+  });
+
+  test("the All Settings mode writes every setting out and still runs", async ({ page }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await page.goto("http://konfeti.test/tools/konfeti/?lang=en");
+    await page.locator("#tab-btn-export").click();
+    await page.locator('.code-mode-option[data-mode="all"]').click();
+    await page.locator("#copy-code").click();
+    const code = await lastCopied(page);
+
+    await page.evaluate(() => {
+      Object.assign(window, {
+        stub: {
+          fire: (options: unknown) => {
+            Object.assign(window, { fired: options });
+          },
+        },
+      });
+    });
+    await page.addScriptTag({
+      content: code.replace(/^import .*$/m, "const Konfeti = window.stub;"),
+    });
+    const fired = await page.evaluate(
+      () =>
+        (
+          window as unknown as {
+            fired?: { particleCount?: number; paper?: { colors?: unknown[] } };
+          }
+        ).fired,
+    );
+
+    // defaults are written out too: the paper palette is there even though nothing was changed
+    expect(fired?.particleCount).toBe(60);
+    expect(fired?.paper?.colors?.length).toBeGreaterThan(0);
   });
 });
