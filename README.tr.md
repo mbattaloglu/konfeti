@@ -4,6 +4,7 @@
 çağrı — daha fazlasını istediğinde emoji, metin, görsel ve spritesheet'ler, imleci takip eden akışlar,
 birleştirilebilir fizik, Web Worker ile çizim ve tamamen tipli bir eklenti API'si. Sıfır bağımlılık.
 
+[![npm](https://img.shields.io/npm/v/konfeti?color=d6ff3f)](https://www.npmjs.com/package/konfeti)
 [![CI](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml/badge.svg)](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml)
 ![size](<https://img.shields.io/badge/Konfeti.fire()-~15%20kB%20brotli-d6ff3f>)
 ![dependencies](https://img.shields.io/badge/dependencies-0-d6ff3f)
@@ -63,10 +64,6 @@ Konfeti.fire(); // bu kadar: tam ekran bir katmanda klasik bir konfeti patlamas�
 npm install konfeti
 # ya da: pnpm add konfeti · yarn add konfeti
 ```
-
-> konfeti 0.2.0 hazır ve yakında npm'e yayımlanacak. O zamana kadar bu depodan derleyebilir
-> (`pnpm install && pnpm build`) ya da her şeyi [deneme alanında](https://konfeti.mbattaloglu.com/?lang=tr)
-> canlı deneyebilirsin.
 
 Bundler olmadan `<script>` sürümünü yükle (`window.konfeti`'yi tanımlar):
 

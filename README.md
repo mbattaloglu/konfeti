@@ -4,6 +4,7 @@
 when you want more, emoji, text, images and spritesheets, streams that follow the pointer, composable physics,
 Web Worker rendering and a fully typed plugin API. Zero dependencies.
 
+[![npm](https://img.shields.io/npm/v/konfeti?color=d6ff3f)](https://www.npmjs.com/package/konfeti)
 [![CI](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml/badge.svg)](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml)
 ![size](<https://img.shields.io/badge/Konfeti.fire()-~15%20kB%20brotli-d6ff3f>)
 ![dependencies](https://img.shields.io/badge/dependencies-0-d6ff3f)
@@ -59,9 +60,6 @@ Konfeti.fire(); // that's it: a classic confetti pop on a fullscreen overlay
 npm install konfeti
 # or: pnpm add konfeti · yarn add konfeti
 ```
-
-> konfeti 0.2.0 is ready and about to be published to npm. Until then, build it from this repository
-> (`pnpm install && pnpm build`) or try everything live in the [playground](https://konfeti.mbattaloglu.com/).
 
 Without a bundler, load the `<script>` build (it defines `window.konfeti`):
 
