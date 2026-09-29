@@ -56,6 +56,38 @@ describe("presets", () => {
   });
 });
 
+describe("pause / resume", () => {
+  it("freezes every burst and continues without counting the paused time", () => {
+    const { konfeti, scheduler } = setup();
+    const handle = konfeti.fire({ particleCount: 5, lifetime: 100 });
+    scheduler.step(2);
+
+    konfeti.pause();
+    expect(konfeti.isPaused()).toBe(true);
+    // no frame is requested while paused, so time cannot pass for the particles
+    expect(scheduler.getPendingCount()).toBe(0);
+    scheduler.step(50);
+    expect(handle.getParticleCount()).toBe(5);
+
+    konfeti.resume();
+    expect(konfeti.isPaused()).toBe(false);
+    scheduler.step(20);
+    expect(handle.isFinished()).toBe(true);
+  });
+
+  it("holds bursts fired while paused until resume", () => {
+    const { konfeti, scheduler } = setup();
+    konfeti.pause();
+    const handle = konfeti.fire({ particleCount: 3, lifetime: 50 });
+    scheduler.step(20);
+    expect(handle.isFinished()).toBe(false);
+
+    konfeti.resume();
+    scheduler.step(20);
+    expect(handle.isFinished()).toBe(true);
+  });
+});
+
 describe("onClick", () => {
   it("fires at the click position and unsubscribes", () => {
     const { konfeti } = setup();
@@ -81,6 +113,29 @@ describe("onClick", () => {
     off();
     target.dispatchEvent(new MouseEvent("click", { clientX: 1, clientY: 1 }));
     expect(handles).toHaveLength(1);
+  });
+
+  it("fires on pointerdown and hands every burst to onFire", () => {
+    const { konfeti } = setup();
+    const target = document.createElement("div");
+    const fired: KonfetiHandle[] = [];
+    konfeti.onClick(
+      target,
+      { particleCount: 3, startVelocity: 0 },
+      {
+        trigger: "pointerdown",
+        onFire: (handle) => fired.push(handle),
+      },
+    );
+
+    // a plain click must not fire when the trigger is pointerdown
+    target.dispatchEvent(new MouseEvent("click", { clientX: 5, clientY: 5 }));
+    target.dispatchEvent(new PointerEvent("pointerdown", { clientX: 40, clientY: 30 }));
+
+    expect(fired).toHaveLength(1);
+    expect(fired[0]?.getParticleCount()).toBe(3);
+    const particles = (fired[0] as Burst).getParticles();
+    expect(particles.every((particle) => particle.x === 40 && particle.y === 30)).toBe(true);
   });
 
   it("removes every click listener on destroy", () => {

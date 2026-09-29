@@ -63,7 +63,48 @@ export class GlyphRasterizer {
 
     const source = new ImageSource(GlyphRasterizer.render(text, font, color, size), size);
     GlyphRasterizer.cache.set(key, source);
+    GlyphRasterizer.redrawWhenLoaded(source, text, font, color, size);
     return source;
+  }
+
+  /**
+   * Redraw a Cached Glyph once Its Web Font Has Loaded.
+   * A `@font-face` font (e.g. a base64 font in a playable ad) that is still loading at the first fire would
+   * otherwise stay cached in the fallback font forever. System fonts and loaded fonts pass `check()` and cost
+   * nothing; particles already on screen switch to the new bitmap because the source is updated in place.
+   *
+   * @param source - Cached Image Source to Update
+   * @param text - Text or Emoji
+   * @param font - Full CSS Font
+   * @param color - Fill Color
+   * @param size - Font Size in Pixels
+   */
+  private static redrawWhenLoaded(
+    source: ImageSource,
+    text: string,
+    font: string,
+    color: string,
+    size: number,
+  ): void {
+    if (typeof document === "undefined" || !("fonts" in document)) {
+      return;
+    }
+
+    try {
+      if (document.fonts.check(font, text)) {
+        return;
+      }
+    } catch {
+      // an unparsable font string: nothing to wait for
+      return;
+    }
+
+    document.fonts.load(font, text).then(
+      () => {
+        source.setImage(GlyphRasterizer.render(text, font, color, size));
+      },
+      () => undefined,
+    );
   }
 
   /**

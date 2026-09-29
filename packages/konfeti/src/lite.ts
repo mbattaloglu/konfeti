@@ -22,6 +22,7 @@ export { textShape } from "./shapes/handlers/textShape";
 export { triangleShape } from "./shapes/handlers/triangleShape";
 
 export type { BurstHooks } from "./types/BurstHooks";
+export type { ClickOptions } from "./types/ClickOptions";
 export type { ClientPoint } from "./types/ClientPoint";
 export type {
   ColorInput,
@@ -121,6 +122,7 @@ export type { WeightedColor } from "./types/WeightedColor";
 export type { WobbleOptions } from "./types/WobbleOptions";
 export type { Cloneable } from "./types/worker/Cloneable";
 export type { WorkerCreateOptions } from "./types/worker/WorkerCreateOptions";
+export type { WorkerStats } from "./types/worker/WorkerStats";
 export type { WorkerFireInput } from "./types/worker/WorkerFireInput";
 export type { WorkerFireOptions } from "./types/worker/WorkerFireOptions";
 export { VERSION } from "./Version";

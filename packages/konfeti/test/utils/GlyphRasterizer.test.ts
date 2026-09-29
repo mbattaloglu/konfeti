@@ -1,8 +1,53 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GlyphRasterizer } from "../../src/utils/GlyphRasterizer";
 
+/**
+ * Install a Fake `document.fonts` (happy-dom has none).
+ *
+ * @param fonts - Fake Font Set
+ */
+function stubFonts(fonts: Pick<FontFaceSet, "check" | "load">): void {
+  Object.defineProperty(document, "fonts", { value: fonts, configurable: true });
+}
+
+afterEach(() => {
+  Reflect.deleteProperty(document, "fonts");
+});
+
 describe("GlyphRasterizer", () => {
+  it("redraws a cached glyph once its web font finishes loading", async () => {
+    let finishLoading: () => void = () => undefined;
+    stubFonts({
+      check: () => false,
+      load: async () =>
+        new Promise((resolve) => {
+          finishLoading = () => {
+            resolve([]);
+          };
+        }),
+    });
+
+    const source = GlyphRasterizer.rasterize("A", "PlayableFont", "700", "#fff", 30);
+    const fallback = source.getImage();
+    finishLoading();
+
+    await vi.waitFor(() => {
+      expect(source.getImage()).not.toBe(fallback);
+    });
+    // the cache still hands out the same (now updated) source
+    expect(GlyphRasterizer.rasterize("A", "PlayableFont", "700", "#fff", 30)).toBe(source);
+  });
+
+  it("does not wait for fonts that are already available", () => {
+    const load = vi.fn(async () => Promise.resolve([]));
+    stubFonts({ check: () => true, load });
+
+    GlyphRasterizer.rasterize("B", "system-ui", "", "#fff", 30);
+
+    expect(load).not.toHaveBeenCalled();
+  });
+
   it("builds a valid CSS font shorthand (weight before size)", () => {
     const source = GlyphRasterizer.rasterize("YAY", "system-ui, sans-serif", "900", "#000", 20);
     const canvas = source.getImage() as HTMLCanvasElement;

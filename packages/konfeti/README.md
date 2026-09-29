@@ -18,18 +18,38 @@ Konfeti.fire(); // classic confetti pop
 ## API at a glance
 
 ```ts
-import { Konfeti, KonfetiFactory, KonfetiPresets, type FireOptions } from "konfeti";
+import {
+  Konfeti, // the ready-made, shared instance: draws on a fullscreen overlay canvas
+  KonfetiFactory, // builds extra instances (your own canvas, or a Web Worker)
+  KonfetiPresets, // ready-to-fire looks: SNOW, FIREWORKS, STARS …
+  extendPreset, // a preset plus your own settings
+  type FireOptions, // the type of every fire() setting, for autocomplete
+} from "konfeti";
 
-Konfeti.fire(); // shared fullscreen canvas
-Konfeti.fire(KonfetiPresets.SNOW);
-Konfeti.onClick(button, { particleCount: 30 });
-Konfeti.reset();
+// ── the shared instance: nothing to set up ──
+Konfeti.fire(); // one classic confetti pop, upward from just below the screen center
+Konfeti.fire({ particleCount: 120, spread: 90, origin: { x: 0.5, y: 0.3 } }); // your own settings
+Konfeti.fire(KonfetiPresets.SNOW); // a preset, as is
+Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { particleCount: 60 })); // a preset, tweaked
 
-const stage = KonfetiFactory.create(canvas, { maxParticles: 800 }); // your own canvas
-stage.fire();
-stage.destroy();
+const burst = Konfeti.fire(); // every fire() returns a handle for that burst…
+burst.pause(); // …freeze just this burst
+burst.resume(); // …continue it
+await burst; // …or wait until its last particle is gone
 
-const options: FireOptions = { particleCount: 80 };
+Konfeti.onClick(button, { particleCount: 30 }); // fire from the click position on every click
+Konfeti.pause(); // freeze everything (e.g. while an ad is not visible)
+Konfeti.resume(); // continue everything
+Konfeti.reset(); // remove every particle at once
+
+// ── your own instance: own canvas, own defaults, own particle limit ──
+const stage = KonfetiFactory.create(canvas, { maxParticles: 800 });
+stage.fire(); // same API as Konfeti, drawn on `canvas`
+stage.destroy(); // stop, clear and remove its listeners when you are done
+
+// ── typed options: every setting autocompletes and is checked ──
+const options: FireOptions = { particleCount: 80, paper: { colors: ["#d6ff3f", "#ffffff"] } };
+Konfeti.fire(options);
 ```
 
 ## Contents
@@ -44,6 +64,7 @@ const options: FireOptions = { particleCount: 80 };
 - [Hooks](#hooks)
 - [Instances & canvases](#instances--canvases)
 - [Worker rendering](#worker-rendering)
+- [Playable ads & webviews](#playable-ads--webviews)
 - [Custom shapes & physics](#custom-shapes--physics)
 - [Bundle size & `konfeti/lite`](#bundle-size--konfetilite)
 - [Units & ranges](#units--ranges)
@@ -213,8 +234,25 @@ stage.reset();
 stage.destroy(); // also removes its click listeners
 ```
 
+`onClick` takes a third argument: `trigger: "pointerdown"` fires as soon as a finger or button goes down (it
+keeps working when the page cancels touch events), and `onFire` receives each click burst's handle:
+
+```ts
+Konfeti.onClick(
+  button,
+  { particleCount: 30 },
+  {
+    trigger: "pointerdown",
+    onFire: (burst) => burst.then(() => console.log("done")),
+  },
+);
+```
+
+`pause()` freezes every burst on its current frame and `resume()` continues without counting the paused time
+(hidden tabs pause on their own). Both exist on `Konfeti` and on every instance.
+
 The first instance on a page logs a one-line banner with the version and renderer to the console. Call
-`disableBanner()` before firing to keep the console silent.
+`disableBanner()` before firing to keep the console silent (`konfeti/lite` never prints it).
 
 ## Worker rendering
 
@@ -258,6 +296,30 @@ KonfetiFactory.createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
 ```
 
 If the script cannot load, every burst rejects with a clear error instead of hanging.
+
+Hooks cannot run inside a worker, so a worker instance counts for you: `stage.getStats()` returns
+`{ live, spawned, died, completed }` (updated a few times per second).
+
+## Playable ads & webviews
+
+konfeti works in single-file playable ads: it has no dependencies, makes no network requests of its own, uses
+no storage and no `eval`. `Konfeti.fire()` adds about 47 kB minified (14 kB brotli); ad networks usually count
+uncompressed size. Keep these in mind:
+
+- **Images:** pass a `data:` URI or an image / canvas your engine already loaded — a URL like `/coin.png` is a
+  network request.
+- **Web fonts:** text and emoji are drawn once and cached; a glyph drawn before its `@font-face` finished
+  loading is redrawn automatically when the font arrives.
+- **Emoji** look different on every platform (and old Android may lack new ones); use `image` shapes when the
+  look must match.
+- **Taps:** if your engine cancels touch events, `click` never fires on phones — use
+  `onClick(target, options, { trigger: "pointerdown" })` or fire from your own input handler with
+  `origin: { x, y }` (0–1) or the pointer event.
+- **Visibility:** call `Konfeti.pause()` / `Konfeti.resume()` from MRAID `viewableChange`.
+- **Worker rendering:** avoid it in ads — some webviews block `blob:` workers, and a single-file build that
+  inlines dynamic imports would carry the 44 kB worker script if you import `KonfetiFactory`.
+- **Console:** call `disableBanner()` in production builds.
+- **Targets:** the build is ES2022 (Chrome 85+ / iOS 14.5+); let your bundler lower it for older webviews.
 
 ## Custom shapes & physics
 

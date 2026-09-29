@@ -120,6 +120,62 @@ describe("WorkerKonfetiInstance", () => {
     expect(fake.terminated()).toBe(true);
   });
 
+  it("counts spawned, died and finished bursts from the worker", async () => {
+    const fake = createFakeWorker();
+    const stage = new WorkerKonfetiInstance(transferableCanvas(), {}, () =>
+      Promise.resolve(fake.port),
+    );
+    await flush();
+
+    const handle = stage.fire({ particleCount: 6, lifetime: 100 });
+    fake.tickStats();
+    expect(stage.getStats()).toEqual({ live: 6, spawned: 6, died: 0, completed: 0 });
+
+    fake.scheduler.step(20);
+    await handle;
+    fake.tickStats();
+    expect(stage.getStats()).toEqual({ live: 0, spawned: 6, died: 6, completed: 1 });
+    stage.destroy();
+  });
+
+  it("counts the same stats in main-thread fallback mode", async () => {
+    vi.stubGlobal("OffscreenCanvas", undefined);
+    const stage = new WorkerKonfetiInstance(document.createElement("canvas"), {}, () =>
+      Promise.reject(new Error("must not connect")),
+    );
+
+    const handle = stage.fire([{ particleCount: 2 }, { particleCount: 3 }]);
+    expect(stage.getStats()).toEqual({ live: 5, spawned: 5, died: 0, completed: 0 });
+    handle.stop();
+    await handle;
+    expect(stage.getStats().completed).toBe(2);
+    stage.destroy();
+  });
+
+  it("pauses and resumes the worker", async () => {
+    const fake = createFakeWorker();
+    const stage = new WorkerKonfetiInstance(transferableCanvas(), {}, () =>
+      Promise.resolve(fake.port),
+    );
+    await flush();
+
+    const handle = stage.fire({ particleCount: 4, lifetime: 100 });
+    stage.pause();
+    expect(stage.isPaused()).toBe(true);
+    expect(fake.scheduler.getPendingCount()).toBe(0);
+    fake.scheduler.step(30);
+    expect(handle.isFinished()).toBe(false);
+
+    stage.resume();
+    fake.scheduler.step(20);
+    await expect(handle).resolves.toBeUndefined();
+    expect(fake.sent.filter((message) => message.type === "pause")).toEqual([
+      { type: "pause", paused: true },
+      { type: "pause", paused: false },
+    ]);
+    stage.destroy();
+  });
+
   it("queues messages until the worker connects", async () => {
     const fake = createFakeWorker();
     let connect: (port: WorkerPort) => void = () => undefined;

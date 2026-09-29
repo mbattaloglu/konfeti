@@ -51,7 +51,13 @@ describe("WorkerRuntime", () => {
 
     runtime.handle({ type: "fire", id: 7, options: { lifetime: 100 } });
     tickStats();
-    expect(messages).toContainEqual({ type: "stats", total: 5, bursts: [[7, 5]] });
+    expect(messages).toContainEqual({
+      type: "stats",
+      total: 5,
+      spawned: 5,
+      died: 0,
+      bursts: [[7, 5]],
+    });
 
     scheduler.step(20);
     return Promise.resolve().then(() => {

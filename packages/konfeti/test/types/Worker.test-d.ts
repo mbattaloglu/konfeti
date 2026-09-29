@@ -1,6 +1,13 @@
 import { describe, expectTypeOf, it } from "vitest";
 
-import type { KonfetiFactory, WorkerFireOptions, WorkerKonfetiInstance } from "../../src/index";
+import type {
+  ClickOptions,
+  KonfetiFactory,
+  KonfetiInstance,
+  WorkerFireOptions,
+  WorkerKonfetiInstance,
+  WorkerStats,
+} from "../../src/index";
 
 describe("worker option types", () => {
   it("accepts worker-safe options", () => {
@@ -27,5 +34,21 @@ describe("worker option types", () => {
     expectTypeOf<
       ReturnType<typeof KonfetiFactory.createWorker>
     >().toEqualTypeOf<WorkerKonfetiInstance>();
+  });
+});
+
+describe("worker stats and click settings", () => {
+  it("getStats returns the counter record", () => {
+    expectTypeOf<WorkerKonfetiInstance["getStats"]>().returns.toEqualTypeOf<WorkerStats>();
+  });
+
+  it("onClick takes trigger / onFire settings on both instance kinds", () => {
+    expectTypeOf<WorkerKonfetiInstance["onClick"]>()
+      .parameter(2)
+      .toEqualTypeOf<ClickOptions | undefined>();
+    expectTypeOf<KonfetiInstance["onClick"]>()
+      .parameter(2)
+      .toEqualTypeOf<ClickOptions | undefined>();
+    expectTypeOf<{ trigger: "hover" }>().not.toExtend<ClickOptions>();
   });
 });

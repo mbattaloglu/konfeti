@@ -13,10 +13,12 @@ npm install konfeti
 ```ts
 import { Konfeti, KonfetiFactory, KonfetiPresets } from "konfeti";
 
-Konfeti.fire(); // shared fullscreen canvas
-Konfeti.fire(KonfetiPresets.FIREWORKS);
+Konfeti.fire(); // one confetti pop on a shared fullscreen overlay — no setup
+Konfeti.fire(KonfetiPresets.FIREWORKS); // a ready-made look
 
-const stage = KonfetiFactory.create(canvas, { maxParticles: 800 }); // your own canvas
+// your own canvas, with its own particle limit
+const stage = KonfetiFactory.create(canvas, { maxParticles: 800 });
+// mix paper forms and pick the colors
 stage.fire({ paper: { form: ["rect", "circle"], colors: ["#d6ff3f", "#ffffff"] } });
 ```
 

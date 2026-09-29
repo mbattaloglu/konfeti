@@ -4,6 +4,7 @@ import { ParticlePool } from "../core/ParticlePool";
 import { OptionResolver } from "../core/resolve/OptionResolver";
 import { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
 import type { FrameScheduler } from "../types/FrameScheduler";
+import type { FireOptions } from "../types/FireOptions";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 import type { OffscreenCanvasLike } from "./OffscreenSurface";
 import { OffscreenSurface } from "./OffscreenSurface";
@@ -85,6 +86,29 @@ export class WorkerRuntime {
   private lastStats = "";
 
   /**
+   * Particles Spawned So Far (hooks cannot reach the main thread, so the worker counts).
+   */
+  private spawned = 0;
+
+  /**
+   * Particles Died So Far.
+   */
+  private died = 0;
+
+  /**
+   * Internal Counting Hooks, Added as the Last Option Layer of Every Burst.
+   * Users cannot send hooks to a worker, so these never replace a user hook.
+   */
+  private readonly countingHooks: FireOptions = {
+    onParticleSpawn: () => {
+      this.spawned++;
+    },
+    onParticleDeath: () => {
+      this.died++;
+    },
+  };
+
+  /**
    * Create Runtime.
    *
    * @param post - Message Sender
@@ -162,6 +186,13 @@ export class WorkerRuntime {
       case "resize":
         this.surface?.resize(message.width, message.height, message.pixelRatio);
         break;
+      case "pause":
+        if (message.paused) {
+          this.engine?.pause();
+        } else {
+          this.engine?.resume();
+        }
+        break;
       case "visibility":
         if (message.hidden) {
           this.engine?.suspend();
@@ -220,7 +251,7 @@ export class WorkerRuntime {
     }
 
     try {
-      const resolved = OptionResolver.resolveFire([this.defaults, options], {
+      const resolved = OptionResolver.resolveFire([this.defaults, options, this.countingHooks], {
         pixelRatio: surface.getPixelRatio(),
       });
       const burst = new Burst(resolved, engine);
@@ -274,11 +305,11 @@ export class WorkerRuntime {
       bursts.push([id, count]);
     }
 
-    const key = `${String(total)}:${bursts.map(([id, count]) => `${String(id)}=${String(count)}`).join(",")}`;
+    const key = `${String(total)}:${String(this.spawned)}:${String(this.died)}:${bursts.map(([id, count]) => `${String(id)}=${String(count)}`).join(",")}`;
 
     if (key !== this.lastStats) {
       this.lastStats = key;
-      this.post({ type: "stats", total, bursts });
+      this.post({ type: "stats", total, spawned: this.spawned, died: this.died, bursts });
     }
   };
 

@@ -1,4 +1,7 @@
-import { Banner } from "../utils/Banner";
+import type { ClickOptions } from "../types/ClickOptions";
+import type { FireOptions } from "../types/FireOptions";
+import type { WorkerStats } from "../types/worker/WorkerStats";
+import { Announcer } from "../utils/Announcer";
 import { GroupHandle } from "../core/GroupHandle";
 import { KonfetiInstance } from "../core/KonfetiInstance";
 import { OverlayCanvas } from "../core/OverlayCanvas";
@@ -27,7 +30,7 @@ export type WorkerConnector = (url: string | URL | undefined) => Promise<WorkerP
  */
 export class WorkerKonfetiInstance {
   /**
-   * Renderer Name Shown in the Console Banner.
+   * Renderer Name Announced on Creation (shown by the console banner).
    */
   private static readonly RENDERER_NAME = "worker · offscreen canvas 2d";
 
@@ -88,6 +91,26 @@ export class WorkerKonfetiInstance {
   private particleCount = 0;
 
   /**
+   * Particles Spawned So Far (reported by the worker, or counted here in fallback mode).
+   */
+  private spawned = 0;
+
+  /**
+   * Particles Died So Far.
+   */
+  private died = 0;
+
+  /**
+   * Bursts Finished So Far.
+   */
+  private completed = 0;
+
+  /**
+   * Paused State Flag (pause() in effect).
+   */
+  private _isPaused = false;
+
+  /**
    * Last Sent Size Key (skips duplicate resize messages).
    */
   private lastSize = "";
@@ -129,7 +152,7 @@ export class WorkerKonfetiInstance {
       return;
     }
 
-    Banner.show(WorkerKonfetiInstance.RENDERER_NAME);
+    Announcer.announce(WorkerKonfetiInstance.RENDERER_NAME);
 
     this.fallback = null;
     const offscreen = this.canvas.transferControlToOffscreen();
@@ -194,7 +217,22 @@ export class WorkerKonfetiInstance {
     }
 
     if (this.fallback !== null) {
-      return this.fallback.fire(input);
+      // same counters as the worker reports, so getStats() works in both modes
+      const counted = (options: WorkerFireOptions): FireOptions => ({
+        ...options,
+        onParticleSpawn: () => {
+          this.spawned++;
+        },
+        onParticleDeath: () => {
+          this.died++;
+        },
+        onComplete: () => {
+          this.completed++;
+        },
+      });
+      return this.fallback.fire(
+        WorkerKonfetiInstance.isList(input) ? input.map(counted) : counted(input),
+      );
     }
 
     if (WorkerKonfetiInstance.isList(input)) {
@@ -210,12 +248,15 @@ export class WorkerKonfetiInstance {
    *
    * @param target - Element (or `window`) to Listen On
    * @param options - Worker-Safe Burst Options, or a Function Building Them from the Click Event
+   * @param settings - Trigger Event and Burst Callback
    * @returns Unsubscribe Function
    */
   public onClick(
     target: Element | Window,
     options?: WorkerFireInput | ((event: MouseEvent) => WorkerFireInput),
+    settings: ClickOptions = {},
   ): () => void {
+    const trigger = settings.trigger ?? "click";
     const handleClick = (event: Event): void => {
       if (!(event instanceof MouseEvent) || this._isDestroyed) {
         return;
@@ -226,17 +267,44 @@ export class WorkerKonfetiInstance {
       const withOrigin = (entry: WorkerFireOptions): WorkerFireOptions =>
         entry.origin === undefined ? { ...entry, origin } : entry;
 
-      this.fire(WorkerKonfetiInstance.isList(input) ? input.map(withOrigin) : withOrigin(input));
+      const handle = this.fire(
+        WorkerKonfetiInstance.isList(input) ? input.map(withOrigin) : withOrigin(input),
+      );
+      settings.onFire?.(handle, event);
     };
 
     const unsubscribe = (): void => {
-      target.removeEventListener("click", handleClick);
+      target.removeEventListener(trigger, handleClick);
       this.clickListeners.delete(unsubscribe);
     };
 
-    target.addEventListener("click", handleClick);
+    target.addEventListener(trigger, handleClick);
     this.clickListeners.add(unsubscribe);
     return unsubscribe;
+  }
+
+  /**
+   * Pause Everything.
+   * Freezes every running burst on its current frame; bursts fired while paused wait as well.
+   */
+  public pause(): void {
+    this.setPaused(true);
+  }
+
+  /**
+   * Resume After pause().
+   */
+  public resume(): void {
+    this.setPaused(false);
+  }
+
+  /**
+   * Check Whether pause() Is in Effect.
+   *
+   * @returns Paused Flag
+   */
+  public isPaused(): boolean {
+    return this._isPaused;
   }
 
   /**
@@ -288,6 +356,28 @@ export class WorkerKonfetiInstance {
    */
   public getParticleCount(): number {
     return this.fallback?.getParticleCount() ?? this.particleCount;
+  }
+
+  /**
+   * Return Counters.
+   * The worker-mode replacement for hooks (which cannot run in a worker): live, spawned and died particles
+   * and finished bursts. Works the same in main-thread fallback mode.
+   *
+   * @returns Counters (worker mode: updated a few times per second)
+   * @example
+   * ```ts
+   * const stage = KonfetiFactory.createWorker(canvas);
+   * await stage.fire({ particleCount: 200 });
+   * stage.getStats(); // { live: 0, spawned: 200, died: 200, completed: 1 }
+   * ```
+   */
+  public getStats(): WorkerStats {
+    return {
+      live: this.getParticleCount(),
+      spawned: this.spawned,
+      died: this.died,
+      completed: this.completed,
+    };
   }
 
   /**
@@ -387,6 +477,7 @@ export class WorkerKonfetiInstance {
         this.failAll(message.message);
         break;
       case "complete":
+        this.completed++;
         this.settle(message.id)?.complete();
         break;
       case "error":
@@ -394,6 +485,8 @@ export class WorkerKonfetiInstance {
         break;
       case "stats":
         this.particleCount = message.total;
+        this.spawned = message.spawned;
+        this.died = message.died;
         for (const [id, count] of message.bursts) {
           this.handles.get(id)?.setParticleCount(count);
         }
@@ -418,6 +511,26 @@ export class WorkerKonfetiInstance {
     }
 
     return handle;
+  }
+
+  /**
+   * Apply Paused State to the Worker (or the Fallback Instance).
+   *
+   * @param paused - Paused Flag
+   */
+  private setPaused(paused: boolean): void {
+    this._isPaused = paused;
+
+    if (this.fallback !== null) {
+      if (paused) {
+        this.fallback.pause();
+      } else {
+        this.fallback.resume();
+      }
+      return;
+    }
+
+    this.send({ type: "pause", paused });
   }
 
   /**

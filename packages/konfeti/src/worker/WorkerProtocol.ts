@@ -36,6 +36,7 @@ export type MainToWorker =
       readonly pixelRatio: number;
     }
   | { readonly type: "visibility"; readonly hidden: boolean }
+  | { readonly type: "pause"; readonly paused: boolean }
   | { readonly type: "destroy" };
 
 /**
@@ -49,5 +50,7 @@ export type WorkerToMain =
   | {
       readonly type: "stats";
       readonly total: number;
+      readonly spawned: number;
+      readonly died: number;
       readonly bursts: readonly (readonly [id: number, count: number])[];
     };

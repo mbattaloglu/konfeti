@@ -18,7 +18,7 @@ import type { FireInput } from "../types/FireInput";
 export const KonfetiPresets = {
   /**
    * Basic.
-   * The library defaults: one classic confetti pop from the lower middle of the screen.
+   * The library defaults: one classic confetti pop, upward from just below the screen center.
    */
   BASIC: {},
 

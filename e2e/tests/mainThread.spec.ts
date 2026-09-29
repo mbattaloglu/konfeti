@@ -83,4 +83,46 @@ test.describe("main thread (ESM build)", () => {
 
     expect(site.requests.filter((path) => /spawnWorker|konfeti\.worker/.test(path))).toEqual([]);
   });
+
+  test("pause() freezes the burst and resume() finishes it", async ({ page }) => {
+    await openPage(page, "esm.html");
+
+    const result = await page.evaluate(async () => {
+      const { Konfeti } = window.konfeti;
+      const handle = Konfeti.fire({ particleCount: 20, lifetime: 300 });
+      Konfeti.pause();
+      // longer than the lifetime: without pause every particle would be gone
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      const whilePaused = Konfeti.getParticleCount();
+      Konfeti.resume();
+      await handle;
+      return { whilePaused, after: Konfeti.getParticleCount() };
+    });
+
+    expect(result).toEqual({ whilePaused: 20, after: 0 });
+  });
+
+  test("onClick with trigger pointerdown fires on a real tap and hands over the burst", async ({
+    page,
+  }) => {
+    await openPage(page, "esm.html");
+    await page.evaluate(() => {
+      const stage = document.querySelector("canvas");
+      (window as unknown as { fired: number }).fired = 0;
+      window.konfeti.Konfeti.onClick(
+        stage ?? window,
+        { particleCount: 7, lifetime: 200 },
+        {
+          trigger: "pointerdown",
+          onFire: (handle) => {
+            (window as unknown as { fired: number }).fired += handle.getParticleCount();
+          },
+        },
+      );
+    });
+
+    await page.locator("#stage").click();
+
+    expect(await page.evaluate(() => (window as unknown as { fired: number }).fired)).toBe(7);
+  });
 });

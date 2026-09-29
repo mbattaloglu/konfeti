@@ -86,6 +86,11 @@ export class Engine implements BurstOwner {
   private _isSuspended = false;
 
   /**
+   * Paused State Flag (set by the user; independent of visibility suspension).
+   */
+  private _isPaused = false;
+
+  /**
    * Create Engine.
    *
    * @param surface - Target Surface
@@ -123,7 +128,7 @@ export class Engine implements BurstOwner {
    * Request Animation Frame.
    */
   public requestFrame(): void {
-    if (this.frameId === null && !this._isSuspended) {
+    if (this.frameId === null && !this._isSuspended && !this._isPaused) {
       this.frameId = this.scheduler.request(this.onFrame);
     }
   }
@@ -143,6 +148,33 @@ export class Engine implements BurstOwner {
     this._isSuspended = false;
     this.lastTime = null;
     this.requestFrame();
+  }
+
+  /**
+   * Freeze Every Burst on Its Current Frame (bursts fired meanwhile wait too).
+   */
+  public pause(): void {
+    this._isPaused = true;
+    this.cancelFrame();
+  }
+
+  /**
+   * Continue After pause().
+   */
+  public resume(): void {
+    this._isPaused = false;
+    // the frozen time must not count as elapsed
+    this.lastTime = null;
+    this.requestFrame();
+  }
+
+  /**
+   * Return Paused State.
+   *
+   * @returns Paused State
+   */
+  public isPaused(): boolean {
+    return this._isPaused;
   }
 
   /**

@@ -19,18 +19,38 @@ Konfeti.fire(); // klasik konfeti patlaması
 ## Bir bakışta API
 
 ```ts
-import { Konfeti, KonfetiFactory, KonfetiPresets, type FireOptions } from "konfeti";
+import {
+  Konfeti, // hazır, paylaşılan instance: tam ekran bir katman canvas'ına çizer
+  KonfetiFactory, // ek instance'lar kurar (kendi canvas'ın ya da bir Web Worker)
+  KonfetiPresets, // hazır görünümler: SNOW, FIREWORKS, STARS …
+  extendPreset, // bir hazır ayar + senin ayarların
+  type FireOptions, // tüm fire() ayarlarının tipi, otomatik tamamlama için
+} from "konfeti";
 
-Konfeti.fire(); // paylaşılan tam ekran canvas
-Konfeti.fire(KonfetiPresets.SNOW);
-Konfeti.onClick(button, { particleCount: 30 });
-Konfeti.reset();
+// ── paylaşılan instance: hiçbir kurulum gerekmez ──
+Konfeti.fire(); // ekran ortasının biraz altından yukarı doğru tek bir klasik konfeti patlaması
+Konfeti.fire({ particleCount: 120, spread: 90, origin: { x: 0.5, y: 0.3 } }); // kendi ayarların
+Konfeti.fire(KonfetiPresets.SNOW); // bir hazır ayar, olduğu gibi
+Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { particleCount: 60 })); // bir hazır ayar, değiştirilmiş
 
-const stage = KonfetiFactory.create(canvas, { maxParticles: 800 }); // kendi canvas'ın
-stage.fire();
-stage.destroy();
+const burst = Konfeti.fire(); // her fire() o patlamanın handle'ını döndürür…
+burst.pause(); // …sadece bu patlamayı dondur
+burst.resume(); // …devam ettir
+await burst; // …ya da son parçacığı yok olana kadar bekle
 
-const options: FireOptions = { particleCount: 80 };
+Konfeti.onClick(button, { particleCount: 30 }); // her tıklamada tıklanan noktadan patlat
+Konfeti.pause(); // her şeyi dondur (ör. reklam görünür değilken)
+Konfeti.resume(); // her şeye devam et
+Konfeti.reset(); // tüm parçacıkları bir anda kaldır
+
+// ── kendi instance'ın: kendi canvas'ı, kendi varsayılanları, kendi parçacık sınırı ──
+const stage = KonfetiFactory.create(canvas, { maxParticles: 800 });
+stage.fire(); // Konfeti ile aynı API, `canvas` üzerine çizer
+stage.destroy(); // işin bitince durdurur, temizler ve dinleyicilerini kaldırır
+
+// ── tipli seçenekler: her ayar otomatik tamamlanır ve denetlenir ──
+const options: FireOptions = { particleCount: 80, paper: { colors: ["#d6ff3f", "#ffffff"] } };
+Konfeti.fire(options);
 ```
 
 ## İçindekiler
@@ -45,6 +65,7 @@ const options: FireOptions = { particleCount: 80 };
 - [Hook'lar](#hooklar)
 - [Instance'lar ve canvas'lar](#instancelar-ve-canvaslar)
 - [Worker ile çizim](#worker-ile-çizim)
+- [Playable reklamlar ve webview'lar](#playable-reklamlar-ve-webviewlar)
 - [Özel şekiller ve fizik](#özel-şekiller-ve-fizik)
 - [Paket boyutu ve `konfeti/lite`](#paket-boyutu-ve-konfetilite)
 - [Birimler ve aralıklar](#birimler-ve-aralıklar)
@@ -218,8 +239,25 @@ stage.reset();
 stage.destroy(); // tıklama dinleyicilerini de kaldırır
 ```
 
+`onClick` üçüncü bir argüman alır: `trigger: "pointerdown"` parmak ya da tuş basıldığı anda patlatır (sayfa
+dokunma olaylarını iptal etse bile çalışır), `onFire` ise her tıklama patlamasının handle'ını verir:
+
+```ts
+Konfeti.onClick(
+  button,
+  { particleCount: 30 },
+  {
+    trigger: "pointerdown",
+    onFire: (burst) => burst.then(() => console.log("bitti")),
+  },
+);
+```
+
+`pause()` her patlamayı o anki karesinde dondurur, `resume()` duraklatılan süreyi saymadan devam ettirir (gizli
+sekmeler zaten kendiliğinden durur). İkisi de hem `Konfeti`'de hem her instance'ta var.
+
 Sayfadaki ilk instance, konsola sürümü ve çizim yöntemini gösteren tek satırlık bir banner yazar. Konsolu sessiz
-tutmak için patlatmadan önce `disableBanner()` çağır.
+tutmak için patlatmadan önce `disableBanner()` çağır (`konfeti/lite` bu banner'ı hiç yazmaz).
 
 ## Worker ile çizim
 
@@ -264,6 +302,30 @@ KonfetiFactory.createWorker(canvas, { workerUrl: "/vendor/konfeti.worker.js" });
 ```
 
 Betik yüklenemezse her patlama asılı kalmak yerine açık bir hatayla reddedilir.
+
+Hook'lar worker içinde çalışamaz, bu yüzden worker instance'ı sayımı kendisi yapar: `stage.getStats()`
+`{ live, spawned, died, completed }` döndürür (saniyede birkaç kez güncellenir).
+
+## Playable reklamlar ve webview'lar
+
+konfeti tek dosyalık playable reklamlarda çalışır: bağımlılığı yoktur, kendi başına ağ isteği yapmaz, depolama ve
+`eval` kullanmaz. `Konfeti.fire()` yaklaşık 47 kB minified (14 kB brotli) ekler; reklam ağları genelde
+sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
+
+- **Görseller:** `data:` URI ya da motorunun zaten yüklediği bir görsel / canvas ver — `/coin.png` gibi bir URL
+  ağ isteğidir.
+- **Web fontları:** metin ve emoji bir kez çizilip önbelleğe alınır; `@font-face` yüklenmeden çizilen bir glif,
+  font gelince kendiliğinden yeniden çizilir.
+- **Emoji'ler** her platformda farklı görünür (eski Android'lerde yenileri hiç olmayabilir); görünüm birebir
+  olmalıysa `image` şekli kullan.
+- **Dokunma:** motorun dokunma olaylarını iptal ediyorsa telefonda `click` hiç gelmez —
+  `onClick(target, options, { trigger: "pointerdown" })` kullan ya da kendi input handler'ından
+  `origin: { x, y }` (0–1) veya pointer olayıyla patlat.
+- **Görünürlük:** MRAID `viewableChange` olayında `Konfeti.pause()` / `Konfeti.resume()` çağır.
+- **Worker ile çizim:** reklamlarda kullanma — bazı webview'lar `blob:` worker'ları engeller ve dinamik importları
+  gömen tek dosyalık bir build, `KonfetiFactory` import edersen 44 kB'lık worker betiğini de taşır.
+- **Konsol:** production build'lerinde `disableBanner()` çağır.
+- **Hedef:** build ES2022'dir (Chrome 85+ / iOS 14.5+); daha eski webview'lar için bundler'ın dönüştürsün.
 
 ## Özel şekiller ve fizik
 

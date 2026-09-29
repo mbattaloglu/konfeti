@@ -46,11 +46,18 @@ test.describe("worker rendering (ESM build)", () => {
     const outcome = await page.evaluate(async () => {
       const worker = window.konfeti.KonfetiFactory.createWorker(document.querySelector("canvas"));
       await worker.fire({ particleCount: 30, lifetime: 300 });
-      return { isWorker: worker.isWorker(), left: worker.getParticleCount() };
+      // counters arrive with the next stats report
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return {
+        isWorker: worker.isWorker(),
+        left: worker.getParticleCount(),
+        stats: worker.getStats(),
+      };
     });
 
     expect(outcome.isWorker).toBe(true);
     expect(outcome.left).toBe(0);
+    expect(outcome.stats).toEqual({ live: 0, spawned: 30, died: 30, completed: 1 });
   });
 
   test("rejects the burst when the worker reports invalid options", async ({ page }) => {

@@ -1,5 +1,6 @@
-import { Banner } from "../utils/Banner";
+import { Announcer } from "../utils/Announcer";
 import { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
+import type { ClickOptions } from "../types/ClickOptions";
 import type { CreateOptions } from "../types/CreateOptions";
 import type { FireInput } from "../types/FireInput";
 import type { FireOptions } from "../types/FireOptions";
@@ -27,7 +28,7 @@ import { ParticlePool } from "./ParticlePool";
  */
 export class KonfetiInstance {
   /**
-   * Renderer Name Shown in the Console Banner.
+   * Renderer Name Announced on Creation (shown by the console banner).
    */
   private static readonly RENDERER_NAME = "canvas 2d";
 
@@ -79,7 +80,7 @@ export class KonfetiInstance {
       this.options.maxParticles,
     );
     this.registerVisibilityEvents();
-    Banner.show(KonfetiInstance.RENDERER_NAME);
+    Announcer.announce(KonfetiInstance.RENDERER_NAME);
   }
 
   /**
@@ -107,6 +108,7 @@ export class KonfetiInstance {
    *
    * @param target - Element (or `window`) to Listen On
    * @param options - Burst Options, or a Function Building Them from the Click Event
+   * @param settings - Trigger Event and Burst Callback
    * @returns Unsubscribe Function
    * @example
    * ```ts
@@ -117,7 +119,9 @@ export class KonfetiInstance {
   public onClick(
     target: Element | Window,
     options?: FireInput | ((event: MouseEvent) => FireInput),
+    settings: ClickOptions = {},
   ): () => void {
+    const trigger = settings.trigger ?? "click";
     const handleClick = (event: Event): void => {
       if (!(event instanceof MouseEvent) || this._isDestroyed) {
         return;
@@ -127,17 +131,55 @@ export class KonfetiInstance {
       const withOrigin = (entry: FireOptions): FireOptions =>
         entry.origin === undefined ? { ...entry, origin: event } : entry;
 
-      this.fire(KonfetiInstance.isList(input) ? input.map(withOrigin) : withOrigin(input));
+      const handle = this.fire(
+        KonfetiInstance.isList(input) ? input.map(withOrigin) : withOrigin(input),
+      );
+      settings.onFire?.(handle, event);
     };
 
     const unsubscribe = (): void => {
-      target.removeEventListener("click", handleClick);
+      target.removeEventListener(trigger, handleClick);
       this.clickListeners.delete(unsubscribe);
     };
 
-    target.addEventListener("click", handleClick);
+    target.addEventListener(trigger, handleClick);
     this.clickListeners.add(unsubscribe);
     return unsubscribe;
+  }
+
+  /**
+   * Pause Everything.
+   * Freezes every running burst on its current frame; bursts fired while paused wait as well. Use it when
+   * the confetti is not visible, e.g. on an MRAID `viewableChange` in a playable ad. Hidden tabs already
+   * pause automatically.
+   *
+   * @example
+   * ```ts
+   * mraid.addEventListener("viewableChange", (viewable) => {
+   *   if (viewable) Konfeti.resume();
+   *   else Konfeti.pause();
+   * });
+   * ```
+   */
+  public pause(): void {
+    this.engine.pause();
+  }
+
+  /**
+   * Resume After pause().
+   * Continues exactly where the bursts stopped; the paused time does not count as elapsed.
+   */
+  public resume(): void {
+    this.engine.resume();
+  }
+
+  /**
+   * Check Whether pause() Is in Effect.
+   *
+   * @returns Paused Flag
+   */
+  public isPaused(): boolean {
+    return this.engine.isPaused();
   }
 
   /**

@@ -19,7 +19,15 @@ import { DefaultInstance } from "./DefaultInstance";
  */
 export const Konfeti: SharedKonfeti = {
   fire: (input) => DefaultInstance.getInstance().fire(input),
-  onClick: (target, options) => DefaultInstance.getInstance().onClick(target, options),
+  onClick: (target, options, settings) =>
+    DefaultInstance.getInstance().onClick(target, options, settings),
+  pause: () => {
+    DefaultInstance.getInstance().pause();
+  },
+  resume: () => {
+    DefaultInstance.peek()?.resume();
+  },
+  isPaused: () => DefaultInstance.peek()?.isPaused() ?? false,
   reset: () => {
     DefaultInstance.peek()?.reset();
   },
