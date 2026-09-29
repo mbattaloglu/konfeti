@@ -100,7 +100,7 @@ Adapted from `llms/guides/scripting-logic.md` (that guide is written for Gearbox
 - **Setup/teardown symmetry:** every `register*` / `attach*` (resize observer, visibility listener, worker) has a matching `unregister*` / `detach*` called from `destroy()`. The loop must stop itself when no particles remain.
 - **Imports order:** external → relative. **No path aliases** in library source (they leak into emitted `.d.ts`).
 - Inline comments lowercase, explain _why_. Intent goes in TSDoc.
-- **Two languages on the site:** every README change is mirrored into `packages/konfeti/README.tr.md`; every new playground string/control gets its Turkish text (`messages.ts`, `controlsTr.ts`).
+- **Two languages on the site:** every README change is mirrored into its Turkish twin (`packages/konfeti/README.tr.md` for the guide, root `README.tr.md` for the GitHub page); every new playground string/control gets its Turkish text (`messages.ts`, `controlsTr.ts`).
 
 ### Tree-shaking rules
 
