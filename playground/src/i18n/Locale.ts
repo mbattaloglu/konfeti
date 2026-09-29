@@ -103,7 +103,15 @@ export function switchLocale(locale: Locale): void {
     url.searchParams.set(QUERY_PARAM, locale);
   }
 
-  location.replace(url);
+  // section anchors differ per language; and a URL that only differs by its #hash would just scroll, not reload
+  url.hash = "";
+
+  if (url.pathname + url.search === location.pathname + location.search) {
+    history.replaceState(history.state, "", url);
+    location.reload();
+  } else {
+    location.replace(url);
+  }
 }
 
 /**

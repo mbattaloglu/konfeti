@@ -1,5 +1,11 @@
 import { KonfetiFactory, KonfetiPresets, loadImage, VERSION, WorkerKonfetiInstance } from "konfeti";
-import type { FireInput, KonfetiHandle, KonfetiInstance, WorkerFireInput } from "konfeti";
+import type {
+  FireInput,
+  KonfetiHandle,
+  KonfetiInstance,
+  WorkerFireInput,
+  WorkerStats,
+} from "konfeti";
 
 import { buildOptions } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
@@ -41,9 +47,9 @@ const COMPACT_QUERY = "(max-width: 720px)";
 const NO_VALUE = "–";
 
 /**
- * Stat Elements Fed Only by Hooks (unavailable in worker mode).
+ * Stat Elements Fed Only by Hooks (unavailable in worker mode; the others come from `getStats()` there).
  */
-const HOOK_STATS = ["stat-spawned", "stat-died", "stat-updated"] as const;
+const HOOK_STATS = ["stat-updated"] as const;
 
 /**
  * Stage Instance: main-thread or worker-rendered.
@@ -130,6 +136,9 @@ async function init(): Promise<void> {
   const statusText = byId("status-text", HTMLElement);
   const stageHit = byId("stage-hit", HTMLElement);
   let lastHandle: KonfetiHandle | null = null;
+  // worker counters are cumulative per instance; Reset remembers where they stood
+  const noStats: WorkerStats = { live: 0, spawned: 0, died: 0, completed: 0 };
+  let statsBase = noStats;
   let jsonDirty = false;
   let toastTimer = 0;
 
@@ -171,16 +180,11 @@ async function init(): Promise<void> {
       const handle = fireOn(main, input, withHooks);
       lastHandle = handle;
 
-      // no onComplete in a worker: count finished bursts from the handle instead
+      // a worker rejects invalid options asynchronously, so report them when the handle settles
       if (main instanceof WorkerKonfetiInstance) {
-        handle.then(
-          () => {
-            counters.completed++;
-          },
-          (error: unknown) => {
-            showToast(error instanceof Error ? error.message : String(error), true);
-          },
-        );
+        handle.then(undefined, (error: unknown) => {
+          showToast(error instanceof Error ? error.message : String(error), true);
+        });
       }
     } catch (error) {
       showToast(error instanceof Error ? error.message : String(error), true);
@@ -241,6 +245,7 @@ async function init(): Promise<void> {
   byId("reset", HTMLButtonElement).addEventListener("click", () => {
     main.reset();
     Object.assign(counters, createCounters());
+    statsBase = main instanceof WorkerKonfetiInstance ? main.getStats() : noStats;
     eventLog.replaceChildren();
   });
 
@@ -286,11 +291,15 @@ async function init(): Promise<void> {
 
     if (clickToggle.checked) {
       const clickOptions = (): FireInput => buildOptions(state, assets, { includeOrigin: false });
+      // click bursts become the "last burst" too, so pause / resume / stop and the status chip follow them
+      const track = (handle: KonfetiHandle): void => {
+        lastHandle = handle;
+      };
       // worker stages get plain options (see fireOn); main-thread stages also run the hooks
       unsubscribeClick =
         main instanceof WorkerKonfetiInstance
-          ? main.onClick(stageHit, () => clickOptions() as WorkerFireInput)
-          : main.onClick(stageHit, () => withHooks(clickOptions()));
+          ? main.onClick(stageHit, () => clickOptions() as WorkerFireInput, { onFire: track })
+          : main.onClick(stageHit, () => withHooks(clickOptions()), { onFire: track });
     }
   };
   clickToggle.addEventListener("change", applyClickToggle);
@@ -302,6 +311,7 @@ async function init(): Promise<void> {
     main.destroy();
     main = createStage(workerToggle.checked);
     lastHandle = null;
+    statsBase = noStats;
     applyClickToggle();
 
     for (const id of HOOK_STATS) {
@@ -356,12 +366,19 @@ async function init(): Promise<void> {
     }
 
     labels.live.textContent = COMPACT.format(main.getParticleCount());
-    // spawn / death / update counts come from hooks, which never run inside a worker
-    const hooksRun = !(main instanceof WorkerKonfetiInstance);
-    labels.spawned.textContent = hooksRun ? COMPACT.format(counters.spawned) : NO_VALUE;
-    labels.died.textContent = hooksRun ? COMPACT.format(counters.died) : NO_VALUE;
-    labels.completed.textContent = COMPACT.format(counters.completed);
-    labels.updated.textContent = hooksRun ? COMPACT.format(counters.updated) : NO_VALUE;
+    // hooks never run inside a worker: there the counters come from getStats() (minus the last reset)
+    if (main instanceof WorkerKonfetiInstance) {
+      const stats = main.getStats();
+      labels.spawned.textContent = COMPACT.format(stats.spawned - statsBase.spawned);
+      labels.died.textContent = COMPACT.format(stats.died - statsBase.died);
+      labels.completed.textContent = COMPACT.format(stats.completed - statsBase.completed);
+      labels.updated.textContent = NO_VALUE;
+    } else {
+      labels.spawned.textContent = COMPACT.format(counters.spawned);
+      labels.died.textContent = COMPACT.format(counters.died);
+      labels.completed.textContent = COMPACT.format(counters.completed);
+      labels.updated.textContent = COMPACT.format(counters.updated);
+    }
 
     const status =
       lastHandle === null
