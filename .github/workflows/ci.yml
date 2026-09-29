@@ -22,7 +22,8 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm size
-      # browser tests against the built dist, in the runner's preinstalled Chrome
+      # browser tests against the built dist and site, in the runner's preinstalled Chrome
+      - run: pnpm site:build
       - run: pnpm --filter konfeti-e2e e2e
       - uses: actions/upload-artifact@v4
         if: failure()

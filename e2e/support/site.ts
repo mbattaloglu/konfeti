@@ -22,6 +22,16 @@ export const COIN_URL = `${ORIGIN}/assets/coin.png`;
 const DIST_DIR = fileURLToPath(new URL("../../packages/konfeti/dist/", import.meta.url));
 
 /**
+ * Built Site Folder (`pnpm site:build`), served under its production base path.
+ */
+const SITE_DIR = fileURLToPath(new URL("../../playground/dist/", import.meta.url));
+
+/**
+ * Production Base Path of the Site.
+ */
+const SITE_BASE = "/tools/konfeti/";
+
+/**
  * Test Page Folder.
  */
 const PAGES_DIR = fileURLToPath(new URL("../pages/", import.meta.url));
@@ -84,7 +94,8 @@ function createCoinPng(): Buffer {
 
 /**
  * Route Every Request on the Fake Origin to Disk.
- * `/dist/*` → built library, `/assets/coin.png` → generated PNG, anything else → `pages/`; unknown files 404.
+ * `/dist/*` → built library, `/tools/konfeti/*` → built site, `/assets/coin.png` → generated PNG, anything
+ * else → `pages/`; unknown files 404.
  *
  * @param page - Page to Route
  */
@@ -101,7 +112,9 @@ async function serveFromDisk(page: Page): Promise<void> {
 
     const file = pathname.startsWith("/dist/")
       ? DIST_DIR + pathname.slice("/dist/".length)
-      : PAGES_DIR + pathname.slice(1);
+      : pathname.startsWith(SITE_BASE)
+        ? SITE_DIR + pathname.slice(SITE_BASE.length).replace(/(^|\/)$/, "$1index.html")
+        : PAGES_DIR + pathname.slice(1);
 
     try {
       const body = await readFile(file);
@@ -169,3 +182,13 @@ export async function openPage(page: Page, name: "esm.html" | "iife.html"): Prom
 }
 
 export { expect };
+
+/**
+ * Open a Page of the Built Site (playground at `""`, guide at `"docs/"`).
+ *
+ * @param page - Page
+ * @param path - Path below the Base Path
+ */
+export async function openSite(page: Page, path: "" | "docs/"): Promise<void> {
+  await page.goto(`${ORIGIN}${SITE_BASE}${path}?lang=en`);
+}

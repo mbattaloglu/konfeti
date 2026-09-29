@@ -62,7 +62,7 @@ packages/
       registry/         # ShapeHandlers, PhysicsDefinitions
       physics/          # PhysicsPipeline + abstracts/IPhysicsModule + concretes/{Force,Swirl,Drag,TerminalVelocity,Floor}Module
       renderers/        # Canvas2DRenderer (blend/shadow state) — draws to any RenderSurface (DOM or offscreen)
-      presets/          # Presets (10 built-ins), PresetUtils
+      presets/          # KonfetiPresets (10 built-ins, enum-style UPPER_SNAKE members, plain data), extendPreset, PresetUtils
       types/            # public option types (types/shapes/* per shape), types/resolved/* internal
       config/           # PaperDefaults, ShapeDefaults, FireDefaults, CreateDefaults, EasingFunctions
       utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils, CanvasFactory
@@ -104,9 +104,10 @@ Adapted from `llms/guides/scripting-logic.md` (that guide is written for Gearbox
 
 - Shape code lives in `shapes/handlers/*` and is only reached through the `ShapeHandlers` registry — never import a handler (or its spawner/renderer) from core modules.
 - Worker-only code (bitmap URL loading, offscreen scratch canvases) is installed from `worker/worker.ts` via setters (`ImageSource.setUrlLoader`, `CanvasFactory.setFallback`) so main-thread bundles don't carry it. The inlined worker script is only reachable through the dynamic `import("./spawnWorker")`.
-- `package.json` `sideEffects` must list the full-entry files: `dist/index.*` registers the built-ins at import time (guarded by `test/Package.test.ts`).
+- `KonfetiPresets` is **literal data only** — no function calls (`.map`) and no object spreads at module level: `dist/index.*` is marked side-effectful, so either keeps every preset in bundles that never use them (measured +170 B on `Konfeti.fire()`).
+- `package.json` `sideEffects` must list the full-entry files: `dist/index.*` registers the built-ins at import time, and `./src/index.ts` too — the playground aliases `konfeti` to the source, and without it the production site drops the registration (only paper works; dev hides it). Guarded by `test/Package.test.ts` and `e2e/tests/site.spec.ts`.
 - Check `pnpm build && pnpm size` after any change that adds imports to core modules.
-- **Public API shape:** `Konfeti` is the shared fullscreen instance object (`fire`, `onClick`, `reset`, `getParticleCount`). `KonfetiFactory.create()` builds dedicated `KonfetiInstance`s and `KonfetiFactory.createWorker()` builds `WorkerKonfetiInstance`s (0.2.0). Global tools stay named exports: types, `presets`, `defineShape`, `definePhysics`, `registerShapes`, `loadImage`, shape handlers. Don't add standalone `fire`/`create` exports back.
+- **Public API shape:** `Konfeti` is the shared fullscreen instance object (`fire`, `onClick`, `reset`, `getParticleCount`). `KonfetiFactory.create()` builds dedicated `KonfetiInstance`s and `KonfetiFactory.createWorker()` builds `WorkerKonfetiInstance`s (0.2.0). Global tools stay named exports: types, `KonfetiPresets` (+ `extendPreset`), `defineShape`, `definePhysics`, `registerShapes`, `loadImage`, shape handlers. Don't add standalone `fire`/`create` exports back.
 
 ### Hot-path performance rules (the frame loop)
 

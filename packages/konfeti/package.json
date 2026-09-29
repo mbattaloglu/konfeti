@@ -4,7 +4,7 @@
   "description": "Zero-dependency, strictly typed, highly customizable canvas confetti with emoji, text, image and spritesheet particles.",
   "license": "MIT",
   "author": "mbattaloglu",
-  "homepage": "https://mbattaloglu.com/tools/konfeti",
+  "homepage": "https://konfeti.mbattaloglu.com",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mbattaloglu/konfeti.git",
@@ -18,7 +18,8 @@
     "./dist/index.js",
     "./dist/index.cjs",
     "./dist/konfeti.iife.js",
-    "./dist/konfeti.worker.js"
+    "./dist/konfeti.worker.js",
+    "./src/index.ts"
   ],
   "keywords": [
     "confetti",
