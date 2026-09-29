@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "konfeti": ["../packages/konfeti/src/index.ts"]
+    }
+  },
+  "include": ["tests", "support", "playwright.config.ts"]
+}

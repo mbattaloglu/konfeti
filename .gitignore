@@ -8,3 +8,9 @@ playground/dist
 *.tmp.json
 playground/public/docs/api
 llms/
+packages/konfeti/src/worker/generated/
+
+# playwright
+.playwright-mcp/
+e2e/test-results/
+e2e/playwright-report/

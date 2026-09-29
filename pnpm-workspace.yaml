@@ -1,6 +1,7 @@
 packages:
   - "packages/*"
   - "playground"
+  - "e2e"
 
 overrides:
   # eslint-plugin-tsdoc pins an older @typescript-eslint/utils that rejects TypeScript 6

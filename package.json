@@ -8,16 +8,18 @@
   },
   "scripts": {
     "build": "pnpm --filter konfeti build",
-    "dev": "pnpm run docs:api && pnpm --filter playground dev",
+    "dev": "pnpm gen:worker && pnpm run docs:api && pnpm --filter playground dev",
     "typecheck": "pnpm -r typecheck",
-    "lint": "eslint .",
+    "lint": "pnpm gen:worker && eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "pnpm -r test",
     "size": "size-limit",
     "changeset": "changeset",
-    "site:build": "pnpm run docs:api && pnpm --filter playground run build",
-    "docs:api": "pnpm --filter konfeti run docs"
+    "site:build": "pnpm gen:worker && pnpm run docs:api && pnpm --filter playground run build",
+    "docs:api": "pnpm --filter konfeti run docs",
+    "gen:worker": "pnpm --filter konfeti build:worker",
+    "e2e": "pnpm build && pnpm --filter konfeti-e2e e2e"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

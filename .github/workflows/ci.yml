@@ -22,3 +22,10 @@ jobs:
       - run: pnpm test
       - run: pnpm build
       - run: pnpm size
+      # browser tests against the built dist, in the runner's preinstalled Chrome
+      - run: pnpm --filter konfeti-e2e e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: e2e/test-results/
