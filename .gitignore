@@ -14,3 +14,6 @@ packages/konfeti/src/worker/generated/
 .playwright-mcp/
 e2e/test-results/
 e2e/playwright-report/
+
+# release script scratch
+.release-notes.md

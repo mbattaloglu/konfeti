@@ -19,7 +19,8 @@
     "site:build": "pnpm gen:worker && pnpm run docs:api && pnpm --filter playground run build",
     "docs:api": "pnpm --filter konfeti run docs",
     "gen:worker": "pnpm --filter konfeti build:worker",
-    "e2e": "pnpm build && pnpm site:build && pnpm --filter konfeti-e2e e2e"
+    "e2e": "pnpm build && pnpm site:build && pnpm --filter konfeti-e2e e2e",
+    "version-packages": "changeset version && node packages/konfeti/scripts/sync-version.mjs && prettier --write packages/konfeti/CHANGELOG.md"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

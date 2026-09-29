@@ -1,0 +1,50 @@
+name: Release
+
+# On every push to main:
+# - pending changesets -> opens / updates a "Version Packages" PR (version bump + CHANGELOG)
+# - that PR merged     -> tests, publishes to npm (trusted publishing, provenance), tags, GitHub release
+
+on:
+  push:
+    branches: [main]
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write # push the version tag, create the release
+  pull-requests: write # open the Version Packages PR
+  id-token: write # npm trusted publishing (OIDC) — no npm token is stored anywhere
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          # release builds must not reuse a dependency cache
+          package-manager-cache: false
+      # trusted publishing needs npm 11.5.1 or later
+      - run: npm install -g npm@11
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      # the release script creates an annotated tag, which needs a committer identity
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      - uses: changesets/action@v1
+        with:
+          version: pnpm run version-packages
+          publish: node scripts/release.mjs
+          title: "Version Packages"
+          commit: "Version Packages"
+          # scripts/release.mjs tags and creates the GitHub release itself
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
