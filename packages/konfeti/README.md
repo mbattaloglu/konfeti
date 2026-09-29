@@ -18,10 +18,10 @@ Konfeti.fire(); // classic confetti pop
 ## API at a glance
 
 ```ts
-import { Konfeti, KonfetiFactory, presets, type FireOptions } from "konfeti";
+import { Konfeti, KonfetiFactory, KonfetiPresets, type FireOptions } from "konfeti";
 
 Konfeti.fire(); // shared fullscreen canvas
-Konfeti.fire(presets.snow());
+Konfeti.fire(KonfetiPresets.SNOW);
 Konfeti.onClick(button, { particleCount: 30 });
 Konfeti.reset();
 
@@ -171,14 +171,15 @@ Interval shots sample the origin once per shot — ranged origins produce firewo
 ## Presets
 
 ```ts run
-import { Konfeti, presets } from "konfeti";
+import { Konfeti, KonfetiPresets, extendPreset } from "konfeti";
 
-Konfeti.fire(presets.fireworks());
-Konfeti.fire(presets.snow({ emission: { mode: "stream", duration: 10000 } })); // overrides merge in
+Konfeti.fire(KonfetiPresets.FIREWORKS);
+Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", duration: 10000 } })); // your settings win
 ```
 
-`basic`, `realistic`, `cannon`, `sideShots`, `schoolPride`, `fireworks`, `snow`, `stars`, `emojiRain`,
-`heartBurst`. Presets are plain options — `fire()` also accepts an array to fire several bursts at once.
+`BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
+`HEART_BURST`. Presets are plain, read-only options (`SIDE_SHOTS` and `SCHOOL_PRIDE` are two bursts). `extendPreset`
+merges your settings into every burst without changing the preset; `paper` and `physics` merge key by key.
 
 ## Hooks
 

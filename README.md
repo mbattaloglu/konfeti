@@ -3,18 +3,18 @@
 Zero-dependency, strictly typed, highly customizable canvas confetti — with first-class emoji, text, image and
 spritesheet particles, composable physics and a typed plugin API.
 
-**[Playground](https://mbattaloglu.com/tools/konfeti)** · **[Docs](https://mbattaloglu.com/tools/konfeti/docs/)** ·
-**[API reference](https://mbattaloglu.com/tools/konfeti/docs/api/)**
+**[Playground](https://konfeti.mbattaloglu.com/)** · **[Docs](https://konfeti.mbattaloglu.com/docs/)** ·
+**[API reference](https://konfeti.mbattaloglu.com/docs/api/)**
 
 ```sh
 npm install konfeti
 ```
 
 ```ts
-import { Konfeti, KonfetiFactory, presets } from "konfeti";
+import { Konfeti, KonfetiFactory, KonfetiPresets } from "konfeti";
 
 Konfeti.fire(); // shared fullscreen canvas
-Konfeti.fire(presets.fireworks());
+Konfeti.fire(KonfetiPresets.FIREWORKS);
 
 const stage = KonfetiFactory.create(canvas, { maxParticles: 800 }); // your own canvas
 stage.fire({ paper: { form: ["rect", "circle"], colors: ["#d6ff3f", "#ffffff"] } });

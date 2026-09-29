@@ -1,4 +1,4 @@
-import { KonfetiFactory, loadImage, presets, VERSION, WorkerKonfetiInstance } from "konfeti";
+import { KonfetiFactory, KonfetiPresets, loadImage, VERSION, WorkerKonfetiInstance } from "konfeti";
 import type { FireInput, KonfetiHandle, KonfetiInstance, WorkerFireInput } from "konfeti";
 
 import { buildOptions } from "./buildOptions";
@@ -246,7 +246,7 @@ async function init(): Promise<void> {
 
   // presets gallery
   renderPresets(byId("presets", HTMLElement), (name) => {
-    fireMain(presets[name]());
+    fireMain(KonfetiPresets[name]);
   });
 
   // json panel

@@ -8,7 +8,7 @@ export class Banner {
   /**
    * Project Homepage Shown in the Banner.
    */
-  private static readonly HOMEPAGE = "https://mbattaloglu.com/tools/konfeti";
+  private static readonly HOMEPAGE = "https://konfeti.mbattaloglu.com";
 
   /**
    * Title Row Style (blocks and badge share one font, so their boxes are the same height).

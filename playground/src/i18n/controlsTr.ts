@@ -270,17 +270,17 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
 };
 
 /**
- * Turkish Preset Names by Preset Key.
+ * Turkish Preset Names by `KonfetiPresets` Member.
  */
 export const PRESETS_TR: Readonly<Record<string, string>> = {
-  basic: "Temel",
-  realistic: "Gerçekçi",
-  cannon: "Top Atışı",
-  fireworks: "Havai Fişek",
-  schoolPride: "Okul Ruhu",
-  snow: "Kar",
-  stars: "Yıldızlar",
-  emojiRain: "Emoji Yağmuru",
-  heartBurst: "Kalp Patlaması",
-  sideShots: "Yan Atışlar",
+  BASIC: "Temel",
+  REALISTIC: "Gerçekçi",
+  CANNON: "Top Atışı",
+  FIREWORKS: "Havai Fişek",
+  SCHOOL_PRIDE: "Okul Ruhu",
+  SNOW: "Kar",
+  STARS: "Yıldızlar",
+  EMOJI_RAIN: "Emoji Yağmuru",
+  HEART_BURST: "Kalp Patlaması",
+  SIDE_SHOTS: "Yan Atışlar",
 };

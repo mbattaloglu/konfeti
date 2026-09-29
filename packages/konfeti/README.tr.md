@@ -19,10 +19,10 @@ Konfeti.fire(); // klasik konfeti patlaması
 ## Bir bakışta API
 
 ```ts
-import { Konfeti, KonfetiFactory, presets, type FireOptions } from "konfeti";
+import { Konfeti, KonfetiFactory, KonfetiPresets, type FireOptions } from "konfeti";
 
 Konfeti.fire(); // paylaşılan tam ekran canvas
-Konfeti.fire(presets.snow());
+Konfeti.fire(KonfetiPresets.SNOW);
 Konfeti.onClick(button, { particleCount: 30 });
 Konfeti.reset();
 
@@ -174,15 +174,16 @@ noktalarda havai fişek etkisi yaratır.
 ## Hazır ayarlar
 
 ```ts run
-import { Konfeti, presets } from "konfeti";
+import { Konfeti, KonfetiPresets, extendPreset } from "konfeti";
 
-Konfeti.fire(presets.fireworks());
-Konfeti.fire(presets.snow({ emission: { mode: "stream", duration: 10000 } })); // verdiğin ayarlar üzerine eklenir
+Konfeti.fire(KonfetiPresets.FIREWORKS);
+Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", duration: 10000 } })); // senin ayarların geçerli olur
 ```
 
-`basic`, `realistic`, `cannon`, `sideShots`, `schoolPride`, `fireworks`, `snow`, `stars`, `emojiRain`,
-`heartBurst`. Hazır ayarlar sıradan seçenek nesneleridir. `fire()` bir dizi de alır; böylece birden çok
-patlamayı aynı anda atabilirsin.
+`BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
+`HEART_BURST`. Hazır ayarlar sıradan, salt okunur seçeneklerdir (`SIDE_SHOTS` ve `SCHOOL_PRIDE` iki patlamadır).
+`extendPreset` senin ayarlarını hazır ayarı değiştirmeden her patlamaya ekler; `paper` ve `physics` anahtar anahtar
+birleşir.
 
 ## Hook'lar
 

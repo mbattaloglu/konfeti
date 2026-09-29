@@ -19,6 +19,16 @@ export class PresetUtils {
   }
 
   /**
+   * Check Whether a Fire Input Is a Burst List.
+   *
+   * @param input - Fire Input
+   * @returns List Flag
+   */
+  public static isList(input: FireInput): input is readonly FireOptions[] {
+    return Array.isArray(input);
+  }
+
+  /**
    * Merge Two Burst Option Objects.
    *
    * @param base - Preset Options

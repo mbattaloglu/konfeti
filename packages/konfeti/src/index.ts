@@ -3,7 +3,8 @@ import { registerShapes } from "./api/registerShapes";
 import { BUILTIN_SHAPES } from "./shapes/handlers/BuiltinShapes";
 
 export * from "./lite";
-export { presets } from "./presets/Presets";
-export type { Preset, PresetName } from "./presets/Presets";
+export { extendPreset } from "./presets/extendPreset";
+export { KonfetiPresets } from "./presets/KonfetiPresets";
+export type { KonfetiPresetName } from "./presets/KonfetiPresets";
 
 registerShapes(...BUILTIN_SHAPES);

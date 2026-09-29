@@ -140,13 +140,13 @@ Notes
 ## 4. API Sketch
 
 ```ts
-import { fire, create, defineShape, presets } from "konfeti";
+import { Konfeti, KonfetiFactory, KonfetiPresets, defineShape, extendPreset } from "konfeti";
 
-// 1) one call
-await fire();
+// 1) one call (shared fullscreen instance)
+await Konfeti.fire();
 
 // 2) customised
-fire({
+Konfeti.fire({
   particleCount: 150,
   origin: document.querySelector("#buy")!,
   spread: [60, 90],
@@ -164,16 +164,18 @@ fire({
     { type: "emoji", emoji: ["🎉", "🥳", "✨"], size: [20, 32] },
     { type: "spritesheet", src: coinSheet, frames: { cols: 8, rows: 1 }, fps: 24 },
   ],
-  physics: { gravity: 0.9, drag: 0.02, wind: 0.1 },
+  physics: { gravity: 700, drag: 3.5, wind: [-40, 40] }, // px/s², 1/s, px/s²
   seed: 42,
 });
 
 // 3) preset + override
-fire(presets.fireworks({ duration: 3000 }));
+Konfeti.fire(KonfetiPresets.FIREWORKS);
+Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", duration: 10000 } }));
 
-// 4) instance on its own canvas
-const k = KonfetiFactory.createWorker(myCanvas, { resize: true });
-const handle = k.fire({ preset: "snow" });
+// 4) instances: own canvas, or rendered in a Web Worker
+const stage = KonfetiFactory.create(myCanvas, { maxParticles: 800 });
+const worker = KonfetiFactory.createWorker(myCanvas, { resize: true });
+const handle = worker.fire(KonfetiPresets.SNOW);
 handle.pause();
 
 // 5) type-safe custom shape
@@ -187,7 +189,7 @@ defineShape("diamond", {
     /* ... */
   },
 });
-fire({ shapes: [{ type: "diamond", sharpness: 0.7 }] }); // ✅ typed
+Konfeti.fire({ shapes: [{ type: "diamond", sharpness: 0.7 }] }); // ✅ typed
 ```
 
 ---
@@ -220,7 +222,7 @@ fire(options)
 | M1    | Core engine ✅    | Engine, ParticlePool, Emitter, Canvas2DRenderer, **fully customisable default paper particle** (§3.0), `fire()`                                                              |
 | M2 ✅ | Shapes            | star/triangle/heart/ribbon/path, **emoji/text + BitmapCache**, **image, spritesheet**                                                                                        |
 | M3 ✅ | Physics + visual  | composable physics, flip/wobble/tilt, opacity/scale curves, colour utilities                                                                                                 |
-| M4 ✅ | Presets + helpers | presets, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                                                   |
+| M4 ✅ | Presets + helpers | `KonfetiPresets` + `extendPreset`, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                         |
 | M5 ✅ | Advanced          | ✅ `defineShape` / `definePhysics` (typed registries) · ✅ tree-shakeable shape handlers + `konfeti/lite` · ✅ Worker/OffscreenCanvas (`KonfetiFactory.createWorker`, 0.2.0) |
 | M6    | Docs & playground | playground with live option editor, TypeDoc site, README examples · ✅ package README                                                                                        |
 | M7    | 1.0               | API freeze, benchmarks (1k/5k/10k particles), visual regression tests, release                                                                                               |

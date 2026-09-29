@@ -8,11 +8,11 @@ import { DefaultInstance } from "./DefaultInstance";
  *
  * @example
  * ```ts
- * import { Konfeti, presets } from "konfeti";
+ * import { Konfeti, KonfetiPresets } from "konfeti";
  *
  * Konfeti.fire();
  * await Konfeti.fire({ particleCount: 150, spread: 90, paper: { colors: ["gold", "white"] } });
- * Konfeti.fire(presets.fireworks());
+ * Konfeti.fire(KonfetiPresets.FIREWORKS);
  * Konfeti.onClick(document.querySelector("#like")!, { particleCount: 30 });
  * Konfeti.reset();
  * ```

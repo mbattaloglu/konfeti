@@ -2,10 +2,11 @@ import {
   definePhysics,
   defineShape,
   emojiShape,
+  extendPreset,
   Konfeti,
   KonfetiFactory,
+  KonfetiPresets,
   loadImage,
-  presets,
   registerShapes,
   starShape,
 } from "konfeti";
@@ -16,7 +17,8 @@ import {
 const SCOPE = {
   Konfeti,
   KonfetiFactory,
-  presets,
+  KonfetiPresets,
+  extendPreset,
   defineShape,
   definePhysics,
   registerShapes,

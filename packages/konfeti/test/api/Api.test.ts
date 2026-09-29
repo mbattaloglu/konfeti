@@ -2,8 +2,9 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import type { Burst } from "../../src/core/Burst";
 import { KonfetiInstance } from "../../src/core/KonfetiInstance";
-import { presets } from "../../src/presets/Presets";
-import type { PresetName } from "../../src/presets/Presets";
+import { extendPreset } from "../../src/presets/extendPreset";
+import { KonfetiPresets } from "../../src/presets/KonfetiPresets";
+import type { KonfetiPresetName } from "../../src/presets/KonfetiPresets";
 import type { KonfetiHandle } from "../../src/types/KonfetiHandle";
 import { ManualScheduler } from "../helpers/ManualScheduler";
 
@@ -28,17 +29,21 @@ afterEach(() => {
 });
 
 describe("presets", () => {
-  it.each(Object.keys(presets) as PresetName[])("%s fires and finishes", (name) => {
+  it.each(Object.keys(KonfetiPresets) as KonfetiPresetName[])("%s fires and finishes", (name) => {
     const { konfeti, scheduler } = setup();
-    const handle = konfeti.fire(presets[name]());
+    const handle = konfeti.fire(KonfetiPresets[name]);
 
     // longest preset: snow streams 6s + particles live up to 9s
     scheduler.step(1000, 20);
     expect(handle.isFinished()).toBe(true);
   });
 
-  it("merges overrides into every burst", () => {
-    const input = presets.sideShots({ particleCount: 5, paper: { colors: "red" } });
+  it("merges overrides into every burst without touching the preset", () => {
+    const input = extendPreset(KonfetiPresets.SIDE_SHOTS, {
+      particleCount: 5,
+      paper: { colors: "red" },
+    });
+    expect(KonfetiPresets.SIDE_SHOTS[0].particleCount).toBe(70);
 
     expect(Array.isArray(input)).toBe(true);
     for (const burst of input as readonly {
