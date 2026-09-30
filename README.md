@@ -175,6 +175,7 @@ Konfeti.fire({
     wind: [-40, 40],
     swirl: { strength: [80, 200], frequency: [0.3, 0.8] },
     floor: { y: 1, bounce: 0.35, friction: 0.4 }, // particles bounce and settle
+    attract: { target: "pointer", strength: 900 }, // pulled toward the pointer; negative pushes away
   },
   emission: { mode: "interval", every: 350, times: 8 }, // or "burst" (default) / "stream"
   seed: 42, // same seed, same burst
@@ -288,11 +289,11 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
-| `Konfeti` from `konfeti`             | ~15.0 kB |
-| everything from `konfeti`            | ~16.4 kB |
-| `Konfeti` from `konfeti/lite`        | ~11.8 kB |
-| `createWorker` from `konfeti/worker` | ~16.8 kB |
-| worker script (loaded on first use)  | ~14.2 kB |
+| `Konfeti` from `konfeti`             | ~15.4 kB |
+| everything from `konfeti`            | ~16.8 kB |
+| `Konfeti` from `konfeti/lite`        | ~12.2 kB |
+| `createWorker` from `konfeti/worker` | ~17.3 kB |
+| worker script (loaded on first use)  | ~14.7 kB |
 
 ## Browser support
 

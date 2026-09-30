@@ -1,4 +1,10 @@
-import { DEFAULT_FLOOR, DEFAULT_PHYSICS, DEFAULT_SWIRL } from "../../config/FireDefaults";
+import {
+  DEFAULT_ATTRACT,
+  DEFAULT_FLOOR,
+  DEFAULT_PHYSICS,
+  DEFAULT_SWIRL,
+} from "../../config/FireDefaults";
+import type { AttractOptions } from "../../types/AttractOptions";
 import type { FloorOptions } from "../../types/FloorOptions";
 import type { PhysicsOptions } from "../../types/PhysicsOptions";
 import type { ResolvedPhysics } from "../../types/resolved/ResolvedPhysics";
@@ -31,6 +37,16 @@ export class PhysicsResolver {
       all.map((layer) => layer?.floor),
       DEFAULT_FLOOR,
     );
+    const attract = ResolveUtils.mergeToggle<Required<AttractOptions>>(
+      all.map((layer) => layer?.attract),
+      DEFAULT_ATTRACT,
+    );
+
+    if (attract !== false && (Number.isNaN(attract.radius) || attract.radius <= 0)) {
+      throw new TypeError(
+        `konfeti: "physics.attract.radius" must be a positive number or Infinity`,
+      );
+    }
 
     if (Number.isNaN(terminalVelocity) || terminalVelocity <= 0) {
       throw new TypeError(
@@ -66,6 +82,15 @@ export class PhysicsResolver {
               y: MathUtils.clamp(floor.y, 0, 1),
               bounce: MathUtils.clamp(floor.bounce, 0, 1),
               friction: MathUtils.clamp(floor.friction, 0, 1),
+            },
+      attract:
+        attract === false
+          ? null
+          : {
+              target: attract.target,
+              strength: RangeUtils.toTuple(attract.strength, "physics.attract.strength"),
+              radius: attract.radius,
+              falloff: attract.falloff,
             },
       custom: PhysicsResolver.resolveCustom(layers),
     };

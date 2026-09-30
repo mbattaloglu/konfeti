@@ -182,6 +182,17 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   floorY: { label: "Zemin Y" },
   floorBounce: { label: "Sekme" },
   floorFriction: { label: "Zemin Sürtünmesi" },
+  attract: {
+    label: "Çekim",
+    hint: "Parçacıkları bir hedefe çeker; negatif güç onları iter.",
+  },
+  attractTarget: { label: "Hedef" },
+  attractStrength: { label: "Güç", hint: "Negatif değerler parçacıkları iter (itici)." },
+  attractRadius: { label: "Erişim", hint: "Çekimin ne kadar uzağa ulaştığı. 0 = tüm tuval." },
+  attractFalloff: {
+    label: "Zayıflama",
+    hint: "Doğrusal: hedefte tam çekim, erişim sınırında sıfır.",
+  },
 
   // hooks
   hookStart: { label: "Başlangıçta" },
@@ -259,6 +270,10 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   "demo url": "Demo URL",
   upload: "Yükleme",
   linear: "Doğrusal",
+  pointer: "İmleç",
+  center: "Merkez",
+  "top center": "Üst Orta",
+  constant: "Sabit",
   "source-over": "Normal",
   lighter: "Toplamalı",
   multiply: "Çoğalt",

@@ -1,11 +1,12 @@
 import type { Particle } from "../particles/Particle";
-import type { RangeTuple } from "../types/Range";
+import type { OriginBox } from "../types/resolved/OriginBox";
 import type { ResolvedFireOptions } from "../types/resolved/ResolvedFireOptions";
 import type { ResolvedPalette } from "../types/resolved/ResolvedPalette";
 import type { ResolvedStyle } from "../types/resolved/ResolvedStyle";
 import { MathUtils } from "../utils/MathUtils";
 import type { Random } from "../utils/Random";
 import { RangeUtils } from "../utils/RangeUtils";
+import { OriginLocator } from "./OriginLocator";
 import { WeightedListUtils } from "../utils/WeightedListUtils";
 import type { Burst } from "./Burst";
 import type { RenderSurface } from "./RenderSurface";
@@ -14,7 +15,6 @@ import type { ParticlePool } from "./ParticlePool";
 /**
  * Pixel-Space Origin Box.
  */
-type OriginBox = { readonly x: RangeTuple; readonly y: RangeTuple };
 
 /**
  * Static Particle Spawner.
@@ -100,24 +100,7 @@ export class Emitter {
       return null;
     }
 
-    switch (origin.kind) {
-      case "element": {
-        const center = surface.getElementCenter(origin.element);
-        return { x: [center.x, center.x], y: [center.y, center.y] };
-      }
-      case "client": {
-        const point = surface.clientToLocal(origin.clientX, origin.clientY);
-        return { x: [point.x, point.x], y: [point.y, point.y] };
-      }
-      case "point": {
-        const width = surface.getWidth();
-        const height = surface.getHeight();
-        return {
-          x: [origin.x[0] * width, origin.x[1] * width],
-          y: [origin.y[0] * height, origin.y[1] * height],
-        };
-      }
-    }
+    return OriginLocator.box(origin, surface);
   }
 
   /**
@@ -150,6 +133,9 @@ export class Emitter {
     particle.wind = RangeUtils.sample(physics.wind, random);
     particle.lifetime = Math.max(0, RangeUtils.sample(options.lifetime, random));
     particle.age = 0;
+
+    particle.attractStrength =
+      physics.attract === null ? 0 : RangeUtils.sample(physics.attract.strength, random);
 
     if (physics.swirl !== null) {
       particle.swirlStrength = RangeUtils.sample(physics.swirl.strength, random);

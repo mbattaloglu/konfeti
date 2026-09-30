@@ -175,9 +175,13 @@ Konfeti.fire({
     terminalVelocity: 900, // px/s
     swirl: { strength: [80, 200], frequency: [0.3, 0.8] },
     floor: { y: 1, bounce: 0.35, friction: 0.4 }, // particles bounce and rest
+    attract: { target: "pointer", strength: 900 }, // pulled toward the pointer; negative pushes away
   },
 });
 ```
+
+`attract` targets an element (measured every frame), `"pointer"` or a point like `{ x: 0.5, y: 0.2 }`; `radius`
+limits its reach and `falloff: "linear"` fades it toward the edge.
 
 ## Emission
 
@@ -315,7 +319,7 @@ Options travel to the worker by `postMessage`, so they must be structured-clonea
 Element and click origins are measured on the main thread before sending. Use `await` on the handle instead
 of `onComplete`.
 
-The worker script itself (~14.2 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~14.7 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -393,10 +397,10 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~15.0 kB            |
-| everything from `konfeti`                            | ~16.4 kB            |
-| `Konfeti` from `konfeti/lite`                        | ~11.8 kB            |
-| `createWorker` from `konfeti/worker`                 | ~16.8 kB            |
+| `Konfeti` from `konfeti`                             | ~15.4 kB            |
+| everything from `konfeti`                            | ~16.8 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~12.2 kB            |
+| `createWorker` from `konfeti/worker`                 | ~17.3 kB            |
 | worker script (loaded on the first `createWorker()`) | ~14.2 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the

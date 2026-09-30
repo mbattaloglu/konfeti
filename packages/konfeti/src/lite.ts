@@ -20,6 +20,7 @@ export { starShape } from "./shapes/handlers/starShape";
 export { textShape } from "./shapes/handlers/textShape";
 export { triangleShape } from "./shapes/handlers/triangleShape";
 
+export type { AttractFalloff, AttractOptions } from "./types/AttractOptions";
 export type { BurstHooks } from "./types/BurstHooks";
 export type { ClickOptions } from "./types/ClickOptions";
 export type { ClientPoint } from "./types/ClientPoint";

@@ -68,7 +68,7 @@ export class Engine implements BurstOwner {
   /**
    * Reused Simulation Bounds.
    */
-  private readonly world: PhysicsWorld = { width: 0, height: 0 };
+  private readonly world: PhysicsWorld = { width: 0, height: 0, surface: null };
 
   /**
    * Pending Frame Request Id.
@@ -111,6 +111,7 @@ export class Engine implements BurstOwner {
     this.scheduler = scheduler;
     this.pool = pool;
     this.maxParticles = maxParticles;
+    this.world.surface = surface;
   }
 
   /**
@@ -310,6 +311,8 @@ export class Engine implements BurstOwner {
     const floor = pipeline.hasFloor() ? Infinity : this.world.height + Engine.CULL_MARGIN;
     const dtMs = dt * Engine.MS_PER_SECOND;
     let write = 0;
+
+    pipeline.beginFrame(this.world);
 
     // stable in-place compaction keeps spawn order (oldest first) for makeRoom()
     for (const particle of particles) {

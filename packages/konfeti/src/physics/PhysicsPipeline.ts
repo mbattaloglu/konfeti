@@ -2,6 +2,7 @@ import type { Particle } from "../particles/Particle";
 import type { ResolvedPhysics } from "../types/resolved/ResolvedPhysics";
 import type { IPhysicsModule } from "./abstracts/IPhysicsModule";
 import type { PhysicsWorld } from "./abstracts/PhysicsWorld";
+import { AttractModule } from "./concretes/AttractModule";
 import { CustomPhysicsModule } from "./concretes/CustomPhysicsModule";
 import { DragModule } from "./concretes/DragModule";
 import { FloorModule } from "./concretes/FloorModule";
@@ -31,6 +32,11 @@ export class PhysicsPipeline {
   private readonly constraints: IPhysicsModule[] = [];
 
   /**
+   * Modules with a Per-Frame Preparation Step.
+   */
+  private readonly framed: IPhysicsModule[] = [];
+
+  /**
    * Floor Enabled Flag.
    */
   private readonly _hasFloor: boolean;
@@ -45,6 +51,12 @@ export class PhysicsPipeline {
 
     if (physics.swirl !== null) {
       modules.push(new SwirlModule());
+    }
+
+    if (physics.attract !== null) {
+      modules.push(
+        new AttractModule(physics.attract.target, physics.attract.radius, physics.attract.falloff),
+      );
     }
 
     modules.push(new DragModule());
@@ -63,6 +75,10 @@ export class PhysicsPipeline {
 
     for (const module of modules) {
       (module.stage === "force" ? this.forces : this.constraints).push(module);
+
+      if (module.beginFrame !== undefined) {
+        this.framed.push(module);
+      }
     }
 
     this._hasFloor = physics.floor !== null;
@@ -89,6 +105,26 @@ export class PhysicsPipeline {
 
     for (const module of this.constraints) {
       module.apply(particle, dt, world);
+    }
+  }
+
+  /**
+   * Run Every Module's Per-Frame Preparation (once per burst per frame, before its particles).
+   *
+   * @param world - Simulation World
+   */
+  public beginFrame(world: PhysicsWorld): void {
+    for (const module of this.framed) {
+      module.beginFrame?.(world);
+    }
+  }
+
+  /**
+   * Release Module Resources (called when the burst finishes).
+   */
+  public dispose(): void {
+    for (const module of [...this.forces, ...this.constraints]) {
+      module.dispose?.();
     }
   }
 

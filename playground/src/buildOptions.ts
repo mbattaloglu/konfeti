@@ -1,8 +1,10 @@
 import type {
+  AttractOptions,
   ColorInput,
   EasingName,
   FireOptions,
   FlipAxis,
+  OriginPoint,
   PaperForm,
   PaperStyle,
   PhysicsOptions,
@@ -311,6 +313,33 @@ function buildPhysics(state: ControlState): PhysicsOptions {
           friction: num(state, "floorFriction"),
         }
       : false,
+    attract: bool(state, "attract") ? buildAttract(state) : false,
+  };
+}
+
+/**
+ * Normalized Points Offered as Attractor Targets (besides the pointer).
+ */
+const ATTRACT_POINTS: Readonly<Record<string, OriginPoint>> = {
+  center: { x: 0.5, y: 0.5 },
+  "top center": { x: 0.5, y: 0.15 },
+};
+
+/**
+ * Build Attractor Options.
+ *
+ * @param state - Control State
+ * @returns Attractor Options
+ */
+function buildAttract(state: ControlState): AttractOptions {
+  const radius = num(state, "attractRadius");
+
+  return {
+    target: ATTRACT_POINTS[str(state, "attractTarget")] ?? "pointer",
+    strength: num(state, "attractStrength"),
+    // 0 on the slider means "no limit"
+    ...(radius > 0 ? { radius } : {}),
+    falloff: str(state, "attractFalloff") === "linear" ? "linear" : "constant",
   };
 }
 

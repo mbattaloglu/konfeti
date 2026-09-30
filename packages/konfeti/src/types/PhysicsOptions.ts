@@ -1,3 +1,4 @@
+import type { AttractOptions } from "./AttractOptions";
 import type { FloorOptions } from "./FloorOptions";
 import type { PhysicsRegistry } from "./PhysicsRegistry";
 import type { Range } from "./Range";
@@ -62,6 +63,20 @@ export type BuiltinPhysicsOptions = {
    * @see {@link FloorOptions}
    */
   readonly floor?: boolean | FloorOptions;
+  /**
+   * Attractor / Repulsor.
+   * `true` pulls particles toward the pointer with the default strength, `false` disables it, an object sets the
+   * target (pointer, element or point), strength (negative pushes away), reach and falloff.
+   *
+   * @defaultValue `false`
+   * @example
+   * ```ts
+   * Konfeti.fire({ physics: { attract: true } });
+   * Konfeti.fire({ physics: { attract: { target: { x: 0.5, y: 0.2 }, strength: 1200 } } });
+   * ```
+   * @see {@link AttractOptions}
+   */
+  readonly attract?: boolean | AttractOptions;
 };
 
 /**

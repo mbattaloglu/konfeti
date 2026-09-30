@@ -681,6 +681,38 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
       range("floorFriction", "Friction", "physics.floor.friction", [0, 1, 0.05], 0.4, {
         when: ["floor", true],
       }),
+      toggle("attract", "Attract", "physics.attract", false, {
+        hint: "Pull particles toward a target; a negative strength pushes them away.",
+      }),
+      select(
+        "attractTarget",
+        "Target",
+        "physics.attract.target",
+        ["pointer", "center", "top center"],
+        "pointer",
+        { when: ["attract", true] },
+      ),
+      range("attractStrength", "Strength", "physics.attract.strength", [-4000, 4000, 50], 900, {
+        unit: "px/s²",
+        hint: "Negative values push particles away (a repulsor).",
+        when: ["attract", true],
+      }),
+      range("attractRadius", "Radius", "physics.attract.radius", [0, 1500, 10], 0, {
+        unit: "px",
+        hint: "How far the pull reaches. 0 = the whole canvas.",
+        when: ["attract", true],
+      }),
+      select(
+        "attractFalloff",
+        "Falloff",
+        "physics.attract.falloff",
+        ["constant", "linear"],
+        "constant",
+        {
+          hint: "Linear: full pull at the target, none at the radius.",
+          when: ["attract", true],
+        },
+      ),
     ],
   },
   {

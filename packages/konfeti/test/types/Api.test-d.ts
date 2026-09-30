@@ -63,3 +63,18 @@ describe("continuous emitter", () => {
     expectTypeOf<EmitOptions>().not.toHaveProperty("emission");
   });
 });
+
+describe("physics.attract", () => {
+  it("takes a target, a (negative) strength range, radius and falloff", () => {
+    expectTypeOf<{
+      physics: {
+        attract: { target: "pointer"; strength: [-500, 500]; radius: 200; falloff: "linear" };
+      };
+    }>().toExtend<FireOptions>();
+    expectTypeOf<{ physics: { attract: true } }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      physics: { attract: { falloff: "exponential" } };
+    }>().not.toExtend<FireOptions>();
+    expectTypeOf<{ physics: { attract: { target: "mouse" } } }>().not.toExtend<FireOptions>();
+  });
+});

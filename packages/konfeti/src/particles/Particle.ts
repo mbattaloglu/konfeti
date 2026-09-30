@@ -52,6 +52,10 @@ export class Particle {
    */
   public swirlStrength = 0;
   /**
+   * Attractor Pull (px/s², negative pushes away).
+   */
+  public attractStrength = 0;
+  /**
    * Resting on Floor Flag.
    */
   public isResting = false;
@@ -267,6 +271,7 @@ export class Particle {
     this.swirlPhase = 0;
     this.swirlSpeed = 0;
     this.swirlStrength = 0;
+    this.attractStrength = 0;
     this.isResting = false;
     this.age = 0;
     this.lifetime = 0;

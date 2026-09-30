@@ -1,3 +1,4 @@
+import type { AttractOptions } from "../types/AttractOptions";
 import type { FireOptions } from "../types/FireOptions";
 import type { FloorOptions } from "../types/FloorOptions";
 import type { OriginPoint } from "../types/OriginPoint";
@@ -22,6 +23,16 @@ export const DEFAULT_FLOOR = {
 } as const satisfies Required<FloorOptions>;
 
 /**
+ * Default Attractor Settings (used when `attract` is `true` or partially set).
+ */
+export const DEFAULT_ATTRACT = {
+  target: "pointer",
+  strength: 900,
+  radius: Infinity,
+  falloff: "constant",
+} as const satisfies Required<AttractOptions>;
+
+/**
  * Default Physics Settings.
  */
 export const DEFAULT_PHYSICS = {
@@ -31,6 +42,7 @@ export const DEFAULT_PHYSICS = {
   terminalVelocity: Infinity,
   swirl: false,
   floor: false,
+  attract: false,
 } as const satisfies Required<BuiltinPhysicsOptions>;
 
 /**

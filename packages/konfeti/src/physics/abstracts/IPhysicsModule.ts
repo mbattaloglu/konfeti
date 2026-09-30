@@ -19,4 +19,16 @@ export type IPhysicsModule = {
    * @param world - Simulation Bounds
    */
   apply(particle: Particle, dt: number, world: PhysicsWorld): void;
+
+  /**
+   * Prepare Once per Frame, before Any Particle (optional; e.g. locate a moving target).
+   *
+   * @param world - Simulation World
+   */
+  beginFrame?(world: PhysicsWorld): void;
+
+  /**
+   * Release Resources when the Burst Ends (optional; e.g. pointer listeners).
+   */
+  dispose?(): void;
 };

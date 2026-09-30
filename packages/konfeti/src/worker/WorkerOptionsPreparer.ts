@@ -35,6 +35,7 @@ export class WorkerOptionsPreparer {
       ...(options.shapes === undefined
         ? {}
         : { shapes: options.shapes.map((entry) => WorkerOptionsPreparer.absolutizeShape(entry)) }),
+      ...WorkerOptionsPreparer.prepareAttract(options, bounds),
     };
 
     try {
@@ -46,6 +47,38 @@ export class WorkerOptionsPreparer {
     }
 
     return prepared;
+  }
+
+  /**
+   * Measure an Element Attractor Target on the Main Thread (the worker cannot see elements).
+   *
+   * @param options - Worker Burst Options
+   * @param bounds - Canvas Bounds
+   * @returns `{ physics }` with the target as a normalized point, or nothing to change
+   */
+  private static prepareAttract(
+    options: WorkerFireOptions,
+    bounds: Bounds,
+  ): Pick<WorkerFireOptions, "physics"> {
+    const physics = options.physics;
+    const attract = physics?.attract;
+
+    if (
+      physics === undefined ||
+      typeof attract !== "object" ||
+      attract.target === undefined ||
+      typeof Element === "undefined" ||
+      !(attract.target instanceof Element)
+    ) {
+      return {};
+    }
+
+    return {
+      physics: {
+        ...physics,
+        attract: { ...attract, target: WorkerOptionsPreparer.toPoint(attract.target, bounds) },
+      },
+    };
   }
 
   /**

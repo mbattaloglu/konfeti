@@ -346,6 +346,8 @@ export class Burst implements KonfetiHandle {
 
     this._isFinished = true;
     this._isEmissionDone = true;
+    // e.g. the attractor's pointer listeners live exactly as long as the burst
+    this.pipeline.dispose();
     this.options.hooks.onComplete?.();
     this.resolvePromise();
   }

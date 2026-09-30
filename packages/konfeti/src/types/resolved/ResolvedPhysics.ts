@@ -1,3 +1,5 @@
+import type { AttractFalloff } from "../AttractOptions";
+import type { EmitterTarget } from "../EmitterTarget";
 import type { PhysicsDefinition } from "../PhysicsDefinition";
 import type { RangeTuple } from "../Range";
 
@@ -29,6 +31,15 @@ export type ResolvedPhysics = {
    * Floor Settings (`null` disables the floor).
    */
   readonly floor: { readonly y: number; readonly bounce: number; readonly friction: number } | null;
+  /**
+   * Attractor (the target is tracked by the pipeline's AttractModule), or Null when Off.
+   */
+  readonly attract: {
+    readonly target: EmitterTarget;
+    readonly strength: RangeTuple;
+    readonly radius: number;
+    readonly falloff: AttractFalloff;
+  } | null;
 
   /**
    * Enabled Custom Modules with Merged Options.

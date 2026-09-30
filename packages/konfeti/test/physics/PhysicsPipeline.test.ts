@@ -4,7 +4,7 @@ import { PhysicsResolver } from "../../src/core/resolve/PhysicsResolver";
 import { Particle } from "../../src/particles/Particle";
 import { PhysicsPipeline } from "../../src/physics/PhysicsPipeline";
 
-const world = { width: 800, height: 600 };
+const world = { width: 800, height: 600, surface: null };
 
 describe("PhysicsPipeline", () => {
   it("integrates gravity and drag frame-rate independently", () => {

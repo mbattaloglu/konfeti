@@ -180,6 +180,7 @@ Konfeti.fire({
     wind: [-40, 40],
     swirl: { strength: [80, 200], frequency: [0.3, 0.8] },
     floor: { y: 1, bounce: 0.35, friction: 0.4 }, // parçacıklar seker ve durur
+    attract: { target: "pointer", strength: 900 }, // imlece çekilir; negatif değer iter
   },
   emission: { mode: "interval", every: 350, times: 8 }, // ya da "burst" (varsayılan) / "stream"
   seed: 42, // aynı seed, aynı patlama
@@ -296,11 +297,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~15.0 kB |
-| `konfeti` içinden her şey               | ~16.4 kB |
-| `konfeti/lite` içinden `Konfeti`        | ~11.8 kB |
-| `konfeti/worker` içinden `createWorker` | ~16.8 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~14.2 kB |
+| `konfeti` içinden `Konfeti`             | ~15.4 kB |
+| `konfeti` içinden her şey               | ~16.8 kB |
+| `konfeti/lite` içinden `Konfeti`        | ~12.2 kB |
+| `konfeti/worker` içinden `createWorker` | ~17.3 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~14.7 kB |
 
 ## Tarayıcı desteği
 
