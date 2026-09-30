@@ -102,3 +102,27 @@ describe("KonfetiPalettes", () => {
     expectTypeOf<"gold">().not.toExtend<KonfetiPaletteName>();
   });
 });
+
+describe("formation", () => {
+  it("takes text or an image, and each only with its own settings", () => {
+    expectTypeOf<{ formation: { text: "HI"; font: "900 80px Inter" } }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      formation: { image: "/logo.png"; width: 240; imageColors: false; mode: "appear" };
+    }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      formation: { text: "GO"; assemble: 600; hold: 800; easing: "easeOutQuad"; spacing: 6 };
+    }>().toExtend<FireOptions>();
+    // neither, both, or the other source's settings
+    expectTypeOf<{ formation: { mode: "appear" } }>().not.toExtend<FireOptions>();
+    expectTypeOf<{ formation: { text: "HI"; image: "/a.png" } }>().not.toExtend<FireOptions>();
+    expectTypeOf<{ formation: { text: "HI"; width: 100 } }>().not.toExtend<FireOptions>();
+    expectTypeOf<{
+      formation: { image: "/a.png"; font: "bold 9px x" };
+    }>().not.toExtend<FireOptions>();
+    expectTypeOf<{ formation: { text: "HI"; mode: "spin" } }>().not.toExtend<FireOptions>();
+  });
+
+  it("is not an emitter option", () => {
+    expectTypeOf<EmitOptions>().not.toHaveProperty("formation");
+  });
+});

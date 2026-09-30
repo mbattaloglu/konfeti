@@ -32,6 +32,11 @@ export class ImageSource {
   private readonly glyphSize: number;
 
   /**
+   * Load Failure Flag (set by asynchronous loaders).
+   */
+  private _hasFailed = false;
+
+  /**
    * Create Wrapper.
    *
    * @param image - Drawable Image
@@ -151,6 +156,32 @@ export class ImageSource {
    */
   public isReady(): boolean {
     return this.getWidth() > 0 && this.getHeight() > 0;
+  }
+
+  /**
+   * Check Whether the Image Failed to Load (it will never become ready).
+   *
+   * @returns Failed Flag
+   */
+  public hasFailed(): boolean {
+    if (this._hasFailed) {
+      return true;
+    }
+
+    // a finished <img> without pixels is a broken one
+    return (
+      typeof HTMLImageElement !== "undefined" &&
+      this.image instanceof HTMLImageElement &&
+      this.image.complete &&
+      this.image.naturalWidth === 0
+    );
+  }
+
+  /**
+   * Mark the Image as Failed (asynchronous loaders call it when a download or decode fails).
+   */
+  public markFailed(): void {
+    this._hasFailed = true;
   }
 
   /**

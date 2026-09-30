@@ -59,7 +59,10 @@ export class Emitter {
     for (let index = 0; index < count; index++) {
       const particle = pool.acquire();
       const shape = WeightedListUtils.pick(options.shapes, random);
-      const scale = Math.max(0, RangeUtils.sample(shape.style.scale, random));
+      // a formation fitted into a small canvas shrinks its particles along with the shape
+      const scale =
+        Math.max(0, RangeUtils.sample(shape.style.scale, random)) *
+        (options.formation?.getScale() ?? 1);
       const colorIndex = Emitter.pickColorIndex(
         shape.style.palette,
         random,
@@ -79,6 +82,7 @@ export class Emitter {
           null;
       }
 
+      options.formation?.place(particle, index, random, shape.style);
       burst.add(particle);
     }
   }

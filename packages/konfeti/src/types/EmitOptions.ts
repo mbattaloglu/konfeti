@@ -4,7 +4,8 @@ import type { FireOptions } from "./FireOptions";
 /**
  * Continuous Emitter Options.
  * Everything `fire()` accepts (shapes, paper, physics, hooks …) except the settings a stream replaces:
- * `particleCount` becomes `rate`, `origin` becomes `follow`, and `emission` is always continuous.
+ * `particleCount` becomes `rate`, `origin` becomes `follow`, and `emission` is always continuous. A stream
+ * cannot form a shape, so `formation` is not available either.
  *
  * @example
  * ```ts
@@ -18,7 +19,10 @@ import type { FireOptions } from "./FireOptions";
  * trail.stop(); // stop emitting; the particles already out finish their lives
  * ```
  */
-export type EmitOptions = Omit<FireOptions, "particleCount" | "origin" | "emission"> & {
+export type EmitOptions = Omit<
+  FireOptions,
+  "particleCount" | "origin" | "emission" | "formation"
+> & {
   /**
    * Emission Rate.
    * How many particles leave the emitter per second, spread evenly over time. Must be a positive, finite

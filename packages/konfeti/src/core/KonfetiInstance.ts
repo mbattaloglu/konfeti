@@ -141,6 +141,8 @@ export class KonfetiInstance {
       }),
       emission: { mode: "continuous", rate },
       origin: { kind: "tracked", tracker },
+      // a stream cannot form a shape (a formation in the instance defaults does not apply here)
+      formation: null,
     } as const;
     const burst = new Burst(
       resolved,

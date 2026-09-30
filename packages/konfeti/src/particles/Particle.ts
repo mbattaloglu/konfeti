@@ -287,6 +287,34 @@ export class Particle {
    * Shape Renderer (`null` until spawned).
    */
   public shape: IShape | null = null;
+  /**
+   * Held in a Formation Flag (moved by the formation, not by physics, until released).
+   */
+  public isForming = false;
+  /**
+   * Formation Start X (where the fly-in begins).
+   */
+  public formationFromX = 0;
+  /**
+   * Formation Start Y.
+   */
+  public formationFromY = 0;
+  /**
+   * Formation Target X (the particle's place in the shape).
+   */
+  public formationToX = 0;
+  /**
+   * Formation Target Y.
+   */
+  public formationToY = 0;
+  /**
+   * Formation Start Delay in Milliseconds.
+   */
+  public formationDelay = 0;
+  /**
+   * Time Spent in the Formation in Milliseconds.
+   */
+  public formationElapsed = 0;
 
   /**
    * Reset Particle to Neutral State.
@@ -358,6 +386,13 @@ export class Particle {
     this.frameLoop = true;
     this.custom = null;
     this.shape = null;
+    this.isForming = false;
+    this.formationFromX = 0;
+    this.formationFromY = 0;
+    this.formationToX = 0;
+    this.formationToY = 0;
+    this.formationDelay = 0;
+    this.formationElapsed = 0;
   }
 
   /**

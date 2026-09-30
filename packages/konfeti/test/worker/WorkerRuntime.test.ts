@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Burst } from "../../src/core/Burst";
 import type { WorkerToMain } from "../../src/worker/WorkerProtocol";
@@ -125,6 +125,26 @@ describe("WorkerRuntime", () => {
     scheduler.step(5);
     // drag is off, so the speed gained so far carries on, but no longer grows
     expect(hidden - meanY()).toBeLessThan((start - hidden) * 2);
+  });
+
+  it("forms a shape inside the worker", () => {
+    // the canvas mock reads back empty pixels: make every pixel of the text opaque
+    const read = vi.spyOn(CanvasRenderingContext2D.prototype, "getImageData").mockImplementation(
+      (_x: number, _y: number, width: number, height: number) =>
+        ({
+          width,
+          height,
+          data: new Uint8ClampedArray(width * height * 4).fill(255),
+        }) as ImageData,
+    );
+    const { runtime } = setup();
+
+    runtime.handle({ type: "fire", id: 6, options: { formation: { text: "A", mode: "appear" } } });
+    const burst = (runtime as unknown as { bursts: Map<number, Burst> }).bursts.get(6);
+
+    expect(burst?.getParticleCount()).toBeGreaterThan(0);
+    expect(burst?.getParticles().every((particle) => particle.isForming)).toBe(true);
+    read.mockRestore();
   });
 
   it("errors before init", () => {

@@ -22,6 +22,10 @@ export type DemoAssets = {
    * Frame Count in the Sprite Sheet.
    */
   readonly sheetFrames: number;
+  /**
+   * Colorful Demo Logo for Image Formations.
+   */
+  readonly logoCanvas: HTMLCanvasElement;
 };
 
 /**
@@ -38,6 +42,16 @@ const FRAME_SIZE = 64;
  * Sprite Sheet Frame Count.
  */
 const FRAME_COUNT = 8;
+
+/**
+ * Demo Logo Size (three overlapping rings of color).
+ */
+const LOGO_SIZE = { width: 300, height: 140 } as const;
+
+/**
+ * Demo Logo Circle Colors, Left to Right.
+ */
+const LOGO_COLORS = ["#ff3d6e", "#18c7b8", "#ffb000"] as const;
 
 /**
  * Create Canvas and 2D Context.
@@ -111,6 +125,26 @@ function drawCoin(
 }
 
 /**
+ * Draw the Demo Logo: three overlapping discs, each in its own color, so image colors are easy to see.
+ *
+ * @returns Logo Canvas
+ */
+function drawLogo(): HTMLCanvasElement {
+  const { canvas, ctx } = createCanvas(LOGO_SIZE.width, LOGO_SIZE.height);
+  const radius = LOGO_SIZE.height * 0.46;
+  const step = (LOGO_SIZE.width - radius * 2) / (LOGO_COLORS.length - 1);
+
+  LOGO_COLORS.forEach((color, index) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(radius + step * index, LOGO_SIZE.height / 2, radius, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  return canvas;
+}
+
+/**
  * Convert Canvas to Blob URL (falls back to a data URL).
  *
  * @param canvas - Source Canvas
@@ -158,5 +192,6 @@ export async function createDemoAssets(): Promise<DemoAssets> {
     sheetCanvas: sheet.canvas,
     sheetUrl,
     sheetFrames: FRAME_COUNT,
+    logoCanvas: drawLogo(),
   };
 }

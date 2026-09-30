@@ -691,14 +691,32 @@ export function renderControls(
     remembered ?? sections.filter((section) => section.open === true).map((section) => section.id),
   );
 
+  /**
+   * Check Whether a Control Is Active: its condition holds, and so does the condition of the control it
+   * depends on (e.g. the formation text needs the text source, which needs the formation toggle).
+   *
+   * @param key - Control Key
+   * @param depth - Chain Depth (guards against a condition loop)
+   * @returns Active Flag
+   */
+  const isActive = (key: string, depth = 0): boolean => {
+    const when = bindings.get(key)?.when;
+
+    if (when === undefined || depth > bindings.size) {
+      return true;
+    }
+
+    const [parent, expected] = when;
+    return state[parent] === expected && isActive(parent, depth + 1);
+  };
+
   const refresh = (): void => {
-    for (const binding of bindings.values()) {
+    for (const [key, binding] of bindings) {
       if (binding.when === undefined) {
         continue;
       }
 
-      const [key, expected] = binding.when;
-      const active = state[key] === expected;
+      const active = isActive(key);
       binding.row.classList.toggle("is-inactive", !active);
       binding.setDisabled(!active);
     }

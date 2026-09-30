@@ -136,6 +136,15 @@ export class Engine implements BurstOwner {
   }
 
   /**
+   * Return the Drawing Surface.
+   *
+   * @returns Drawing Surface
+   */
+  public getSurface(): RenderSurface {
+    return this.surface;
+  }
+
+  /**
    * Suspend Loop (e.g. hidden tab).
    */
   public suspend(): void {
@@ -368,6 +377,11 @@ export class Engine implements BurstOwner {
    * @returns Dead Flag
    */
   private static isDead(particle: Particle, floor: number): boolean {
+    // a particle held in a formation may start off-canvas and has not begun its life yet
+    if (particle.isForming) {
+      return false;
+    }
+
     return (
       particle.isExpired() ||
       (particle.vy > 0 && particle.y - Math.max(particle.width, particle.height) > floor)

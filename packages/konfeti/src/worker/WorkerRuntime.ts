@@ -299,6 +299,7 @@ export class WorkerRuntime {
           ...base,
           emission: { mode: "continuous", rate: stream.rate },
           origin: { kind: "tracked", tracker },
+          formation: null,
         };
       }
 

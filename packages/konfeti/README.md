@@ -78,6 +78,7 @@ Konfeti.fire(options);
 - [Physics](#physics)
 - [Emission](#emission)
 - [Continuous emitter](#continuous-emitter)
+- [Formations](#formations)
 - [Presets](#presets)
 - [Hooks](#hooks)
 - [Instances & canvases](#instances--canvases)
@@ -242,6 +243,52 @@ await trail; // resolves once the last one is gone
 `resume()` freeze it. Worker instances (`konfeti/worker`) emit too; the pointer or element is tracked on the
 main thread.
 
+## Formations
+
+Particles first form a text or an image, hold it, then burst apart: a "You win!" end card, a launch
+announcement, a logo reveal. Every shape can take part, and the rest of the burst options apply as usual once
+the shape breaks up.
+
+```ts run
+Konfeti.fire({
+  origin: { x: 0.5, y: 0.45 }, // the center of the shape
+  formation: {
+    text: "TEBRİKLER",
+    font: "900 110px sans-serif",
+    mode: "assemble", // fly in from beyond the edges; "appear" shows the shape at once
+    assemble: 900, // ms until the shape is complete
+    hold: 1200, // ms before it bursts apart
+    spacing: 8, // px between particles: smaller is denser and uses more particles
+  },
+  shapes: [{ type: "paper", weight: 3 }, { type: "star" }],
+});
+```
+
+```ts run
+// an image: its opaque pixels become the shape, painted in the image's own colors
+Konfeti.fire({
+  formation: {
+    image:
+      '<svg width="220" height="200" viewBox="0 0 24 22"><path fill="#ff3d6e" d="M12 21s-9-6.1-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.9-9 12-9 12z"/></svg>',
+    mode: "appear",
+    hold: 1500,
+  },
+  startVelocity: [200, 500], // how fast the pieces fly outward when the shape breaks up
+});
+```
+
+- The particle count follows from `spacing`; an explicit `particleCount` only caps it. When `maxParticles`
+  caps it, the whole shape thins out evenly instead of losing a part.
+- `fit` (default `0.9`) scales the whole formation (shape, spacing and particle size) down until it fits
+  the canvas, so a phone shows a smaller copy of the same picture.
+- `startVelocity` is the burst-apart speed, `[300, 700]` px/s unless you set it. The particles' `lifetime`
+  starts when they are released, so the shape stays fully visible until then.
+- An image can be a URL, inline SVG markup or any drawable image; the burst waits until it has loaded.
+  `imageColors: false` keeps the shapes' own colors. A cross-origin image needs CORS headers.
+- Worker instances form shapes too, with the fonts the worker can see; inline SVG is not supported there.
+  Formations need a single burst (`emission: { mode: "burst" }`, the default) and are not available for
+  `emit()`.
+
 ## Presets
 
 ```ts run
@@ -341,7 +388,7 @@ Element and click origins are measured on the main thread before sending; the po
 emitter follows or an attractor pulls toward is tracked there too and sent over while the burst runs. Use
 `await` on the handle instead of `onComplete`.
 
-The worker script itself (~15.4 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~17.8 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -419,11 +466,11 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~16.0 kB            |
-| everything from `konfeti`                            | ~17.7 kB            |
-| `Konfeti` from `konfeti/lite`                        | ~12.6 kB            |
-| `createWorker` from `konfeti/worker`                 | ~18.1 kB            |
-| worker script (loaded on the first `createWorker()`) | ~15.4 kB            |
+| `Konfeti` from `konfeti`                             | ~18.4 kB            |
+| everything from `konfeti`                            | ~20.1 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~13.0 kB            |
+| `createWorker` from `konfeti/worker`                 | ~20.5 kB            |
+| worker script (loaded on the first `createWorker()`) | ~17.8 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:
@@ -435,7 +482,8 @@ registerShapes(starShape, emojiShape);
 Konfeti.fire({ shapes: [{ type: "star" }, { type: "emoji", emoji: "🎉" }] });
 ```
 
-Presets live in the full entry only (they use several shapes).
+Presets live in the full entry only (they use several shapes). Formations are opt-in in lite too: call
+`enableFormations()` once.
 
 ## Units & ranges
 

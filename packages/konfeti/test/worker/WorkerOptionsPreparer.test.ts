@@ -13,6 +13,25 @@ function followed(layers: readonly (boolean | AttractOptions | undefined)[]): un
   return WorkerOptionsPreparer.followedAttractTarget(layers);
 }
 
+describe("WorkerOptionsPreparer.prepare", () => {
+  const bounds = { left: 0, top: 0, width: 400, height: 300 };
+
+  it("makes a formation image URL absolute (the worker runs from a blob: URL)", () => {
+    const prepared = WorkerOptionsPreparer.prepare({ formation: { image: "logo.png" } }, bounds);
+
+    expect(prepared.formation?.image).toBe(new URL("logo.png", document.baseURI).href);
+  });
+
+  it("rejects inline SVG formations, which a worker cannot decode", () => {
+    expect(() =>
+      WorkerOptionsPreparer.prepare(
+        { formation: { image: "<svg width='4' height='4'/>" } },
+        bounds,
+      ),
+    ).toThrow(/inline <svg> images are not supported in worker mode/);
+  });
+});
+
 describe("WorkerOptionsPreparer.followedAttractTarget", () => {
   it("merges attract layers the way the resolver does", () => {
     const basket = document.createElement("div");

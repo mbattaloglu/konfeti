@@ -76,6 +76,39 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   intervalEvery: { label: "Aralık" },
   intervalTimes: { label: "Tekrar" },
 
+  // formation
+  formation: {
+    label: "Şekil Oluştur",
+    hint: "Açıkken parçacık sayısını Aralık belirler, Dağılma Hızı Başlangıç Hızı'nın yerine geçer ve atış tek seferde olur.",
+  },
+  formationSource: { label: "Kaynak" },
+  formationText: { label: "Metin", hint: "Yeni satır için \\n yaz." },
+  formationFont: { label: "Font", hint: "CSS font kısaltması: kalınlık, boyut, aile." },
+  formationImage: { label: "Görsel" },
+  formationUpload: { label: "Görsel Yükle", hint: "Görselin opak pikselleri şekli oluşturur." },
+  formationWidth: { label: "Görsel Genişliği" },
+  formationImageColors: {
+    label: "Görselin Renkleri",
+    hint: "Her parçacığı üzerinde durduğu pikselin rengine boyar.",
+  },
+  formationMode: {
+    label: "Mod",
+    hint: "Toplanarak = kenarların ötesinden uçup gelir, Bir Anda = yerinde belirir.",
+  },
+  formationAssemble: { label: "Toplanma Süresi" },
+  formationEasing: { label: "Toplanma Easing'i" },
+  formationHold: { label: "Bekleme", hint: "Şeklin dağılmadan önce ekranda kalma süresi." },
+  formationSpacing: {
+    label: "Aralık",
+    hint: "Parçacıklar arası mesafe: küçüldükçe şekil sıklaşır ve daha çok parçacık kullanılır.",
+  },
+  formationFit: {
+    label: "Sığdırma",
+    hint: "Tuvalin en fazla ne kadarını kaplayacağı; daha büyük bir şekil bütün olarak küçültülür.",
+  },
+  formationVelocityMin: { label: "Dağılma Hızı Min" },
+  formationVelocityMax: { label: "Dağılma Hızı Maks" },
+
   // paper geometry
   form: { label: "Form", hint: "Bir ya da birden çok seç; seçilen formlar eşit oranda karışır." },
   widthMin: { label: "Genişlik Min" },
@@ -226,6 +259,11 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
 export const SECTIONS_TR: Readonly<Record<string, SectionText>> = {
   burst: { title: "Patlama" },
   emission: { title: "Atış Düzeni" },
+  formation: {
+    title: "Şekil Oluşturma",
+    description:
+      "Parçacıklar önce bir metin ya da görsel oluşturur, bir süre öyle durur, sonra dağılır.",
+  },
   geometry: { title: "Kağıt Geometrisi" },
   colors: { title: "Renkler" },
   motion: { title: "Hareket" },
@@ -295,6 +333,11 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   forest: "Orman",
   monochrome: "Tek Renk",
   upload: "Yükleme",
+  text: "Metin",
+  image: "Görsel",
+  "demo logo": "Demo Logo",
+  assemble: "Toplanarak",
+  appear: "Bir Anda",
   linear: "Doğrusal",
   pointer: "İmleç",
   center: "Merkez",

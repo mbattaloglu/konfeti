@@ -4,6 +4,7 @@ import type {
   EasingName,
   FireOptions,
   FlipAxis,
+  FormationOptions,
   OriginPoint,
   PaperForm,
   PaperStyle,
@@ -360,6 +361,50 @@ function buildAttract(state: ControlState): AttractOptions {
 }
 
 /**
+ * Build Formation Options.
+ *
+ * @param state - Control State
+ * @param assets - Demo Images
+ * @returns Formation Options
+ */
+function buildFormation(state: ControlState, assets: DemoAssets): FormationOptions {
+  const mode = str(state, "formationMode") === "appear" ? "appear" : "assemble";
+  const common = {
+    mode,
+    hold: num(state, "formationHold"),
+    spacing: num(state, "formationSpacing"),
+    fit: num(state, "formationFit"),
+    ...(mode === "assemble"
+      ? {
+          assemble: num(state, "formationAssemble"),
+          easing: easing(state, "formationEasing"),
+        }
+      : {}),
+  } as const;
+
+  if (str(state, "formationSource") === "image") {
+    const upload = str(state, "formationUpload");
+
+    return {
+      ...common,
+      image:
+        str(state, "formationImage") === "upload" && upload !== "" ? upload : assets.logoCanvas,
+      width: num(state, "formationWidth"),
+      imageColors: bool(state, "formationImageColors"),
+    };
+  }
+
+  // the input is single-line, so a typed backslash + n starts a new line
+  const text = str(state, "formationText").replace(/\\n/g, "\n");
+
+  return {
+    ...common,
+    text: text.trim() === "" ? "KONFETI" : text,
+    font: str(state, "formationFont"),
+  };
+}
+
+/**
  * Build Fire Options from Controls.
  *
  * @param state - Control State
@@ -376,14 +421,18 @@ export function buildOptions(
   const jitter = num(state, "lifetimeJitter");
   const originX = num(state, "originX");
   const originSpread = num(state, "originSpreadX");
-  const emission = buildEmission(state);
+  const isFormation = bool(state, "formation");
+  // a formation is a single burst whose particle count follows from its spacing
+  const emission = isFormation ? undefined : buildEmission(state);
   const shapes = buildShapes(state, assets);
 
   return {
-    particleCount: num(state, "particleCount"),
+    ...(isFormation ? {} : { particleCount: num(state, "particleCount") }),
     angle: num(state, "angle"),
     spread: num(state, "spread"),
-    startVelocity: [num(state, "velocityMin"), num(state, "velocityMax")],
+    startVelocity: isFormation
+      ? [num(state, "formationVelocityMin"), num(state, "formationVelocityMax")]
+      : [num(state, "velocityMin"), num(state, "velocityMax")],
     lifetime: [Math.round(lifetime * (1 - jitter)), Math.round(lifetime * (1 + jitter))],
     ...(settings.includeOrigin === false
       ? {}
@@ -398,5 +447,6 @@ export function buildOptions(
     paper: buildPaper(state),
     ...(shapes.length > 0 ? { shapes } : {}),
     physics: buildPhysics(state),
+    ...(isFormation ? { formation: buildFormation(state, assets) } : {}),
   };
 }

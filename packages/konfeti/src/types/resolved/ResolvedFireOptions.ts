@@ -1,3 +1,4 @@
+import type { IFormation } from "../../formation/abstracts/IFormation";
 import type { BurstHooks } from "../BurstHooks";
 import type { RangeTuple } from "../Range";
 import type { ResolvedEmission } from "./ResolvedEmission";
@@ -55,4 +56,8 @@ export type ResolvedFireOptions = {
    * Random Seed.
    */
   readonly seed: number;
+  /**
+   * Formation of This Burst, or Null for a Regular Burst.
+   */
+  readonly formation: IFormation | null;
 };

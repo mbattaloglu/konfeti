@@ -4,6 +4,7 @@
  *
  * @module konfeti/worker
  */
+import { enableFormations } from "./api/enableFormations";
 import { registerShapes } from "./api/registerShapes";
 import { BUILTIN_SHAPES } from "./shapes/handlers/BuiltinShapes";
 
@@ -18,3 +19,4 @@ export type { WorkerStats } from "./types/worker/WorkerStats";
 
 // the main-thread fallback (no OffscreenCanvas) draws every built-in shape the worker supports
 registerShapes(...BUILTIN_SHAPES);
+enableFormations();

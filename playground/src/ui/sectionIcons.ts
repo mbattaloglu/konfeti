@@ -13,6 +13,11 @@ const SECTION_ICON_PATHS: Readonly<Record<string, readonly string[]>> = {
     "M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8",
   ],
   emission: ["M20 13a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z", "M12 9v4l2.5 1.5", "M9 2h6"],
+  // a letter "A" traced by particles
+  formation: [
+    "M5 20h.01M7.3 14.5h.01M9.6 9h.01M12 3.5h.01M14.4 9h.01M16.7 14.5h.01M19 20h.01",
+    "M10 14.5h.01M14 14.5h.01",
+  ],
   geometry: ["M3 3h10v10H3Z", "M21 15a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"],
   colors: ["M12 3s6 6.4 6 11a6 6 0 0 1-12 0c0-4.6 6-11 6-11Z", "M9 15a3 3 0 0 0 3 3"],
   motion: ["M21 12a9 9 0 1 1-2.6-6.4L21 8", "M21 3v5h-5"],

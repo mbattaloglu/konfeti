@@ -51,7 +51,7 @@ Konfeti.fire(); // that's it: a classic confetti pop on a fullscreen overlay
   through declaration merging.
 - **Built for the frame loop.** Pooled particles, no allocations per frame, glyphs rasterized once and cached,
   spritesheets drawn by source rectangle, and the loop stops itself when nothing is left.
-- **Small, and only as big as what you use.** ~16 kB brotli for the full `Konfeti.fire()`, ~13 kB with
+- **Small, and only as big as what you use.** ~18 kB brotli for the full `Konfeti.fire()`, ~13 kB with
   `konfeti/lite`, and Web Worker rendering lives in its own entry — bundles that never use it carry none of it.
 
 ## Install
@@ -183,6 +183,17 @@ trail.stop(); // stop emitting; particles already out finish their lives
 await trail;
 ```
 
+### Formations
+
+Particles form a text or an image, hold it, then burst apart. Every shape can take part.
+
+```ts
+Konfeti.fire({
+  formation: { text: "YOU\nWIN", font: "900 110px sans-serif", hold: 1200 }, // or image: "/logo.png"
+  shapes: [{ type: "paper", weight: 3 }, { type: "star" }],
+});
+```
+
 ### Physics and emission
 
 ```ts
@@ -307,11 +318,11 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
-| `Konfeti` from `konfeti`             | ~16.0 kB |
-| everything from `konfeti`            | ~17.7 kB |
-| `Konfeti` from `konfeti/lite`        | ~12.6 kB |
-| `createWorker` from `konfeti/worker` | ~18.1 kB |
-| worker script (loaded on first use)  | ~15.4 kB |
+| `Konfeti` from `konfeti`             | ~18.4 kB |
+| everything from `konfeti`            | ~20.1 kB |
+| `Konfeti` from `konfeti/lite`        | ~13.0 kB |
+| `createWorker` from `konfeti/worker` | ~20.5 kB |
+| worker script (loaded on first use)  | ~17.8 kB |
 
 ## Browser support
 

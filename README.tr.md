@@ -54,7 +54,7 @@ Konfeti.fire(); // bu kadar: tam ekran bir katmanda klasik bir konfeti patlamas�
 - **Kare döngüsü için tasarlandı.** Havuzlanan parçacıklar, karede sıfır bellek ayırma, bir kez rasterize edilip
   önbelleğe alınan glifler, kaynak dikdörtgeniyle çizilen spritesheet'ler; ekranda bir şey kalmayınca döngü
   kendini durdurur.
-- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~16 kB brotli, `konfeti/lite` ile
+- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~18 kB brotli, `konfeti/lite` ile
   ~13 kB; Web Worker ile çizim ayrı bir girişte yaşar — onu hiç kullanmayan bundle'lar ondan hiçbir şey
   taşımaz.
 
@@ -188,6 +188,17 @@ trail.stop(); // yaymayı durdur; çıkmış parçacıklar ömürlerini tamamlar
 await trail;
 ```
 
+### Şekil oluşturma
+
+Parçacıklar bir metin ya da görsel oluşturur, bir süre öyle durur, sonra dağılır. Her şekil türü katılabilir.
+
+```ts
+Konfeti.fire({
+  formation: { text: "KAZANDIN", font: "900 110px sans-serif", hold: 1200 }, // ya da image: "/logo.png"
+  shapes: [{ type: "paper", weight: 3 }, { type: "star" }],
+});
+```
+
 ### Fizik ve atış düzeni
 
 ```ts
@@ -315,11 +326,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~16.0 kB |
-| `konfeti` içinden her şey               | ~17.7 kB |
-| `konfeti/lite` içinden `Konfeti`        | ~12.6 kB |
-| `konfeti/worker` içinden `createWorker` | ~18.1 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~15.4 kB |
+| `konfeti` içinden `Konfeti`             | ~18.4 kB |
+| `konfeti` içinden her şey               | ~20.1 kB |
+| `konfeti/lite` içinden `Konfeti`        | ~13.0 kB |
+| `konfeti/worker` içinden `createWorker` | ~20.5 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~17.8 kB |
 
 ## Tarayıcı desteği
 

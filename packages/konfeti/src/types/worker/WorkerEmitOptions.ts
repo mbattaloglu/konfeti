@@ -12,7 +12,10 @@ import type { WorkerFireOptions } from "./WorkerFireOptions";
  * const trail = stage.emit({ rate: 80, follow: "pointer", spread: 360 });
  * ```
  */
-export type WorkerEmitOptions = Omit<WorkerFireOptions, "particleCount" | "origin" | "emission"> & {
+export type WorkerEmitOptions = Omit<
+  WorkerFireOptions,
+  "particleCount" | "origin" | "emission" | "formation"
+> & {
   /**
    * Emission Rate.
    * Particles per second; must be a positive, finite number.

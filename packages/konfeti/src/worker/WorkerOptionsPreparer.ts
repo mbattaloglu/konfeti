@@ -40,6 +40,14 @@ export class WorkerOptionsPreparer {
       ...(options.shapes === undefined
         ? {}
         : { shapes: options.shapes.map((entry) => WorkerOptionsPreparer.absolutizeShape(entry)) }),
+      ...(typeof options.formation?.image === "string"
+        ? {
+            formation: {
+              ...options.formation,
+              image: WorkerOptionsPreparer.absolutizeUrl(options.formation.image),
+            },
+          }
+        : {}),
       ...WorkerOptionsPreparer.prepareAttract(options, bounds),
     };
 
@@ -157,14 +165,7 @@ export class WorkerOptionsPreparer {
 
     const absolutize = (value: unknown): unknown => {
       if (typeof value === "string") {
-        // workers cannot decode SVG (createImageBitmap rejects it), so fail clearly instead of never drawing
-        if (ImageSource.isSvgMarkup(value)) {
-          throw new TypeError(
-            "konfeti: inline <svg> images are not supported in worker mode — pass a PNG/WebP URL or render on the main thread",
-          );
-        }
-
-        return new URL(value, document.baseURI).href;
+        return WorkerOptionsPreparer.absolutizeUrl(value);
       }
 
       if (Array.isArray(value)) {
@@ -180,5 +181,23 @@ export class WorkerOptionsPreparer {
 
     // src keeps its own shape (string | bitmap | weighted list); only string leaves change
     return { ...entry, src: absolutize(entry.src) };
+  }
+
+  /**
+   * Make an Image URL Absolute (the worker runs from a blob: URL, so relative paths would not resolve).
+   *
+   * @param value - Image URL or Inline `<svg>` Markup
+   * @returns Absolute URL
+   * @throws TypeError for inline SVG markup, which a worker cannot decode
+   */
+  private static absolutizeUrl(value: string): string {
+    // workers cannot decode SVG (createImageBitmap rejects it), so fail clearly instead of never drawing
+    if (ImageSource.isSvgMarkup(value)) {
+      throw new TypeError(
+        "konfeti: inline <svg> images are not supported in worker mode — pass a PNG/WebP URL or render on the main thread",
+      );
+    }
+
+    return new URL(value, document.baseURI).href;
   }
 }

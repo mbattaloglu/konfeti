@@ -79,6 +79,7 @@ Konfeti.fire(options);
 - [Fizik](#fizik)
 - [Atış düzeni](#atış-düzeni)
 - [Sürekli yayıcı](#sürekli-yayıcı)
+- [Şekil oluşturma](#şekil-oluşturma)
 - [Hazır ayarlar](#hazır-ayarlar)
 - [Hook'lar](#hooklar)
 - [Instance'lar ve canvas'lar](#instancelar-ve-canvaslar)
@@ -244,6 +245,52 @@ await trail; // sonuncusu da yok olunca tamamlanır
 `resume()` dondurur. Worker instance'ları (`konfeti/worker`) da yayabilir; imleç ya da element ana thread'de
 takip edilir.
 
+## Şekil oluşturma
+
+Parçacıklar önce bir metin ya da görsel oluşturur, bir süre öyle durur, sonra dağılır: "Kazandın!" bitiş
+ekranı, bir lansman duyurusu, logo gösterimi. Her şekil türü katılabilir; şekil dağıldıktan sonra diğer
+patlama ayarları her zamanki gibi geçerlidir.
+
+```ts run
+Konfeti.fire({
+  origin: { x: 0.5, y: 0.45 }, // şeklin merkezi
+  formation: {
+    text: "TEBRİKLER",
+    font: "900 110px sans-serif",
+    mode: "assemble", // kenarların ötesinden uçup gelir; "appear" şekli bir anda gösterir
+    assemble: 900, // şeklin tamamlanma süresi (ms)
+    hold: 1200, // dağılmadan önce bekleme süresi (ms)
+    spacing: 8, // parçacıklar arası mesafe (px): küçüldükçe sıklaşır, daha çok parçacık kullanılır
+  },
+  shapes: [{ type: "paper", weight: 3 }, { type: "star" }],
+});
+```
+
+```ts run
+// bir görsel: opak pikselleri şekli oluşturur, parçacıklar görselin kendi renklerine boyanır
+Konfeti.fire({
+  formation: {
+    image:
+      '<svg width="220" height="200" viewBox="0 0 24 22"><path fill="#ff3d6e" d="M12 21s-9-6.1-9-12a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 5.9-9 12-9 12z"/></svg>',
+    mode: "appear",
+    hold: 1500,
+  },
+  startVelocity: [200, 500], // şekil dağılırken parçaların dışa doğru uçma hızı
+});
+```
+
+- Parçacık sayısını `spacing` belirler; ayrıca verilen bir `particleCount` yalnızca üst sınır olur.
+  `maxParticles` sınırlarsa şeklin bir kısmı kesilmez, tamamı eşit biçimde seyrelir.
+- `fit` (varsayılan `0.9`) formasyonun tamamını (şekil, aralık ve parçacık boyu) tuvale sığana kadar
+  küçültür; telefonda aynı görüntünün küçük bir kopyası çıkar.
+- `startVelocity` dağılma hızıdır; vermezsen `[300, 700]` px/s. Parçacıkların `lifetime` süresi serbest
+  kaldıkları anda başlar, yani şekil o ana kadar tam görünür kalır.
+- Görsel bir URL, satır içi SVG kodu ya da çizilebilir herhangi bir görsel olabilir; patlama görsel yüklenene
+  kadar bekler. `imageColors: false` şekillerin kendi renklerini korur. Başka bir origin'den gelen görsel CORS
+  başlıkları ister.
+- Worker instance'ları da şekil oluşturur (worker'ın gördüğü fontlarla); satır içi SVG orada desteklenmez.
+  Şekil oluşturma tek atış ister (`emission: { mode: "burst" }`, varsayılan) ve `emit()` ile kullanılamaz.
+
 ## Hazır ayarlar
 
 ```ts run
@@ -345,7 +392,7 @@ Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de öl�
 çekimin yöneldiği imleç veya element de orada izlenir ve patlama sürdükçe worker'a iletilir. `onComplete` yerine
 dönen handle'ı `await` et.
 
-Worker betiği (~15.4 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
+Worker betiği (~17.8 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
 betik bir `blob:` URL olarak gömülür; `<script>` sürümü ise `konfeti.worker.js` dosyasını kendi klasöründen
 yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/konfeti.worker.js` dosyasını
 kendin barındır:
@@ -423,11 +470,11 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
-| `konfeti` içinden `Konfeti`                              | ~16.0 kB             |
-| `konfeti` içinden her şey                                | ~17.7 kB             |
-| `konfeti/lite` içinden `Konfeti`                         | ~12.6 kB             |
-| `konfeti/worker` içinden `createWorker`                  | ~18.1 kB             |
-| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~15.4 kB             |
+| `konfeti` içinden `Konfeti`                              | ~18.4 kB             |
+| `konfeti` içinden her şey                                | ~20.1 kB             |
+| `konfeti/lite` içinden `Konfeti`                         | ~13.0 kB             |
+| `konfeti/worker` içinden `createWorker`                  | ~20.5 kB             |
+| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~17.8 kB             |
 
 `konfeti` tüm yerleşik şekilleri senin için kaydeder. `konfeti/lite` ise **yalnızca kağıt** ile başlar; sadece
 kullandığın şekilleri kaydedersen bundler geri kalanını atar:
@@ -439,7 +486,8 @@ registerShapes(starShape, emojiShape);
 Konfeti.fire({ shapes: [{ type: "star" }, { type: "emoji", emoji: "🎉" }] });
 ```
 
-Hazır ayarlar yalnızca tam sürümde bulunur (birden çok şekil kullanırlar).
+Hazır ayarlar yalnızca tam sürümde bulunur (birden çok şekil kullanırlar). Şekil oluşturma da lite'ta
+isteğe bağlıdır: bir kez `enableFormations()` çağır.
 
 ## Birimler ve aralıklar
 

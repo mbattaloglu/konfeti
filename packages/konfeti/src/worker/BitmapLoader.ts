@@ -17,7 +17,7 @@ export class BitmapLoader {
 
   /**
    * Load URL as ImageBitmap.
-   * The source is not ready until the bitmap arrives; failed loads simply never become ready.
+   * The source is not ready until the bitmap arrives; a failed load is marked on the source.
    *
    * @param url - Absolute Image URL
    * @returns Cached Image Source
@@ -36,7 +36,9 @@ export class BitmapLoader {
       .then((bitmap) => {
         source.setImage(bitmap);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        source.markFailed();
+      });
 
     return source;
   }

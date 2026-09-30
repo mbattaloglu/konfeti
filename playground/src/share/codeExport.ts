@@ -24,6 +24,7 @@ const IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
 const PLACEHOLDERS = {
   coin: "/coin.png",
   sheet: "/coin-spin.png",
+  logo: "/logo.png",
   upload: "/your-image.png",
 } as const;
 
@@ -41,6 +42,10 @@ function placeholderFor(assets: DemoAssets): (value: unknown) => string | null {
 
     if (value === assets.sheetCanvas || value === assets.sheetUrl) {
       return PLACEHOLDERS.sheet;
+    }
+
+    if (value === assets.logoCanvas) {
+      return PLACEHOLDERS.logo;
     }
 
     // a picked file is an object URL that only exists in this browser

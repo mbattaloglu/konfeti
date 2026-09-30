@@ -1,3 +1,4 @@
+import type { IFormation } from "../formation/abstracts/IFormation";
 import type { Particle } from "../particles/Particle";
 import type { ResolvedPhysics } from "../types/resolved/ResolvedPhysics";
 import type { IPhysicsModule } from "./abstracts/IPhysicsModule";
@@ -42,11 +43,18 @@ export class PhysicsPipeline {
   private readonly _hasFloor: boolean;
 
   /**
+   * Burst Formation (moves forming particles instead of the physics), or Null.
+   */
+  private readonly formation: IFormation | null;
+
+  /**
    * Create Pipeline from Resolved Physics.
    *
    * @param physics - Resolved Physics
+   * @param formation - Burst Formation, or Null
    */
-  public constructor(physics: ResolvedPhysics) {
+  public constructor(physics: ResolvedPhysics, formation: IFormation | null = null) {
+    this.formation = formation;
     const modules: IPhysicsModule[] = [new ForceModule()];
 
     if (physics.swirl !== null) {
@@ -92,6 +100,13 @@ export class PhysicsPipeline {
    * @param world - Simulation Bounds
    */
   public step(particle: Particle, dt: number, world: PhysicsWorld): void {
+    // held in the shape: no forces and no aging yet, but the piece keeps spinning and flipping
+    if (particle.isForming && this.formation?.step(particle, dt) === true) {
+      particle.rotation += particle.rotationSpeed * dt;
+      particle.flipPhase += particle.flipSpeed * dt;
+      return;
+    }
+
     for (const module of this.forces) {
       module.apply(particle, dt, world);
     }

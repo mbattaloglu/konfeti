@@ -5,6 +5,7 @@
  *
  * @module konfeti
  */
+import { enableFormations } from "./api/enableFormations";
 import { registerShapes } from "./api/registerShapes";
 import { BUILTIN_SHAPES } from "./shapes/handlers/BuiltinShapes";
 import { Announcer } from "./utils/Announcer";
@@ -16,6 +17,7 @@ export { KonfetiPresets } from "./presets/KonfetiPresets";
 export type { KonfetiPresetName } from "./presets/KonfetiPresets";
 
 registerShapes(...BUILTIN_SHAPES);
+enableFormations();
 Announcer.setListener((renderer) => {
   Banner.show(renderer);
 });

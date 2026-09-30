@@ -32,7 +32,7 @@ Full roadmap, feature list and API sketch: **`docs/PLAN.md`**. Read it before st
 | Bundler         | tsdown (rolldown) → ESM + CJS + IIFE (`window.konfeti`) + `.d.ts`                                                                                                                                                                                                                                                                                                       |
 | Tests           | Vitest + happy-dom, canvas via `vitest-canvas-mock` (unit); Playwright in real Chrome against the built `dist` (`e2e/`, `pnpm e2e`)                                                                                                                                                                                                                                     |
 | Lint / format   | ESLint flat config + `typescript-eslint` `strict-type-checked` + Prettier                                                                                                                                                                                                                                                                                               |
-| Size budget     | `size-limit` (brotli), see **Size policy** in §4: `Konfeti` full ≤ 16.4 kB, everything ≤ 18.1 kB, `konfeti/lite` `Konfeti` ≤ 13 kB, `konfeti/worker` `createWorker` ≤ 18.5 kB (+ lazily loaded worker script ≤ 34 kB total), worker script ≤ 15.8 kB — measured 15.99 / 17.73 / 12.62 / 18.09 (33.56) / 15.36 kB (2026-09-30, worker attractor tracking)                |
+| Size budget     | `size-limit` (brotli), see **Size policy** in §4: `Konfeti` full ≤ 18.8 kB, everything ≤ 20.5 kB, `konfeti/lite` `Konfeti` ≤ 13.3 kB, `konfeti/worker` `createWorker` ≤ 21 kB (+ lazily loaded worker script ≤ 38.9 kB total), worker script ≤ 18.2 kB — measured 18.38 / 20.13 / 12.95 / 20.53 (38.45) / 17.77 kB (2026-09-30, formations)                             |
 | Docs            | TypeDoc (API) + playground (Vite) for live option tuning                                                                                                                                                                                                                                                                                                                |
 | Release         | Changesets + `.github/workflows/release.yml`: pending changesets open a "Version Packages" PR (`pnpm run version-packages` also syncs `src/Version.ts`); merging it runs `scripts/release.mjs` — npm trusted publishing (OIDC, no token, provenance), tag `vX.Y.Z`, GitHub release from the CHANGELOG. Add a changeset (`pnpm changeset`) with every user-facing change |
 
@@ -64,6 +64,8 @@ packages/
       renderers/        # Canvas2DRenderer (blend/shadow state) — draws to any RenderSurface (DOM or offscreen)
       presets/          # KonfetiPresets (10 built-ins, enum-style UPPER_SNAKE members, plain data), extendPreset, PresetUtils
       palettes/         # KonfetiPalettes (color themes, literal data only — same tree-shaking rule as presets)
+      formation/        # formations (text / image made of particles): FormationResolver, Formation, text/image sources,
+                        # FormationSampler — installed by enableFormations() (full + worker entries), never imported by core
       types/            # public option types (types/shapes/* per shape), types/resolved/* internal
       config/           # PaperDefaults, ShapeDefaults, FireDefaults, CreateDefaults, EasingFunctions
       utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils, CanvasFactory
@@ -109,6 +111,9 @@ Adapted from `llms/guides/scripting-logic.md` (that guide is written for Gearbox
 
 - Shape code lives in `shapes/handlers/*` and is only reached through the `ShapeHandlers` registry — never import a handler (or its spawner/renderer) from core modules.
 - Worker-only code (bitmap URL loading, offscreen scratch canvases) is installed from `worker/worker.ts` via setters (`ImageSource.setUrlLoader`, `CanvasFactory.setFallback`) so main-thread bundles don't carry it. The inlined worker script is only reachable through the dynamic `import("./spawnWorker")`.
+- Formations are installed by `enableFormations()` into `registry/FormationSupport`; core modules may only import
+  the `IFormation` / `IFormationSource` **types** (the lite entry then carries no formation code, measured +0.33 kB for
+  the core hooks). The full entry, `workerEntry.ts` and `worker/worker.ts` call `enableFormations()`.
 - `KonfetiPresets` is **literal data only** — no function calls (`.map`) and no object spreads at module level: `dist/index.*` is marked side-effectful, so either keeps every preset in bundles that never use them (measured +170 B on `Konfeti.fire()`).
 - `package.json` `sideEffects` must list the full-entry files: `dist/index.*` registers the built-ins at import time, and `./src/index.ts` too — the playground aliases `konfeti` to the source, and without it the production site drops the registration (only paper works; dev hides it). Guarded by `test/Package.test.ts` and `e2e/tests/site.spec.ts`.
 - Check `pnpm build && pnpm size` after any change that adds imports to core modules.

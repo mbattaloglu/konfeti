@@ -116,7 +116,7 @@ export class Burst implements KonfetiHandle {
     this.options = options;
     this.owner = owner;
     this.random = new Random(options.seed);
-    this.pipeline = new PhysicsPipeline(options.physics);
+    this.pipeline = new PhysicsPipeline(options.physics, options.formation);
 
     if (owner === null) {
       this._isEmissionDone = true;
@@ -200,8 +200,12 @@ export class Burst implements KonfetiHandle {
 
     switch (emission.mode) {
       case "burst":
-        this.requestSpawn(spawn, count, false);
-        this._isEmissionDone = true;
+        if (this.options.formation === null) {
+          this.requestSpawn(spawn, count, false);
+          this._isEmissionDone = true;
+        } else {
+          this.emitFormation(spawn);
+        }
         break;
       case "stream": {
         const progress = Math.min(this.emissionElapsed / emission.duration, 1);
@@ -234,6 +238,32 @@ export class Burst implements KonfetiHandle {
         break;
       }
     }
+  }
+
+  /**
+   * Emit a Formation once Its Shape Is Ready (an image may still be loading; a failed one emits nothing).
+   *
+   * @param spawn - Spawn Callback
+   */
+  private emitFormation(spawn: SpawnCallback): void {
+    const formation = this.options.formation;
+    const origin = this.options.origin;
+
+    if (formation === null || formation.hasFailed() || origin.kind === "tracked") {
+      this._isEmissionDone = true;
+      return;
+    }
+
+    if (!formation.isReady() || this.owner === null) {
+      return;
+    }
+
+    this.requestSpawn(
+      spawn,
+      formation.prepare(this.owner.getSurface(), origin, this.random),
+      false,
+    );
+    this._isEmissionDone = true;
   }
 
   /**

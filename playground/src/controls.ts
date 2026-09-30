@@ -496,6 +496,81 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
     ],
   },
   {
+    id: "formation",
+    title: "Formation",
+    icon: "◈",
+    description: "Particles form a text or an image, hold it, then burst apart.",
+    controls: [
+      toggle("formation", "Formation", "formation", false, {
+        hint: "When on, Spacing sets the particle count, Release Speed replaces Start Velocity and the emission is a single burst.",
+      }),
+      select(
+        "formationSource",
+        "Source",
+        "formation.text / formation.image",
+        ["text", "image"],
+        "text",
+        { when: ["formation", true] },
+      ),
+      text("formationText", "Text", "formation.text", "TEBRİKLER", {
+        hint: "Type \\n for a new line.",
+        when: ["formationSource", "text"],
+      }),
+      text("formationFont", "Font", "formation.font", "900 110px sans-serif", {
+        hint: "CSS font shorthand: weight, size, family.",
+        when: ["formationSource", "text"],
+      }),
+      select("formationImage", "Image", "formation.image", ["demo logo", "upload"], "demo logo", {
+        when: ["formationSource", "image"],
+      }),
+      file("formationUpload", "Upload Image", "formation.image", "image/*", {
+        hint: "Its opaque pixels become the shape.",
+        when: ["formationImage", "upload"],
+      }),
+      range("formationWidth", "Image Width", "formation.width", [40, 1200, 10], 420, {
+        unit: "px",
+        when: ["formationSource", "image"],
+      }),
+      toggle("formationImageColors", "Image Colors", "formation.imageColors", true, {
+        hint: "Paint each particle with the color of its pixel.",
+        when: ["formationSource", "image"],
+      }),
+      select("formationMode", "Mode", "formation.mode", ["assemble", "appear"], "assemble", {
+        hint: "assemble = fly in from beyond the edges, appear = show up in place.",
+        when: ["formation", true],
+      }),
+      range("formationAssemble", "Fly-In", "formation.assemble", [0, 3000, 50], 900, {
+        unit: "ms",
+        when: ["formationMode", "assemble"],
+      }),
+      select("formationEasing", "Fly-In Easing", "formation.easing", EASINGS, "easeOutCubic", {
+        when: ["formationMode", "assemble"],
+      }),
+      range("formationHold", "Hold", "formation.hold", [0, 5000, 50], 1000, {
+        unit: "ms",
+        hint: "How long the shape stays before it bursts apart.",
+        when: ["formation", true],
+      }),
+      range("formationSpacing", "Spacing", "formation.spacing", [3, 24, 1], 8, {
+        unit: "px",
+        hint: "Distance between particles: smaller is denser and uses more particles.",
+        when: ["formation", true],
+      }),
+      range("formationFit", "Fit", "formation.fit", [0.1, 1, 0.05], 0.9, {
+        hint: "Largest share of the canvas; a bigger formation is scaled down as a whole.",
+        when: ["formation", true],
+      }),
+      range("formationVelocityMin", "Release Speed Min", "startVelocity[0]", [0, 3000, 50], 300, {
+        unit: "px/s",
+        when: ["formation", true],
+      }),
+      range("formationVelocityMax", "Release Speed Max", "startVelocity[1]", [0, 3000, 50], 700, {
+        unit: "px/s",
+        when: ["formation", true],
+      }),
+    ],
+  },
+  {
     id: "geometry",
     title: "Paper Geometry",
     icon: "▭",

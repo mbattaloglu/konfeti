@@ -1,5 +1,6 @@
 import { DEFAULT_CREATE_OPTIONS } from "../../config/CreateDefaults";
 import { DEFAULT_FIRE_OPTIONS, DEFAULT_ORIGIN } from "../../config/FireDefaults";
+import { DEFAULT_FORMATION_RELEASE_VELOCITY } from "../../config/FormationDefaults";
 import type { BurstHooks } from "../../types/BurstHooks";
 import type { ClientPoint } from "../../types/ClientPoint";
 import type { CreateOptions } from "../../types/CreateOptions";
@@ -10,6 +11,7 @@ import type { ResolvedCreateOptions } from "../../types/resolved/ResolvedCreateO
 import type { ResolvedEmission } from "../../types/resolved/ResolvedEmission";
 import type { ResolvedFireOptions } from "../../types/resolved/ResolvedFireOptions";
 import type { PlacedOrigin } from "../../types/resolved/PlacedOrigin";
+import { FormationSupport } from "../../registry/FormationSupport";
 import { Random } from "../../utils/Random";
 import { RangeUtils } from "../../utils/RangeUtils";
 import { PhysicsResolver } from "./PhysicsResolver";
@@ -83,6 +85,17 @@ export class OptionResolver {
     ResolveUtils.assertFinite(particleCount, "particleCount");
     ResolveUtils.assertFinite(spread, "spread");
 
+    const emission = OptionResolver.resolveEmission(
+      ResolveUtils.pick(layers, "emission") ?? DEFAULT_FIRE_OPTIONS.emission,
+    );
+    const formation = ResolveUtils.pick(layers, "formation");
+
+    if (formation !== undefined && emission.mode !== "burst") {
+      throw new TypeError(
+        `konfeti: "formation" needs emission mode "burst", got "${emission.mode}"`,
+      );
+    }
+
     return {
       particleCount: Math.max(0, Math.floor(particleCount)),
       origin: OptionResolver.resolveOrigin(ResolveUtils.pick(layers, "origin")),
@@ -92,20 +105,31 @@ export class OptionResolver {
       ),
       spread,
       startVelocity: RangeUtils.toTuple(
-        ResolveUtils.pick(layers, "startVelocity") ?? DEFAULT_FIRE_OPTIONS.startVelocity,
+        ResolveUtils.pick(layers, "startVelocity") ??
+          (formation === undefined
+            ? DEFAULT_FIRE_OPTIONS.startVelocity
+            : DEFAULT_FORMATION_RELEASE_VELOCITY),
         "startVelocity",
       ),
       lifetime: RangeUtils.toTuple(
         ResolveUtils.pick(layers, "lifetime") ?? DEFAULT_FIRE_OPTIONS.lifetime,
         "lifetime",
       ),
-      emission: OptionResolver.resolveEmission(
-        ResolveUtils.pick(layers, "emission") ?? DEFAULT_FIRE_OPTIONS.emission,
-      ),
+      emission,
       shapes: ShapeResolver.resolveAll(layers, context),
       physics: PhysicsResolver.resolve(layers.map((layer) => layer.physics)),
       hooks: OptionResolver.resolveHooks(layers),
       seed: ResolveUtils.pick(layers, "seed") ?? Random.createSeed(),
+      // an explicit particleCount caps a formation; otherwise its spacing decides
+      formation:
+        formation === undefined
+          ? null
+          : FormationSupport.create(
+              formation,
+              ResolveUtils.pick(layers, "particleCount") === undefined
+                ? Infinity
+                : Math.max(0, Math.floor(particleCount)),
+            ),
     };
   }
 

@@ -1,4 +1,5 @@
 // konfeti worker entry: bundled into a standalone script (inlined as a blob and shipped as konfeti/konfeti.worker.js).
+import { enableFormations } from "../api/enableFormations";
 import { registerShapes } from "../api/registerShapes";
 import { BUILTIN_SHAPES } from "../shapes/handlers/BuiltinShapes";
 import { CanvasFactory } from "../utils/CanvasFactory";
@@ -23,6 +24,7 @@ type WorkerScope = Partial<Pick<Window, "requestAnimationFrame" | "cancelAnimati
 };
 
 registerShapes(...BUILTIN_SHAPES);
+enableFormations();
 ImageSource.setUrlLoader((url) => BitmapLoader.load(url));
 CanvasFactory.setFallback((width, height) => OffscreenScratch.create(width, height));
 

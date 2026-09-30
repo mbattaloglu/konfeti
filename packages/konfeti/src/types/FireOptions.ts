@@ -1,5 +1,6 @@
 import type { BurstHooks } from "./BurstHooks";
 import type { EmissionOptions } from "./EmissionOptions";
+import type { FormationOptions } from "./formation/FormationOptions";
 import type { Origin } from "./Origin";
 import type { PaperStyle } from "./PaperStyle";
 import type { PhysicsOptions } from "./PhysicsOptions";
@@ -55,8 +56,9 @@ export type FireOptions = BurstHooks & {
   readonly spread?: Degrees;
   /**
    * Launch Speed.
+   * For a `formation`, the speed at which the particles burst apart from the shape.
    *
-   * @defaultValue `[1000, 1800]`
+   * @defaultValue `[1000, 1800]` (`[300, 700]` with a `formation`)
    */
   readonly startVelocity?: Range<PixelsPerSecond>;
   /**
@@ -108,4 +110,21 @@ export type FireOptions = BurstHooks & {
    * @defaultValue random
    */
   readonly seed?: number;
+  /**
+   * Formation.
+   * The particles first form a text or an image, hold it, then burst apart. The shape is centered on
+   * `origin`; `startVelocity` becomes the speed at which the particles fly outward, and `particleCount` (if
+   * set) only caps the count the shape needs.
+   *
+   * @defaultValue none (a regular burst)
+   * @example
+   * ```ts
+   * Konfeti.fire({ formation: { text: "TEBRİKLER" }, origin: { x: 0.5, y: 0.4 } });
+   * Konfeti.fire({ formation: { image: "/logo.png", mode: "appear", hold: 1500 } });
+   * ```
+   * @remarks Needs `emission: { mode: "burst" }` (the default). With `konfeti/lite`, call
+   * `enableFormations()` once first.
+   * @see {@link FormationOptions}
+   */
+  readonly formation?: FormationOptions;
 };
