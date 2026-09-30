@@ -26,6 +26,7 @@ export type SpriteSheetShapeOptions = ShapeEntryBase & {
   readonly type: "spritesheet";
   /**
    * Spritesheet Image.
+   * A URL, any canvas image source, or inline `<svg>` markup (give the `<svg>` a `width` and `height`).
    */
   readonly src: ImageInput;
   /**

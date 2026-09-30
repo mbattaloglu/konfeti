@@ -18,6 +18,7 @@ const OPTION_LABELS: Readonly<Record<string, string>> = {
   "900": "Black",
   "demo canvas": "Demo Canvas",
   "demo url": "Demo URL",
+  "inline svg": "Inline SVG",
 };
 
 /**

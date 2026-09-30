@@ -166,7 +166,8 @@ Konfeti.fire({
 | `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size`        |
 
 Emoji ve metin bir kez rasterize edilip önbelleğe alınır. URL görsellerini `loadImage(url)` ile önceden
-yükleyebilirsin.
+yükleyebilirsin. `image` ya da `spritesheet` için `<svg` ile başlayan bir `src` satır içi SVG olarak kullanılır
+(`width` ve `height` ver; worker modunda desteklenmez).
 
 ## Fizik
 

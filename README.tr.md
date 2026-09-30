@@ -136,7 +136,8 @@ Konfeti.fire({
 ```
 
 Yerleşik: `paper`, `star`, `triangle`, `polygon`, `heart`, `ribbon`, `path` (herhangi bir SVG path'i), `emoji`,
-`text`, `image` ve `spritesheet`. Emoji ve metin bir kez rasterize edilip önbelleğe alınır — web fontu sonradan
+`text`, `image` ve `spritesheet` (URL, görsel elementi ya da satır içi `<svg>` metni). Emoji ve metin bir kez
+rasterize edilip önbelleğe alınır — web fontu sonradan
 yüklenirse kendiliğinden yeniden çizilir.
 
 ### Hazır ayarlar

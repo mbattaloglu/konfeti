@@ -279,7 +279,9 @@ function buildShapes(state: ControlState, assets: DemoAssets): ShapeEntry[] {
         ? upload
         : source === "demo url"
           ? assets.coinUrl
-          : assets.coinCanvas;
+          : source === "inline svg"
+            ? DEMO_SVG
+            : assets.coinCanvas;
     shapes.push({ type: "image", weight: w("image"), size: s("image"), src });
   }
 
@@ -298,6 +300,12 @@ function buildShapes(state: ControlState, assets: DemoAssets): ShapeEntry[] {
 
   return shapes;
 }
+
+/**
+ * Inline SVG Offered as an Image Source (a string starting with `<svg` is used as markup).
+ */
+const DEMO_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#d6ff3f" stroke="#0b0d10" stroke-width="1" d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg>';
 
 /**
  * Build Physics Options.

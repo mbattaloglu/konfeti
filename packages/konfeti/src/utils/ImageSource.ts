@@ -12,6 +12,11 @@ export class ImageSource {
   private static readonly urlCache = new Map<string, HTMLImageElement>();
 
   /**
+   * Inline SVG Markup Pattern (optionally preceded by an XML declaration or whitespace).
+   */
+  private static readonly SVG_MARKUP = /^\s*(<\?xml[^>]*>\s*)?<svg[\s>]/i;
+
+  /**
    * URL Loader Used without the DOM (installed by the worker entry), or Null.
    */
   private static urlLoader: ((url: string) => ImageSource) | null = null;
@@ -68,6 +73,28 @@ export class ImageSource {
   }
 
   /**
+   * Check Whether a String Is Inline SVG Markup (rather than a URL).
+   *
+   * @param value - URL or Markup
+   * @returns Markup Flag
+   */
+  public static isSvgMarkup(value: string): boolean {
+    return ImageSource.SVG_MARKUP.test(value);
+  }
+
+  /**
+   * Turn Inline SVG Markup into a `data:` URL (URLs pass through unchanged).
+   *
+   * @param value - URL or `<svg>` Markup
+   * @returns Loadable URL
+   */
+  public static toUrl(value: string): string {
+    return ImageSource.isSvgMarkup(value)
+      ? `data:image/svg+xml;charset=utf-8,${encodeURIComponent(value.trim())}`
+      : value;
+  }
+
+  /**
    * Install URL Loader for Environments without `Image` (workers).
    * Kept out of the main bundle, so only the worker script pays for it.
    *
@@ -89,10 +116,12 @@ export class ImageSource {
   /**
    * Return Cached Image Element for URL (starts loading on first call).
    *
-   * @param url - Image URL
+   * @param url - Image URL or Inline `<svg>` Markup
    * @returns Image Element
    */
   public static loadUrl(url: string): HTMLImageElement {
+    // inline <svg> markup loads like any other image once it is a data: URL
+    url = ImageSource.toUrl(url);
     let image = ImageSource.urlCache.get(url);
 
     if (!image) {

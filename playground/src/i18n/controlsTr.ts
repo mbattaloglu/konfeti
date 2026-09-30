@@ -167,7 +167,7 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   "text.fontWeight": { label: "Yazı Kalınlığı" },
   "image.src": {
     label: "Kaynak",
-    hint: "Demo Canvas elementin kendisini, Demo URL ise bir blob URL metnini gönderir.",
+    hint: "Demo Canvas elementin kendisini, Demo URL bir blob URL metnini, Satır İçi SVG bir <svg> metnini gönderir.",
   },
   "image.upload": {
     label: "Görsel Yükle",
@@ -277,6 +277,7 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   "900": "Çok Kalın",
   "demo canvas": "Demo Canvas",
   "demo url": "Demo URL",
+  "inline svg": "Satır İçi SVG",
   upload: "Yükleme",
   linear: "Doğrusal",
   pointer: "İmleç",

@@ -151,4 +151,25 @@ test.describe("main thread (ESM build)", () => {
     });
     expect(finished).toBe(0);
   });
+
+  test("decodes and draws an inline <svg> image", async ({ page, site }) => {
+    await openPage(page, "esm.html");
+    const stage = page.locator("#stage");
+    const blank = await stage.screenshot();
+
+    await page.evaluate(() => {
+      const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10" fill="gold"/></svg>';
+      void window.konfeti.KonfetiFactory.create(document.querySelector("canvas")).fire({
+        particleCount: 30,
+        lifetime: 3000,
+        startVelocity: [50, 150],
+        origin: { x: 0.5, y: 0.5 },
+        shapes: [{ type: "image", src: svg, size: 20 }],
+      });
+    });
+
+    await expect.poll(async () => (await stage.screenshot()).equals(blank)).toBe(false);
+    expect(site.errors).toEqual([]);
+  });
 });

@@ -391,10 +391,10 @@ const SHAPE_CARDS: readonly ControlCard[] = [
         "image.src",
         "Source",
         "shapes[].src",
-        ["demo canvas", "demo url", "upload"],
+        ["demo canvas", "demo url", "inline svg", "upload"],
         "demo canvas",
         {
-          hint: "Demo canvas passes the element itself; demo url passes a blob URL string.",
+          hint: "Demo canvas passes the element itself; demo url a blob URL string; inline svg a <svg> markup string.",
         },
       ),
       file("image.upload", "Upload Image", "shapes[].src", "image/*", {

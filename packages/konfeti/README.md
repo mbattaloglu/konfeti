@@ -164,7 +164,9 @@ Konfeti.fire({
 | `image`       | `src` (URL or any canvas image source), `size` (width)     |
 | `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size` |
 
-Emoji and text are rasterized once and cached. Preload URL images with `loadImage(url)`.
+Emoji and text are rasterized once and cached. Preload URL images with `loadImage(url)`. An `image` or `spritesheet`
+`src` that starts with `<svg` is used as inline SVG markup (give it a `width` and `height`; not supported in worker
+mode).
 
 ## Physics
 

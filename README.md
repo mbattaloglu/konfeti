@@ -131,7 +131,8 @@ Konfeti.fire({
 ```
 
 Built in: `paper`, `star`, `triangle`, `polygon`, `heart`, `ribbon`, `path` (any SVG path), `emoji`, `text`,
-`image` and `spritesheet`. Emoji and text are rasterized once and cached — and redrawn automatically if their
+`image` and `spritesheet` (a URL, an image element or inline `<svg>` markup). Emoji and text are rasterized once and
+cached — and redrawn automatically if their
 web font finishes loading later.
 
 ### Presets

@@ -1,5 +1,6 @@
 import type { Origin } from "../types/Origin";
 import type { OriginPoint } from "../types/OriginPoint";
+import { ImageSource } from "../utils/ImageSource";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 
 /**
@@ -124,6 +125,13 @@ export class WorkerOptionsPreparer {
 
     const absolutize = (value: unknown): unknown => {
       if (typeof value === "string") {
+        // workers cannot decode SVG (createImageBitmap rejects it), so fail clearly instead of never drawing
+        if (ImageSource.isSvgMarkup(value)) {
+          throw new TypeError(
+            "konfeti: inline <svg> images are not supported in worker mode — pass a PNG/WebP URL or render on the main thread",
+          );
+        }
+
         return new URL(value, document.baseURI).href;
       }
 
