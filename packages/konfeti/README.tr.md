@@ -501,7 +501,7 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
 | `konfeti` içinden `Konfeti`                              | ~19.3 kB             |
-| `konfeti` içinden her şey                                | ~22.6 kB             |
+| `konfeti` içinden her şey                                | ~23.1 kB             |
 | `konfeti/lite` içinden `Konfeti`                         | ~13.9 kB             |
 | `konfeti/worker` içinden `createWorker`                  | ~21.4 kB             |
 | worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~18.6 kB             |

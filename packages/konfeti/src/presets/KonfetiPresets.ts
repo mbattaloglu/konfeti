@@ -453,7 +453,7 @@ export const KonfetiPresets = {
   /**
    * Fireflies.
    * Glowing dots appear over the lower part of the canvas, drift and wander slowly, then fade (made for dark
-   * backgrounds).
+   * backgrounds; each firefly is a small glow PNG data URL, so it also works in worker instances).
    */
   FIREFLIES: {
     particleCount: 40,
@@ -463,20 +463,22 @@ export const KonfetiPresets = {
     startVelocity: [10, 40],
     lifetime: [4000, 6500],
     physics: { gravity: -8, drag: 0.8, swirl: { strength: [30, 80], frequency: [0.2, 0.5] } },
-    paper: {
-      form: "circle",
-      width: [4, 7],
-      aspectRatio: 1,
-      colors: ["#f9ffb5", "#e8ff7a", "#caffbf"],
-      blendMode: "lighter",
-      shadow: { color: "#dfff4f", blur: 14 },
-      opacity: [0.7, 1],
-      flip: false,
-      wobble: false,
-      rotationSpeed: 0,
-      fadeIn: 0.25,
-      fadeOut: { start: 0.6, easing: "easeInOutQuad" },
-    },
+    shapes: [
+      {
+        // the glow is drawn into the image: a canvas shadow blurs every firefly again on every frame (about 30
+        // shadowed fireflies took the frame rate down to about 40 fps in Chrome)
+        type: "image",
+        src: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAB6klEQVR42s2XzU7CQBSFz4CAWkX8w7hW2cnaFzAuiBvXPp5rN8aF8QVc4w51bURERVD+a9rcIYdhLNhE2yYnt20C57tnZtqpQsij7B4qvi6qazfM/6iwhpbfumGA1C+Mf6omwFidBqJmMGdDFv+eTVn+vSAINUPXWgmjKgNAa2hUNygNNcWcTZNSWXwMDQ0sMBMQKiB2NpoTgCSdJ4wEtGlfqj5nKDcQwGKuDT2lSAwBw7xH6hOQFUJZzDlybZgGkCHp+wygTTukLt3nIRlBqB+6Z3PPcB7AgmhRrnUSoM7bAD4BfInaAjIBMQZgdJ+kyDNkukTSEAygzZskDdOhIRlwCiqg+7SYO2K6QtIQKQHokfk7ybtuCUTXlgID8IxPSYeeybKYrgJYk5pzUNhxsLcL3+HuvoXKA4A3AK8A6lI9iA+Ba1MK/oS0Aej4ufusGK8D2ACwmUfpKIv9A15BDdzeVHF5BeAZQA3Ai4A0jBRGq8IHsCw9Hnsv6pwA5D05KBS3cXJqe4I+4vyshUoZQFVUl1SaxlwYLUkVMP46/px07gFs5VE6Nrs3UrgA8CQANQHQwzAxD2IH8P9DEPkkjNMyjPxBFN2jOPKXUSxex5FvSGKxJYvFpjTybXksPkxi82kWi4/Tv/48/waZ1dSMi+xwdQAAAABJRU5ErkJggg==",
+        size: [20, 34],
+        blendMode: "lighter",
+        opacity: [0.7, 1],
+        flip: false,
+        wobble: false,
+        rotationSpeed: 0,
+        fadeIn: 0.25,
+        fadeOut: { start: 0.6, easing: "easeInOutQuad" },
+      },
+    ],
   },
 
   /**

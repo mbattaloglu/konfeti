@@ -332,7 +332,7 @@ tree-shaking ile atılır.
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
 | `konfeti` içinden `Konfeti`             | ~19.3 kB |
-| `konfeti` içinden her şey               | ~22.6 kB |
+| `konfeti` içinden her şey               | ~23.1 kB |
 | `konfeti/lite` içinden `Konfeti`        | ~13.9 kB |
 | `konfeti/worker` içinden `createWorker` | ~21.4 kB |
 | worker betiği (ilk kullanımda yüklenir) | ~18.6 kB |

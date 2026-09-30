@@ -324,7 +324,7 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
 | `Konfeti` from `konfeti`             | ~19.3 kB |
-| everything from `konfeti`            | ~22.6 kB |
+| everything from `konfeti`            | ~23.1 kB |
 | `Konfeti` from `konfeti/lite`        | ~13.9 kB |
 | `createWorker` from `konfeti/worker` | ~21.4 kB |
 | worker script (loaded on first use)  | ~18.6 kB |
