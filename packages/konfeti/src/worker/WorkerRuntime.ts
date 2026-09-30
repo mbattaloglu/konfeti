@@ -261,6 +261,7 @@ export class WorkerRuntime {
       this.scheduler,
       new ParticlePool(),
       settings.maxParticles,
+      settings.fixedTimestep,
     );
     this.statsTimer = this.timers.setInterval(this.reportStats, WorkerRuntime.STATS_INTERVAL_MS);
   }

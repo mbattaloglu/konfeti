@@ -224,6 +224,8 @@ burst.pause();
 burst.resume();
 burst.stop();
 await burst;
+// aynı patlama yeniden (KonfetiFactory.create(canvas, { fixedTimestep: true }) ile birebir)
+Konfeti.fire({ seed: burst.getSeed() });
 
 Konfeti.pause(); // her şeyi dondur (gizli sekmeler zaten kendiliğinden durur)
 Konfeti.resume();

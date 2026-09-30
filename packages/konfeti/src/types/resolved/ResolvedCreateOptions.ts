@@ -26,6 +26,10 @@ export type ResolvedCreateOptions = {
    */
   readonly disableForReducedMotion: boolean;
   /**
+   * Fixed Time Step Flag.
+   */
+  readonly fixedTimestep: boolean;
+  /**
    * Instance Default Burst Options.
    */
   readonly defaults: FireOptions;

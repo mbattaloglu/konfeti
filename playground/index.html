@@ -101,6 +101,17 @@
           <span data-i18n="tools.pointerStream">Pointer Stream</span>
           <code>emit</code>
         </label>
+        <label
+          class="pill-toggle"
+          title="fixedTimestep: simulate in 1/60 s steps, so a replay with the same seed is exact on any display"
+          data-i18n-title="tools.fixedStepTitle"
+        >
+          <span class="switch"
+            ><input id="fixed-step" type="checkbox" /><span class="switch-track"></span
+          ></span>
+          <span data-i18n="tools.fixedStep">Fixed Step</span>
+          <code>fixedTimestep</code>
+        </label>
       </div>
 
       <details id="hook-log" class="hud hud--log" open>
@@ -166,6 +177,15 @@
               data-i18n-aria-label="actions.stop"
             >
               ■
+            </button>
+            <button
+              id="replay"
+              class="btn btn--ghost"
+              title="Replay last burst (same seed)"
+              data-i18n-title="actions.replay"
+              data-i18n-aria-label="actions.replay"
+            >
+              ⟲
             </button>
           </div>
           <button

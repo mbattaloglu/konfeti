@@ -353,6 +353,25 @@ describe("WorkerKonfetiInstance", () => {
     stage.destroy();
   });
 
+  it("picks the seed on the main thread, so the handle knows it at once", async () => {
+    const fake = createFakeWorker();
+    const stage = new WorkerKonfetiInstance(transferableCanvas(), { defaults: { seed: 5 } }, () =>
+      Promise.resolve(fake.port),
+    );
+    await flush();
+
+    const picked = stage.fire({ particleCount: 2 });
+    const given = stage.fire({ particleCount: 2, seed: 9 });
+    const seeds = fake.sent.flatMap((message) =>
+      message.type === "fire" ? [message.options.seed] : [],
+    );
+
+    expect(picked.getSeed()).toBe(5);
+    expect(given.getSeed()).toBe(9);
+    expect(seeds).toEqual([5, 9]);
+    stage.destroy();
+  });
+
   it("rejects options that cannot be sent to a worker", async () => {
     const fake = createFakeWorker();
     const stage = new WorkerKonfetiInstance(transferableCanvas(), {}, () =>

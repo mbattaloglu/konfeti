@@ -321,6 +321,15 @@ export class Burst implements KonfetiHandle {
   }
 
   /**
+   * Return the Random Seed.
+   *
+   * @returns Seed
+   */
+  public getSeed(): number {
+    return this.options.seed;
+  }
+
+  /**
    * Return Live Particle List (engine use only).
    *
    * @returns Mutable Particle List

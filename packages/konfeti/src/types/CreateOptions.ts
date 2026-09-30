@@ -51,6 +51,23 @@ export type CreateOptions = {
    */
   readonly disableForReducedMotion?: boolean;
   /**
+   * Fixed Time Step.
+   * Simulate in fixed 1/60 s steps instead of the real frame time. A burst fired again with the same `seed`
+   * (and the same options and canvas size) then replays exactly, particle for particle, on any display and at
+   * any frame rate. Motion updates 60 times per second, also on faster screens.
+   *
+   * @defaultValue `false` (each frame simulates the real time since the last one)
+   * @example
+   * ```ts
+   * const stage = KonfetiFactory.create(canvas, { fixedTimestep: true });
+   * const seed = stage.fire().getSeed();
+   * stage.fire({ seed }); // exactly the same burst again
+   * ```
+   * @remarks Useful for replays, demos and visual tests. Without it, the same seed still gives the same
+   * particles, but their paths can differ slightly with the frame timing.
+   */
+  readonly fixedTimestep?: boolean;
+  /**
    * Instance Default Burst Options.
    * Merged under every `fire()` call on this instance (fire options win). Nested groups such as `paper` and
    * `physics` are merged key by key.

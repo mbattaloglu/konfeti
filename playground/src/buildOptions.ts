@@ -33,6 +33,10 @@ export type BuildSettings = {
    * Include `origin` from the sliders (off for click / element origins).
    */
   readonly includeOrigin?: boolean;
+  /**
+   * Include the formation when it is switched on (off for streams, which cannot form a shape).
+   */
+  readonly includeFormation?: boolean;
 };
 
 /**
@@ -421,7 +425,7 @@ export function buildOptions(
   const jitter = num(state, "lifetimeJitter");
   const originX = num(state, "originX");
   const originSpread = num(state, "originSpreadX");
-  const isFormation = bool(state, "formation");
+  const isFormation = settings.includeFormation !== false && bool(state, "formation");
   // a formation is a single burst whose particle count follows from its spacing
   const emission = isFormation ? undefined : buildEmission(state);
   const shapes = buildShapes(state, assets);

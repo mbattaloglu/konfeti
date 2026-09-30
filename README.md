@@ -219,6 +219,8 @@ burst.pause();
 burst.resume();
 burst.stop();
 await burst;
+// the same burst again (exact with KonfetiFactory.create(canvas, { fixedTimestep: true }))
+Konfeti.fire({ seed: burst.getSeed() });
 
 Konfeti.pause(); // freeze everything (hidden tabs pause on their own)
 Konfeti.resume();

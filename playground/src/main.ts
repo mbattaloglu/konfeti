@@ -1,6 +1,7 @@
 import { KonfetiFactory, KonfetiPalettes, KonfetiPresets, loadImage, VERSION } from "konfeti";
 import type {
   FireInput,
+  FireOptions,
   KonfetiEmitter,
   KonfetiHandle,
   KonfetiInstance,
@@ -88,16 +89,34 @@ function isTyping(event: KeyboardEvent): boolean {
  * on the main thread again), so every switch swaps in a new canvas element.
  *
  * @param useWorker - Render in a Web Worker
+ * @param fixedTimestep - Simulate in Fixed 1/60 s Steps (exact replays)
  * @returns Stage Instance
  */
-function createStage(useWorker: boolean): Stage {
+function createStage(useWorker: boolean, fixedTimestep: boolean): Stage {
   const previous = byId("stage-canvas", HTMLCanvasElement);
   const canvas = el("canvas", "stage-canvas");
   canvas.id = previous.id;
   canvas.setAttribute("aria-hidden", "true");
   previous.replaceWith(canvas);
 
-  return useWorker ? createWorker(canvas) : KonfetiFactory.create(canvas);
+  return useWorker
+    ? createWorker(canvas, { fixedTimestep })
+    : KonfetiFactory.create(canvas, { fixedTimestep });
+}
+
+/**
+ * Give Every Entry of a Burst List Its Own Seed, so the List Can Be Replayed Exactly.
+ * A single burst keeps its options: its handle reports the seed it picked.
+ *
+ * @param input - Fire Input
+ * @returns Fire Input with Seeded List Entries
+ */
+function seedList(input: FireInput): FireInput {
+  return isBurstList(input)
+    ? input.map((entry) =>
+        entry.seed === undefined ? { ...entry, seed: Math.floor(Math.random() * 2 ** 32) } : entry,
+      )
+    : input;
 }
 
 /**
@@ -132,7 +151,7 @@ async function init(): Promise<void> {
   const state: ControlState = {};
   const counters = createCounters();
   // the stage is a regular canvas element, so the whole playground is a KonfetiFactory.create(canvas) demo
-  let main: Stage = createStage(false);
+  let main: Stage = createStage(false, false);
   const jsonArea = byId("json", HTMLTextAreaElement);
   const jsonState = byId("json-state", HTMLElement);
   const toast = byId("toast", HTMLElement);
@@ -141,6 +160,9 @@ async function init(): Promise<void> {
   const statusText = byId("status-text", HTMLElement);
   const stageHit = byId("stage-hit", HTMLElement);
   let lastHandle: KonfetiHandle | null = null;
+  // what the last burst was fired with, for the replay button
+  let lastInput: FireInput | null = null;
+  const replayButton = byId("replay", HTMLButtonElement);
   // worker counters are cumulative per instance; Reset remembers where they stood
   const noStats: WorkerStats = { live: 0, spawned: 0, died: 0, completed: 0 };
   let statsBase = noStats;
@@ -180,10 +202,17 @@ async function init(): Promise<void> {
       : { ...input, ...hooks };
   };
 
+  const remember = (input: FireInput, handle: KonfetiHandle): void => {
+    lastHandle = handle;
+    lastInput = input;
+    replayButton.title = t("actions.replaySeed", { seed: handle.getSeed() });
+  };
+
   const fireMain = (input: FireInput): void => {
     try {
-      const handle = fireOn(main, input, withHooks);
-      lastHandle = handle;
+      const seeded = seedList(input);
+      const handle = fireOn(main, seeded, withHooks);
+      remember(seeded, handle);
 
       // a worker rejects invalid options asynchronously, so report them when the handle settles
       if (main instanceof WorkerKonfetiInstance) {
@@ -261,6 +290,12 @@ async function init(): Promise<void> {
   byId("pause", HTMLButtonElement).addEventListener("click", () => lastHandle?.pause());
   byId("resume", HTMLButtonElement).addEventListener("click", () => lastHandle?.resume());
   byId("stop", HTMLButtonElement).addEventListener("click", () => lastHandle?.stop());
+  // the same options with the same seed: the same burst again (exactly so with Fixed Step on)
+  replayButton.addEventListener("click", () => {
+    if (lastInput !== null && lastHandle !== null) {
+      fireMain(isBurstList(lastInput) ? lastInput : { ...lastInput, seed: lastHandle.getSeed() });
+    }
+  });
   byId("reset", HTMLButtonElement).addEventListener("click", () => {
     main.reset();
     Object.assign(counters, createCounters());
@@ -309,10 +344,12 @@ async function init(): Promise<void> {
     document.body.classList.toggle("is-click-fire", clickToggle.checked);
 
     if (clickToggle.checked) {
-      const clickOptions = (): FireInput => buildOptions(state, assets, { includeOrigin: false });
-      // click bursts become the "last burst" too, so pause / resume / stop and the status chip follow them
-      const track = (handle: KonfetiHandle): void => {
-        lastHandle = handle;
+      const clickOptions = (): FireOptions => buildOptions(state, assets, { includeOrigin: false });
+      // click bursts become the "last burst" too, so pause / resume / stop / replay and the status chip follow
+      // them; the replay fires at the same spot
+      const track = (handle: KonfetiHandle, event: MouseEvent): void => {
+        const origin = { clientX: event.clientX, clientY: event.clientY };
+        remember({ ...clickOptions(), origin }, handle);
       };
       // worker stages get plain options (see fireOn); main-thread stages also run the hooks
       unsubscribeClick =
@@ -328,8 +365,9 @@ async function init(): Promise<void> {
   const streamToggle = byId("pointer-stream", HTMLInputElement);
   let stream: KonfetiEmitter | null = null;
   const startStream = (): void => {
-    // emit() replaces particleCount / emission / origin itself, so the fire options pass through as they are
-    const options = buildOptions(state, assets, { includeOrigin: false });
+    // emit() replaces particleCount / emission / origin itself, so the fire options pass through as they are;
+    // a stream cannot form a shape
+    const options = buildOptions(state, assets, { includeOrigin: false, includeFormation: false });
     const settings = {
       ...options,
       rate: Math.max(1, options.particleCount ?? 60),
@@ -357,16 +395,23 @@ async function init(): Promise<void> {
   }
   streamToggle.addEventListener("change", restartStream);
 
-  // worker mode (createWorker from konfeti/worker)
+  // worker mode (createWorker from konfeti/worker) and fixed step (fixedTimestep) both need a new stage
   const workerToggle = byId("worker-mode", HTMLInputElement);
-  workerToggle.addEventListener("change", () => {
+  const fixedStepToggle = byId("fixed-step", HTMLInputElement);
+  const rebuildStage = (): void => {
     stream = null;
     main.destroy();
-    main = createStage(workerToggle.checked);
+    main = createStage(workerToggle.checked, fixedStepToggle.checked);
     lastHandle = null;
+    lastInput = null;
+    replayButton.title = t("actions.replay");
     statsBase = noStats;
     applyClickToggle();
     restartStream();
+  };
+  fixedStepToggle.addEventListener("change", rebuildStage);
+  workerToggle.addEventListener("change", () => {
+    rebuildStage();
 
     for (const id of HOOK_STATS) {
       const stat = byId(id, HTMLElement).parentElement;

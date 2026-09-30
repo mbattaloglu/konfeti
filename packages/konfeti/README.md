@@ -114,6 +114,19 @@ Konfeti.fire({ origin: document.querySelector("#buy")! });
 
 Every numeric option accepts a fixed value or a random **range**: `10`, `[8, 14]` or `{ min: 8, max: 14 }`.
 
+Every handle reports its random **seed**. Fire the same options with it to get the same burst again: the same
+particles, colors and launch values. On an instance created with `fixedTimestep: true` the replay is exact,
+motion included, on any display and at any frame rate:
+
+```ts run
+const seed = Konfeti.fire({ particleCount: 80, spread: 90 }).getSeed();
+setTimeout(() => Konfeti.fire({ particleCount: 80, spread: 90, seed }), 1200); // the same burst again
+```
+
+```ts
+const stage = KonfetiFactory.create(canvas, { fixedTimestep: true }); // 1/60 s steps: exact replays
+```
+
 ## The paper particle
 
 The default confetti piece is fully configurable through `paper`:

@@ -32,6 +32,16 @@ export class Engine implements BurstOwner {
   private static readonly MS_PER_SECOND = 1000;
 
   /**
+   * Simulation Step in Fixed-Timestep Mode, in Seconds.
+   */
+  private static readonly FIXED_STEP_SECONDS = 1 / 60;
+
+  /**
+   * How Early a Fixed Step May Run, in Seconds (frame times jitter around 1/60 s on a 60 Hz screen).
+   */
+  private static readonly FIXED_STEP_TOLERANCE = 0.002;
+
+  /**
    * Extra Distance below the Canvas before a Falling Particle is Culled.
    */
   private static readonly CULL_MARGIN = 32;
@@ -67,6 +77,16 @@ export class Engine implements BurstOwner {
   private readonly maxParticles: number;
 
   /**
+   * Fixed-Timestep Mode Flag.
+   */
+  private readonly fixedTimestep: boolean;
+
+  /**
+   * Real Time Not Yet Simulated in Fixed-Timestep Mode, in Seconds.
+   */
+  private accumulator = 0;
+
+  /**
    * Reused Simulation Bounds.
    */
   private readonly world: PhysicsWorld = { width: 0, height: 0, surface: null };
@@ -99,6 +119,7 @@ export class Engine implements BurstOwner {
    * @param scheduler - Frame Scheduler
    * @param pool - Particle Pool
    * @param maxParticles - Maximum Live Particles
+   * @param fixedTimestep - Simulate in Fixed 1/60 s Steps Flag
    */
   public constructor(
     surface: RenderSurface,
@@ -106,12 +127,14 @@ export class Engine implements BurstOwner {
     scheduler: FrameScheduler,
     pool: ParticlePool,
     maxParticles: number,
+    fixedTimestep = false,
   ) {
     this.surface = surface;
     this.renderer = renderer;
     this.scheduler = scheduler;
     this.pool = pool;
     this.maxParticles = maxParticles;
+    this.fixedTimestep = fixedTimestep;
     this.world.surface = surface;
   }
 
@@ -200,6 +223,7 @@ export class Engine implements BurstOwner {
     this.bursts.length = 0;
     this.cancelFrame();
     this.lastTime = null;
+    this.accumulator = 0;
     this.renderer.clear(this.surface);
   }
 
@@ -262,7 +286,7 @@ export class Engine implements BurstOwner {
           );
 
     this.lastTime = time;
-    const hasActive = this.step(dt);
+    const hasActive = this.fixedTimestep ? this.stepFixed(dt) : this.step(dt);
     this.renderer.render(this.surface, this.bursts);
 
     if (hasActive) {
@@ -270,8 +294,44 @@ export class Engine implements BurstOwner {
     } else {
       // everything paused or finished: idle until resume()/fire()
       this.lastTime = null;
+      this.accumulator = 0;
     }
   };
+
+  /**
+   * Advance in Fixed 1/60 s Steps (the same seed then replays exactly on any display).
+   *
+   * @param dt - Real Frame Time in Seconds
+   * @returns Active (Unpaused) Burst Exists Flag
+   */
+  private stepFixed(dt: number): boolean {
+    const step = Engine.FIXED_STEP_SECONDS;
+    let hasActive = this.hasActiveBurst();
+    this.accumulator += dt;
+
+    // a frame may run a step slightly early, so a jittery 60 Hz screen still gets one step per frame
+    while (this.accumulator >= step - Engine.FIXED_STEP_TOLERANCE) {
+      hasActive = this.step(step);
+      this.accumulator -= step;
+    }
+
+    return hasActive;
+  }
+
+  /**
+   * Check Whether Any Burst Is Running (not paused).
+   *
+   * @returns Running Burst Exists Flag
+   */
+  private hasActiveBurst(): boolean {
+    for (const burst of this.bursts) {
+      if (!burst.isPaused()) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   /**
    * Advance All Bursts.

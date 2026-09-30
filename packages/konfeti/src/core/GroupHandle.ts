@@ -93,4 +93,13 @@ export class GroupHandle implements KonfetiHandle {
   public getParticleCount(): number {
     return this.handles.reduce((total, handle) => total + handle.getParticleCount(), 0);
   }
+
+  /**
+   * Return the Seed of the First Burst.
+   *
+   * @returns Seed (`0` for an empty list)
+   */
+  public getSeed(): number {
+    return this.handles[0]?.getSeed() ?? 0;
+  }
 }

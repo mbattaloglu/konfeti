@@ -33,7 +33,7 @@ function setup(): {
     width: 400,
     height: 300,
     pixelRatio: 2,
-    settings: { maxParticles: 100, defaults: { particleCount: 5 } },
+    settings: { maxParticles: 100, defaults: { particleCount: 5 }, fixedTimestep: false },
   });
 
   return {

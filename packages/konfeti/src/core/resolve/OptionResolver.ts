@@ -62,6 +62,7 @@ export class OptionResolver {
       maxDevicePixelRatio: Math.max(1, maxDevicePixelRatio),
       disableForReducedMotion:
         options.disableForReducedMotion ?? DEFAULT_CREATE_OPTIONS.disableForReducedMotion,
+      fixedTimestep: options.fixedTimestep ?? DEFAULT_CREATE_OPTIONS.fixedTimestep,
       defaults: options.defaults ?? {},
       frameScheduler: options.frameScheduler ?? null,
     };

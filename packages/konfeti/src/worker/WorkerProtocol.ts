@@ -13,6 +13,10 @@ export type WorkerRuntimeSettings = {
    * Instance Default Burst Options.
    */
   readonly defaults: WorkerFireOptions;
+  /**
+   * Simulate in Fixed 1/60 s Steps Flag.
+   */
+  readonly fixedTimestep: boolean;
 };
 
 /**

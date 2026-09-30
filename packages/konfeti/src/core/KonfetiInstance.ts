@@ -82,6 +82,7 @@ export class KonfetiInstance {
       this.options.frameScheduler ?? KonfetiInstance.createDefaultScheduler(),
       this.pool,
       this.options.maxParticles,
+      this.options.fixedTimestep,
     );
     this.registerVisibilityEvents();
     Announcer.announce(KonfetiInstance.RENDERER_NAME);

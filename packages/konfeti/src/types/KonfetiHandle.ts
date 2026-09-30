@@ -43,4 +43,19 @@ export type KonfetiHandle = PromiseLike<void> & {
    * @returns Live Particle Count
    */
   getParticleCount(): number;
+  /**
+   * Return the Random Seed.
+   * Fire the same options with this seed to get the same burst again: the same particles with the same
+   * colors, sizes and launch values, and exactly the same motion on instances with `fixedTimestep`. For a
+   * combined handle from `fire([...])`, the seed of the first burst (give each entry its own `seed` to replay
+   * a list).
+   *
+   * @returns Seed
+   * @example
+   * ```ts
+   * const seed = Konfeti.fire().getSeed();
+   * Konfeti.fire({ seed }); // the same burst again
+   * ```
+   */
+  getSeed(): number;
 };

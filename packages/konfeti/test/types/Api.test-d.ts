@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
 
 import type {
+  CreateOptions,
   EmitOptions,
   FireInput,
   FireOptions,
@@ -124,5 +125,13 @@ describe("formation", () => {
 
   it("is not an emitter option", () => {
     expectTypeOf<EmitOptions>().not.toHaveProperty("formation");
+  });
+});
+
+describe("replays", () => {
+  it("handles report their seed and instances take fixedTimestep", () => {
+    expectTypeOf<KonfetiHandle["getSeed"]>().returns.toEqualTypeOf<number>();
+    expectTypeOf<{ fixedTimestep: true }>().toExtend<CreateOptions>();
+    expectTypeOf<{ fixedTimestep: "yes" }>().not.toExtend<CreateOptions>();
   });
 });

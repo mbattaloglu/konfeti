@@ -15,6 +15,7 @@ import type { WorkerCreateOptions } from "../types/worker/WorkerCreateOptions";
 import type { WorkerFireInput } from "../types/worker/WorkerFireInput";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
 import { EnvUtils } from "../utils/EnvUtils";
+import { Random } from "../utils/Random";
 import { WorkerBurstHandle } from "./WorkerBurstHandle";
 import { WorkerEmitterHandle } from "./WorkerEmitterHandle";
 import { WorkerOptionsPreparer } from "./WorkerOptionsPreparer";
@@ -170,6 +171,7 @@ export class WorkerKonfetiInstance {
         ...size,
         settings: {
           maxParticles: this.options.maxParticles,
+          fixedTimestep: this.options.fixedTimestep,
           defaults: WorkerOptionsPreparer.prepare(
             this.options.defaults as WorkerFireOptions,
             this.getBounds(),
@@ -475,14 +477,17 @@ export class WorkerKonfetiInstance {
   /**
    * Fire Single Burst in the Worker.
    *
-   * @param options - Worker-Safe Burst Options
+   * @param input - Worker-Safe Burst Options
    * @returns Burst Handle
    */
-  private fireOne(options: WorkerFireOptions): KonfetiHandle {
+  private fireOne(input: WorkerFireOptions): KonfetiHandle {
     const id = this.nextId++;
+    // picked here rather than in the worker, so getSeed() answers right away
+    const seed = input.seed ?? this.options.defaults.seed ?? Random.createSeed();
+    const options: WorkerFireOptions = { ...input, seed };
     const handle = new WorkerBurstHandle((action) => {
       this.send({ type: "control", id, action });
-    });
+    }, seed);
 
     if (this.failure !== null) {
       handle.fail(this.failure);

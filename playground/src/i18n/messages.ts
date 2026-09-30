@@ -33,6 +33,9 @@ const EN = {
   "tools.workerMode": "Worker Mode",
   "tools.workerModeTitle": "createWorker(canvas) from konfeti/worker — renders in a Web Worker",
   "tools.pointerStream": "Pointer Stream",
+  "tools.fixedStep": "Fixed Step",
+  "tools.fixedStepTitle":
+    "fixedTimestep: simulate in 1/60 s steps, so a replay with the same seed is exact on any display",
   "tools.pointerStreamTitle":
     'emit({ rate, follow: "pointer" }) — Particle Count becomes particles per second',
   "hooks.log": "Hook Events",
@@ -45,6 +48,8 @@ const EN = {
   "actions.pause": "Pause last burst",
   "actions.resume": "Resume last burst",
   "actions.stop": "Stop last burst",
+  "actions.replay": "Replay last burst (same seed)",
+  "actions.replaySeed": "Replay last burst (seed {seed})",
   "actions.reset": "Reset",
   "actions.resetTitle": "Clear every particle and counter",
   "block.presets": "Presets",
@@ -143,6 +148,9 @@ const TR: Readonly<Record<MessageKey, string>> = {
   "tools.workerMode": "Worker Modu",
   "tools.workerModeTitle": "konfeti/worker içinden createWorker(canvas) — Web Worker içinde çizer",
   "tools.pointerStream": "İmleçten Akış",
+  "tools.fixedStep": "Sabit Adım",
+  "tools.fixedStepTitle":
+    "fixedTimestep: 1/60 sn'lik adımlarla simüle eder; aynı seed'le tekrar her ekranda birebir aynı olur",
   "tools.pointerStreamTitle":
     'emit({ rate, follow: "pointer" }) — Parçacık Sayısı saniyedeki parçacık olur',
   "hooks.log": "Hook Olayları",
@@ -155,6 +163,8 @@ const TR: Readonly<Record<MessageKey, string>> = {
   "actions.pause": "Son patlamayı duraklat",
   "actions.resume": "Son patlamayı sürdür",
   "actions.stop": "Son patlamayı durdur",
+  "actions.replay": "Son patlamayı tekrar oynat (aynı seed)",
+  "actions.replaySeed": "Son patlamayı tekrar oynat (seed {seed})",
   "actions.reset": "Sıfırla",
   "actions.resetTitle": "Tüm parçacıkları ve sayaçları temizle",
   "block.presets": "Hazır Ayarlar",

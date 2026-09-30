@@ -115,6 +115,19 @@ Konfeti.fire({ origin: document.querySelector("#buy")! });
 
 Her sayısal seçenek sabit bir değer ya da rastgele bir **aralık** alır: `10`, `[8, 14]` veya `{ min: 8, max: 14 }`.
 
+Her handle kendi rastgele **seed**'ini verir. Aynı ayarları bu seed'le ateşlersen aynı patlamayı yeniden alırsın:
+aynı parçacıklar, renkler ve fırlatma değerleri. `fixedTimestep: true` ile oluşturulan bir instance'ta tekrar,
+hareket de dahil, her ekranda ve her kare hızında birebir aynıdır:
+
+```ts run
+const seed = Konfeti.fire({ particleCount: 80, spread: 90 }).getSeed();
+setTimeout(() => Konfeti.fire({ particleCount: 80, spread: 90, seed }), 1200); // aynı patlama yeniden
+```
+
+```ts
+const stage = KonfetiFactory.create(canvas, { fixedTimestep: true }); // 1/60 sn adımlar: birebir tekrar
+```
+
 ## Kağıt parçacığı
 
 Varsayılan konfeti parçasının her ayarı `paper` ile değiştirilebilir:

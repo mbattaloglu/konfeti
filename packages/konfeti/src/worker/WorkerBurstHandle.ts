@@ -27,6 +27,11 @@ export class WorkerBurstHandle implements KonfetiHandle {
   private readonly send: (action: BurstAction) => void;
 
   /**
+   * Random Seed of the Burst (picked on the main thread, so it is known right away).
+   */
+  private readonly seed: number;
+
+  /**
    * Last Reported Particle Count.
    */
   private particleCount = 0;
@@ -45,8 +50,10 @@ export class WorkerBurstHandle implements KonfetiHandle {
    * Create Handle.
    *
    * @param send - Control Sender
+   * @param seed - Random Seed of the Burst
    */
-  public constructor(send: (action: BurstAction) => void) {
+  public constructor(send: (action: BurstAction) => void, seed = 0) {
+    this.seed = seed;
     let resolver: () => void = () => undefined;
     let rejecter: (error: Error) => void = () => undefined;
     this.promise = new Promise<void>((resolve, reject) => {
@@ -169,5 +176,14 @@ export class WorkerBurstHandle implements KonfetiHandle {
       this.particleCount = 0;
       this.rejectPromise(new TypeError(message));
     }
+  }
+
+  /**
+   * Return the Random Seed.
+   *
+   * @returns Seed
+   */
+  public getSeed(): number {
+    return this.seed;
   }
 }
