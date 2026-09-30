@@ -93,9 +93,14 @@ function createCoinPng(): Buffer {
 }
 
 /**
+ * Path Vercel Serves the Web Analytics Script From.
+ */
+export const ANALYTICS_SCRIPT = "/_vercel/insights/script.js";
+
+/**
  * Route Every Request on the Fake Origin to Disk.
- * `/dist/*` → built library, `/tools/konfeti/*` → built site, `/assets/coin.png` → generated PNG, anything
- * else → `pages/`; unknown files 404.
+ * `/dist/*` → built library, `/tools/konfeti/*` → built site, `/assets/coin.png` → generated PNG, the Vercel
+ * analytics script → an empty stand-in, anything else → `pages/`; unknown files 404.
  *
  * @param page - Page to Route
  */
@@ -107,6 +112,12 @@ async function serveFromDisk(page: Page): Promise<void> {
 
     if (pathname === "/assets/coin.png") {
       await route.fulfill({ body: coin, contentType: "image/png" });
+      return;
+    }
+
+    // Vercel serves the real script in production; here the request is only recorded
+    if (pathname === ANALYTICS_SCRIPT) {
+      await route.fulfill({ body: "", contentType: "text/javascript" });
       return;
     }
 

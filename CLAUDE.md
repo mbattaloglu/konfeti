@@ -76,6 +76,8 @@ playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`
                         # i18n EN/TR: UI strings in src/i18n/messages.ts (both languages, TR type-checked for every key),
                         # control text in src/i18n/controlsTr.ts; the guide renders README.md / README.tr.md; API reference stays English
                         # src/share: share link (?s= changed settings, base64url JSON) and Copy Code (only settings that differ from the defaults)
+                        # src/analytics.ts (+ packages/konfeti/typedoc/analytics.js for the API pages via TypeDoc customJs): Vercel Web
+                        # Analytics, root-relative /_vercel/insights/script.js, skipped on localhost; e2e answers that path with an empty stub
 e2e/                    # Playwright browser tests: pages/ (esm, iife), support/site.ts (disk routing on http://konfeti.test), tests/
 vercel.json             # Vercel static site: `pnpm site:build` → playground/dist, base path /tools/konfeti/ rewritten to /
 docs/PLAN.md

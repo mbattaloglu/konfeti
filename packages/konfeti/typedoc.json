@@ -10,6 +10,7 @@
   "excludeInternal": true,
   "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape", "WorkerConnector"],
   "customCss": "./typedoc/brand.css",
+  "customJs": "./typedoc/analytics.js",
   "hideGenerator": true,
   "navigationLinks": {
     "Playground": "/tools/konfeti/",

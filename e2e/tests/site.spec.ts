@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { expect, openSite, test } from "../support/site";
+import { ANALYTICS_SCRIPT, expect, openSite, ORIGIN, test } from "../support/site";
 
 test.describe("built site (playground)", () => {
   test("every preset fires without an error toast", async ({ page, site }) => {
@@ -22,6 +22,27 @@ test.describe("built site (playground)", () => {
     }
 
     expect(failures).toEqual([]);
+    expect(site.errors).toEqual([]);
+  });
+});
+
+test.describe("built site (analytics)", () => {
+  test("the playground, the guide and the API reference load Vercel Web Analytics", async ({
+    page,
+    site,
+  }) => {
+    const pages = [
+      `${ORIGIN}/tools/konfeti/?lang=en`,
+      `${ORIGIN}/tools/konfeti/docs/?lang=en`,
+      `${ORIGIN}/tools/konfeti/docs/api/`,
+    ];
+
+    for (const url of pages) {
+      site.requests.length = 0;
+      await page.goto(url);
+      await expect.poll(() => site.requests).toContain(ANALYTICS_SCRIPT);
+    }
+
     expect(site.errors).toEqual([]);
   });
 });

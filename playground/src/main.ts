@@ -9,6 +9,7 @@ import type {
 import { createWorker, WorkerKonfetiInstance } from "konfeti/worker";
 import type { WorkerEmitOptions, WorkerFireInput, WorkerStats } from "konfeti/worker";
 
+import { startAnalytics } from "./analytics";
 import { buildOptions } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
 import type { ControlState } from "./controlTypes";
@@ -529,4 +530,5 @@ async function init(): Promise<void> {
   requestAnimationFrame(tick);
 }
 
+startAnalytics();
 void init();

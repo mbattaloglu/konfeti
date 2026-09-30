@@ -6,6 +6,7 @@ import type { Token, Tokens } from "marked";
 
 import readmeEn from "../../../packages/konfeti/README.md?raw";
 import readmeTr from "../../../packages/konfeti/README.tr.md?raw";
+import { startAnalytics } from "../analytics";
 import { getLocale, localizedHref } from "../i18n/Locale";
 import type { Locale } from "../i18n/Locale";
 import { t } from "../i18n/messages";
@@ -270,4 +271,5 @@ function init(): void {
   }
 }
 
+startAnalytics();
 init();
