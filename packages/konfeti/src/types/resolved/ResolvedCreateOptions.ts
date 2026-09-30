@@ -30,6 +30,10 @@ export type ResolvedCreateOptions = {
    */
   readonly fixedTimestep: boolean;
   /**
+   * Adaptive Quality Flag.
+   */
+  readonly adaptiveQuality: boolean;
+  /**
    * Instance Default Burst Options.
    */
   readonly defaults: FireOptions;

@@ -65,8 +65,14 @@ export abstract class BaseShape implements IShape {
    * @param context - Target 2D Context
    * @param particle - Particle to Draw
    * @param pixelRatio - Canvas Pixels per CSS Pixel
+   * @param detail - Draw Extra Detail such as Shine (off at reduced adaptive quality)
    */
-  public draw(context: CanvasRenderingContext2D, particle: Particle, pixelRatio: number): void {
+  public draw(
+    context: CanvasRenderingContext2D,
+    particle: Particle,
+    pixelRatio: number,
+    detail = true,
+  ): void {
     const progress = particle.getProgress();
     const alpha = BaseShape.computeAlpha(particle, progress);
 
@@ -93,6 +99,7 @@ export abstract class BaseShape implements IShape {
 
     // shine is a flip glint, so flat (non-flipping) particles never get it
     if (
+      detail &&
       particle.shine > 0 &&
       particle.flipAxis !== null &&
       this.facing > 0 &&

@@ -19,6 +19,20 @@ export class Canvas2DRenderer {
   private static readonly NO_SHADOW = "transparent";
 
   /**
+   * Draw Shadows, Shine and Trails Flag (off at reduced adaptive quality).
+   */
+  private _hasEffects = true;
+
+  /**
+   * Switch Shadows, Shine and Trails On or Off.
+   *
+   * @param enabled - Effects Flag
+   */
+  public setEffects(enabled: boolean): void {
+    this._hasEffects = enabled;
+  }
+
+  /**
    * Render All Bursts.
    *
    * @param surface - Target Surface
@@ -27,6 +41,7 @@ export class Canvas2DRenderer {
   public render(surface: RenderSurface, bursts: readonly Burst[]): void {
     const context = surface.getContext();
     const pixelRatio = surface.getPixelRatio();
+    const effects = this._hasEffects;
     let blendMode = Canvas2DRenderer.DEFAULT_BLEND_MODE;
     let shadowColor: string | null = null;
     let shadowBlur = 0;
@@ -41,9 +56,12 @@ export class Canvas2DRenderer {
           context.globalCompositeOperation = blendMode;
         }
 
-        if (particle.shadowColor !== shadowColor || particle.shadowBlur !== shadowBlur) {
-          shadowColor = particle.shadowColor;
-          shadowBlur = particle.shadowBlur;
+        const particleShadow = effects ? particle.shadowColor : null;
+        const particleBlur = effects ? particle.shadowBlur : 0;
+
+        if (particleShadow !== shadowColor || particleBlur !== shadowBlur) {
+          shadowColor = particleShadow;
+          shadowBlur = particleBlur;
           // shadow values are in device pixels and ignore the transform
           context.shadowColor = shadowColor ?? Canvas2DRenderer.NO_SHADOW;
           context.shadowBlur = shadowBlur * pixelRatio;
@@ -51,11 +69,11 @@ export class Canvas2DRenderer {
           context.shadowOffsetY = particle.shadowOffsetY * pixelRatio;
         }
 
-        if (particle.trailCount > 1) {
+        if (effects && particle.trailCount > 1) {
           TrailPainter.draw(context, particle, pixelRatio);
         }
 
-        particle.shape?.draw(context, particle, pixelRatio);
+        particle.shape?.draw(context, particle, pixelRatio, effects);
       }
     }
 

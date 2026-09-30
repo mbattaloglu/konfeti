@@ -135,3 +135,11 @@ describe("replays", () => {
     expectTypeOf<{ fixedTimestep: "yes" }>().not.toExtend<CreateOptions>();
   });
 });
+
+describe("adaptive quality", () => {
+  it("is an instance option with a readable level", () => {
+    expectTypeOf<{ adaptiveQuality: true }>().toExtend<CreateOptions>();
+    expectTypeOf<KonfetiInstance["getQualityLevel"]>().returns.toEqualTypeOf<number>();
+    expectTypeOf(Konfeti).not.toHaveProperty("getQualityLevel");
+  });
+});

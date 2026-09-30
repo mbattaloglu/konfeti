@@ -112,6 +112,11 @@ export class WorkerKonfetiInstance {
   private completed = 0;
 
   /**
+   * Last Reported Adaptive Quality Level.
+   */
+  private qualityLevel = 0;
+
+  /**
    * Paused State Flag (pause() in effect).
    */
   private _isPaused = false;
@@ -172,6 +177,7 @@ export class WorkerKonfetiInstance {
         settings: {
           maxParticles: this.options.maxParticles,
           fixedTimestep: this.options.fixedTimestep,
+          adaptiveQuality: this.options.adaptiveQuality,
           defaults: WorkerOptionsPreparer.prepare(
             this.options.defaults as WorkerFireOptions,
             this.getBounds(),
@@ -448,6 +454,17 @@ export class WorkerKonfetiInstance {
   }
 
   /**
+   * Return the Adaptive Quality Level.
+   * Always `0` without the `adaptiveQuality` option.
+   *
+   * @returns Level: `0` full quality, `1` CSS resolution, `2` no shadows / shine / trails, `3` fewer particles
+   *   (worker mode: updated a few times per second)
+   */
+  public getQualityLevel(): number {
+    return this.fallback?.getQualityLevel() ?? this.qualityLevel;
+  }
+
+  /**
    * Return Canvas Element.
    *
    * @returns Canvas Element
@@ -589,6 +606,7 @@ export class WorkerKonfetiInstance {
         this.particleCount = message.total;
         this.spawned = message.spawned;
         this.died = message.died;
+        this.qualityLevel = message.quality;
         for (const [id, count] of message.bursts) {
           this.handles.get(id)?.setParticleCount(count);
         }

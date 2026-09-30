@@ -401,7 +401,7 @@ Element and click origins are measured on the main thread before sending; the po
 emitter follows or an attractor pulls toward is tracked there too and sent over while the burst runs. Use
 `await` on the handle instead of `onComplete`.
 
-The worker script itself (~17.8 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~18.6 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -417,7 +417,7 @@ Hooks cannot run inside a worker, so a worker instance counts for you: `stage.ge
 ## Playable ads & webviews
 
 konfeti works in single-file playable ads: it has no dependencies, makes no network requests of its own, uses
-no storage and no `eval`. `Konfeti.fire()` adds about 54 kB minified (16 kB brotli); ad networks usually count
+no storage and no `eval`. `Konfeti.fire()` adds about 65 kB minified (19 kB brotli); ad networks usually count
 uncompressed size. Keep these in mind:
 
 - **Images:** pass a `data:` URI or an image / canvas your engine already loaded — a URL like `/coin.png` is a
@@ -430,8 +430,11 @@ uncompressed size. Keep these in mind:
   `onClick(target, options, { trigger: "pointerdown" })` or fire from your own input handler with
   `origin: { x, y }` (0–1) or the pointer event.
 - **Visibility:** call `Konfeti.pause()` / `Konfeti.resume()` from MRAID `viewableChange`.
+- **Low-end phones:** create the stage with `KonfetiFactory.create(null, { adaptiveQuality: true })`. On a slow
+  device it renders at CSS resolution first, then drops shadows, shine and trails, then spawns fewer particles,
+  and steps back up when frames are smooth again; `getQualityLevel()` tells the current level.
 - **Worker rendering:** avoid it in ads — some webviews block `blob:` workers, and a single-file build that
-  inlines dynamic imports carries the 44 kB worker script once you import `konfeti/worker`.
+  inlines dynamic imports carries the 62 kB worker script once you import `konfeti/worker`.
 - **Console:** call `disableBanner()` in production builds.
 - **Targets:** the build is ES2022 (Chrome 85+ / iOS 14.5+); let your bundler lower it for older webviews.
 
@@ -479,11 +482,11 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~18.4 kB            |
-| everything from `konfeti`                            | ~20.1 kB            |
-| `Konfeti` from `konfeti/lite`                        | ~13.0 kB            |
-| `createWorker` from `konfeti/worker`                 | ~20.5 kB            |
-| worker script (loaded on the first `createWorker()`) | ~17.8 kB            |
+| `Konfeti` from `konfeti`                             | ~19.3 kB            |
+| everything from `konfeti`                            | ~21.0 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~13.8 kB            |
+| `createWorker` from `konfeti/worker`                 | ~21.4 kB            |
+| worker script (loaded on the first `createWorker()`) | ~18.6 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:

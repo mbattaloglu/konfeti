@@ -33,7 +33,12 @@ function setup(): {
     width: 400,
     height: 300,
     pixelRatio: 2,
-    settings: { maxParticles: 100, defaults: { particleCount: 5 }, fixedTimestep: false },
+    settings: {
+      maxParticles: 100,
+      defaults: { particleCount: 5 },
+      fixedTimestep: false,
+      adaptiveQuality: false,
+    },
   });
 
   return {
@@ -57,6 +62,7 @@ describe("WorkerRuntime", () => {
       total: 5,
       spawned: 5,
       died: 0,
+      quality: 0,
       bursts: [[7, 5]],
     });
 

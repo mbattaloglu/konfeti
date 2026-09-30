@@ -12,8 +12,14 @@ export type IShape = {
    * @param context - Target 2D Context
    * @param particle - Particle to Draw
    * @param pixelRatio - Canvas Pixels per CSS Pixel
+   * @param detail - Draw Extra Detail such as Shine (off at reduced adaptive quality)
    */
-  draw(context: CanvasRenderingContext2D, particle: Particle, pixelRatio: number): void;
+  draw(
+    context: CanvasRenderingContext2D,
+    particle: Particle,
+    pixelRatio: number,
+    detail?: boolean,
+  ): void;
 
   /**
    * Create Gradient Fill in the Shape's Local Space.

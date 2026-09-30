@@ -1,5 +1,6 @@
 import { KonfetiFactory, KonfetiPalettes, KonfetiPresets, loadImage, VERSION } from "konfeti";
 import type {
+  CreateOptions,
   FireInput,
   FireOptions,
   KonfetiEmitter,
@@ -63,6 +64,11 @@ const HOOK_STATS = ["stat-updated"] as const;
 type Stage = KonfetiInstance | WorkerKonfetiInstance;
 
 /**
+ * Stage Switches Passed to the Instance.
+ */
+type StageOptions = Pick<CreateOptions, "fixedTimestep" | "adaptiveQuality">;
+
+/**
  * Compact Number Formatter for Counters.
  */
 const COMPACT = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
@@ -89,19 +95,17 @@ function isTyping(event: KeyboardEvent): boolean {
  * on the main thread again), so every switch swaps in a new canvas element.
  *
  * @param useWorker - Render in a Web Worker
- * @param fixedTimestep - Simulate in Fixed 1/60 s Steps (exact replays)
+ * @param options - Stage Switches (fixed time step, adaptive quality)
  * @returns Stage Instance
  */
-function createStage(useWorker: boolean, fixedTimestep: boolean): Stage {
+function createStage(useWorker: boolean, options: StageOptions): Stage {
   const previous = byId("stage-canvas", HTMLCanvasElement);
   const canvas = el("canvas", "stage-canvas");
   canvas.id = previous.id;
   canvas.setAttribute("aria-hidden", "true");
   previous.replaceWith(canvas);
 
-  return useWorker
-    ? createWorker(canvas, { fixedTimestep })
-    : KonfetiFactory.create(canvas, { fixedTimestep });
+  return useWorker ? createWorker(canvas, options) : KonfetiFactory.create(canvas, options);
 }
 
 /**
@@ -151,7 +155,7 @@ async function init(): Promise<void> {
   const state: ControlState = {};
   const counters = createCounters();
   // the stage is a regular canvas element, so the whole playground is a KonfetiFactory.create(canvas) demo
-  let main: Stage = createStage(false, false);
+  let main: Stage = createStage(false, {});
   const jsonArea = byId("json", HTMLTextAreaElement);
   const jsonState = byId("json-state", HTMLElement);
   const toast = byId("toast", HTMLElement);
@@ -398,10 +402,14 @@ async function init(): Promise<void> {
   // worker mode (createWorker from konfeti/worker) and fixed step (fixedTimestep) both need a new stage
   const workerToggle = byId("worker-mode", HTMLInputElement);
   const fixedStepToggle = byId("fixed-step", HTMLInputElement);
+  const adaptiveToggle = byId("adaptive-quality", HTMLInputElement);
   const rebuildStage = (): void => {
     stream = null;
     main.destroy();
-    main = createStage(workerToggle.checked, fixedStepToggle.checked);
+    main = createStage(workerToggle.checked, {
+      fixedTimestep: fixedStepToggle.checked,
+      adaptiveQuality: adaptiveToggle.checked,
+    });
     lastHandle = null;
     lastInput = null;
     replayButton.title = t("actions.replay");
@@ -410,6 +418,7 @@ async function init(): Promise<void> {
     restartStream();
   };
   fixedStepToggle.addEventListener("change", rebuildStage);
+  adaptiveToggle.addEventListener("change", rebuildStage);
   workerToggle.addEventListener("change", () => {
     rebuildStage();
 
@@ -455,6 +464,8 @@ async function init(): Promise<void> {
   let frames = 0;
   let lastSample = performance.now();
 
+  const qualityLevel = byId("quality-level", HTMLElement);
+
   const tick = (now: number): void => {
     frames++;
 
@@ -465,6 +476,10 @@ async function init(): Promise<void> {
     }
 
     labels.live.textContent = COMPACT.format(main.getParticleCount());
+    // the adaptive quality level: 0 full, 1 CSS resolution, 2 no effects, 3 fewer particles
+    qualityLevel.textContent = adaptiveToggle.checked
+      ? `adaptiveQuality · ${String(main.getQualityLevel())}`
+      : "adaptiveQuality";
     // hooks never run inside a worker: there the counters come from getStats() (minus the last reset)
     if (main instanceof WorkerKonfetiInstance) {
       const stats = main.getStats();

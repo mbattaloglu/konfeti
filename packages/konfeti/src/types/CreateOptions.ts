@@ -68,6 +68,25 @@ export type CreateOptions = {
    */
   readonly fixedTimestep?: boolean;
   /**
+   * Adaptive Quality.
+   * Watches the frame rate while particles animate. When frames stay slow (below about 50 fps) and konfeti's
+   * own drawing is a real part of the cost, the quality steps down one level at a time: `1` renders at CSS
+   * resolution, `2` also drops shadows, shine and trails, `3` also spawns 60% of the requested particles.
+   * After a few seconds of smooth frames it steps back up.
+   *
+   * @defaultValue `false` (always full quality)
+   * @example
+   * ```ts
+   * const stage = KonfetiFactory.create(null, { adaptiveQuality: true }); // fullscreen, like Konfeti
+   * stage.fire(KonfetiPresets.FIREWORKS);
+   * stage.getQualityLevel(); // 0 on a fast device
+   * ```
+   * @remarks A busy page or a screen locked at 30 Hz (e.g. a phone's low-power mode) does not lower the
+   * quality, since drawing less would not help there. With `fixedTimestep`, level `3` is skipped so replays
+   * spawn the same particles.
+   */
+  readonly adaptiveQuality?: boolean;
+  /**
    * Instance Default Burst Options.
    * Merged under every `fire()` call on this instance (fire options win). Nested groups such as `paper` and
    * `physics` are merged key by key.

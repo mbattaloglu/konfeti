@@ -405,7 +405,7 @@ Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de öl�
 çekimin yöneldiği imleç veya element de orada izlenir ve patlama sürdükçe worker'a iletilir. `onComplete` yerine
 dönen handle'ı `await` et.
 
-Worker betiği (~17.8 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
+Worker betiği (~18.6 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
 betik bir `blob:` URL olarak gömülür; `<script>` sürümü ise `konfeti.worker.js` dosyasını kendi klasöründen
 yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/konfeti.worker.js` dosyasını
 kendin barındır:
@@ -422,7 +422,7 @@ Hook'lar worker içinde çalışamaz, bu yüzden worker instance'ı sayımı ken
 ## Playable reklamlar ve webview'lar
 
 konfeti tek dosyalık playable reklamlarda çalışır: bağımlılığı yoktur, kendi başına ağ isteği yapmaz, depolama ve
-`eval` kullanmaz. `Konfeti.fire()` yaklaşık 54 kB minified (16 kB brotli) ekler; reklam ağları genelde
+`eval` kullanmaz. `Konfeti.fire()` yaklaşık 65 kB minified (19 kB brotli) ekler; reklam ağları genelde
 sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
 
 - **Görseller:** `data:` URI ya da motorunun zaten yüklediği bir görsel / canvas ver — `/coin.png` gibi bir URL
@@ -435,8 +435,11 @@ sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
   `onClick(target, options, { trigger: "pointerdown" })` kullan ya da kendi input handler'ından
   `origin: { x, y }` (0–1) veya pointer olayıyla patlat.
 - **Görünürlük:** MRAID `viewableChange` olayında `Konfeti.pause()` / `Konfeti.resume()` çağır.
+- **Düşük donanımlı telefonlar:** sahneyi `KonfetiFactory.create(null, { adaptiveQuality: true })` ile oluştur.
+  Yavaş bir cihazda önce CSS çözünürlüğüne iner, sonra gölge, parlama ve izleri kapatır, en son daha az parçacık
+  üretir; kareler yeniden akıcı olunca geri yükselir. `getQualityLevel()` o anki kademeyi söyler.
 - **Worker ile çizim:** reklamlarda kullanma — bazı webview'lar `blob:` worker'ları engeller ve dinamik importları
-  gömen tek dosyalık bir build, `konfeti/worker` import ettiğin anda 44 kB'lık worker betiğini de taşır.
+  gömen tek dosyalık bir build, `konfeti/worker` import ettiğin anda 62 kB'lık worker betiğini de taşır.
 - **Konsol:** production build'lerinde `disableBanner()` çağır.
 - **Hedef:** build ES2022'dir (Chrome 85+ / iOS 14.5+); daha eski webview'lar için bundler'ın dönüştürsün.
 
@@ -483,11 +486,11 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
-| `konfeti` içinden `Konfeti`                              | ~18.4 kB             |
-| `konfeti` içinden her şey                                | ~20.1 kB             |
-| `konfeti/lite` içinden `Konfeti`                         | ~13.0 kB             |
-| `konfeti/worker` içinden `createWorker`                  | ~20.5 kB             |
-| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~17.8 kB             |
+| `konfeti` içinden `Konfeti`                              | ~19.3 kB             |
+| `konfeti` içinden her şey                                | ~21.0 kB             |
+| `konfeti/lite` içinden `Konfeti`                         | ~13.8 kB             |
+| `konfeti/worker` içinden `createWorker`                  | ~21.4 kB             |
+| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~18.6 kB             |
 
 `konfeti` tüm yerleşik şekilleri senin için kaydeder. `konfeti/lite` ise **yalnızca kağıt** ile başlar; sadece
 kullandığın şekilleri kaydedersen bundler geri kalanını atar:

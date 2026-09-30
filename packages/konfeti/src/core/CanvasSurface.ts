@@ -50,6 +50,11 @@ export class CanvasSurface implements RenderSurface {
   private pixelRatio = 1;
 
   /**
+   * Largest Pixel Ratio Allowed by Adaptive Quality (`Infinity` = no limit).
+   */
+  private pixelRatioCap = Infinity;
+
+  /**
    * Resize Observer (user canvases only).
    */
   private resizeObserver: ResizeObserver | null = null;
@@ -98,11 +103,11 @@ export class CanvasSurface implements RenderSurface {
    */
   public measure(): void {
     if (this._isOwned) {
-      this.pixelRatio = EnvUtils.getDevicePixelRatio(this.options.maxDevicePixelRatio);
+      this.pixelRatio = this.cappedPixelRatio();
       this.width = window.innerWidth;
       this.height = window.innerHeight;
     } else if (this.options.resize) {
-      this.pixelRatio = EnvUtils.getDevicePixelRatio(this.options.maxDevicePixelRatio);
+      this.pixelRatio = this.cappedPixelRatio();
       this.width = this.canvas.clientWidth || this.canvas.width / this.pixelRatio;
       this.height = this.canvas.clientHeight || this.canvas.height / this.pixelRatio;
     } else {
@@ -115,6 +120,35 @@ export class CanvasSurface implements RenderSurface {
 
     this.canvas.width = Math.round(this.width * this.pixelRatio);
     this.canvas.height = Math.round(this.height * this.pixelRatio);
+  }
+
+  /**
+   * Limit the Pixel Ratio (a user-sized canvas without `resize` keeps its own backing store).
+   *
+   * @param cap - Largest Pixel Ratio (`Infinity` removes the limit)
+   */
+  public setPixelRatioCap(cap: number): void {
+    if (cap === this.pixelRatioCap) {
+      return;
+    }
+
+    this.pixelRatioCap = cap;
+
+    if (this._isMounted) {
+      this.measure();
+    }
+  }
+
+  /**
+   * Return the Device Pixel Ratio within Both Limits (instance option and adaptive quality).
+   *
+   * @returns Pixel Ratio
+   */
+  private cappedPixelRatio(): number {
+    return Math.min(
+      EnvUtils.getDevicePixelRatio(this.options.maxDevicePixelRatio),
+      this.pixelRatioCap,
+    );
   }
 
   /**

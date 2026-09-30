@@ -262,6 +262,7 @@ export class WorkerRuntime {
       new ParticlePool(),
       settings.maxParticles,
       settings.fixedTimestep,
+      settings.adaptiveQuality,
     );
     this.statsTimer = this.timers.setInterval(this.reportStats, WorkerRuntime.STATS_INTERVAL_MS);
   }
@@ -387,11 +388,12 @@ export class WorkerRuntime {
       bursts.push([id, count]);
     }
 
-    const key = `${String(total)}:${String(this.spawned)}:${String(this.died)}:${bursts.map(([id, count]) => `${String(id)}=${String(count)}`).join(",")}`;
+    const quality = this.engine?.getQualityLevel() ?? 0;
+    const key = `${String(total)}:${String(this.spawned)}:${String(this.died)}:${String(quality)}:${bursts.map(([id, count]) => `${String(id)}=${String(count)}`).join(",")}`;
 
     if (key !== this.lastStats) {
       this.lastStats = key;
-      this.post({ type: "stats", total, spawned: this.spawned, died: this.died, bursts });
+      this.post({ type: "stats", total, spawned: this.spawned, died: this.died, quality, bursts });
     }
   };
 

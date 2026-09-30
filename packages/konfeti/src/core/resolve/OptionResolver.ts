@@ -63,6 +63,7 @@ export class OptionResolver {
       disableForReducedMotion:
         options.disableForReducedMotion ?? DEFAULT_CREATE_OPTIONS.disableForReducedMotion,
       fixedTimestep: options.fixedTimestep ?? DEFAULT_CREATE_OPTIONS.fixedTimestep,
+      adaptiveQuality: options.adaptiveQuality ?? DEFAULT_CREATE_OPTIONS.adaptiveQuality,
       defaults: options.defaults ?? {},
       frameScheduler: options.frameScheduler ?? null,
     };

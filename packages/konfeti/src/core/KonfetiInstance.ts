@@ -83,6 +83,7 @@ export class KonfetiInstance {
       this.pool,
       this.options.maxParticles,
       this.options.fixedTimestep,
+      this.options.adaptiveQuality,
     );
     this.registerVisibilityEvents();
     Announcer.announce(KonfetiInstance.RENDERER_NAME);
@@ -272,6 +273,16 @@ export class KonfetiInstance {
    */
   public getParticleCount(): number {
     return this.engine.getParticleCount();
+  }
+
+  /**
+   * Return the Adaptive Quality Level.
+   * Always `0` without the `adaptiveQuality` option.
+   *
+   * @returns Level: `0` full quality, `1` CSS resolution, `2` no shadows / shine / trails, `3` fewer particles
+   */
+  public getQualityLevel(): number {
+    return this.engine.getQualityLevel();
   }
 
   /**

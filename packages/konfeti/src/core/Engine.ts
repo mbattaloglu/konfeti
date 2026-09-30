@@ -9,6 +9,7 @@ import type { BurstOwner } from "./BurstOwner";
 import type { RenderSurface } from "./RenderSurface";
 import { Emitter } from "./Emitter";
 import type { ParticlePool } from "./ParticlePool";
+import { QualityMonitor } from "./QualityMonitor";
 
 /**
  * Animation Engine.
@@ -40,6 +41,26 @@ export class Engine implements BurstOwner {
    * How Early a Fixed Step May Run, in Seconds (frame times jitter around 1/60 s on a 60 Hz screen).
    */
   private static readonly FIXED_STEP_TOLERANCE = 0.002;
+
+  /**
+   * Adaptive Quality Level from which the Canvas Renders at CSS Resolution.
+   */
+  private static readonly LEVEL_LOW_RESOLUTION = 1;
+
+  /**
+   * Adaptive Quality Level from which Shadows, Shine and Trails Are Skipped.
+   */
+  private static readonly LEVEL_NO_EFFECTS = 2;
+
+  /**
+   * Adaptive Quality Level from which Fewer Particles Are Spawned.
+   */
+  private static readonly LEVEL_FEWER_PARTICLES = 3;
+
+  /**
+   * Share of the Requested Particles Spawned at the Lowest Quality.
+   */
+  private static readonly FEWER_PARTICLES_SHARE = 0.6;
 
   /**
    * Extra Distance below the Canvas before a Falling Particle is Culled.
@@ -87,6 +108,11 @@ export class Engine implements BurstOwner {
   private accumulator = 0;
 
   /**
+   * Frame-Rate Watcher (`null` without adaptive quality).
+   */
+  private readonly quality: QualityMonitor | null;
+
+  /**
    * Reused Simulation Bounds.
    */
   private readonly world: PhysicsWorld = { width: 0, height: 0, surface: null };
@@ -120,6 +146,7 @@ export class Engine implements BurstOwner {
    * @param pool - Particle Pool
    * @param maxParticles - Maximum Live Particles
    * @param fixedTimestep - Simulate in Fixed 1/60 s Steps Flag
+   * @param adaptiveQuality - Lower the Quality on Slow Devices Flag
    */
   public constructor(
     surface: RenderSurface,
@@ -128,7 +155,12 @@ export class Engine implements BurstOwner {
     pool: ParticlePool,
     maxParticles: number,
     fixedTimestep = false,
+    adaptiveQuality = false,
   ) {
+    // fewer particles would change what a replay spawns, so fixed-timestep engines stop one level earlier
+    this.quality = adaptiveQuality
+      ? new QualityMonitor(fixedTimestep ? Engine.LEVEL_NO_EFFECTS : Engine.LEVEL_FEWER_PARTICLES)
+      : null;
     this.surface = surface;
     this.renderer = renderer;
     this.scheduler = scheduler;
@@ -243,6 +275,15 @@ export class Engine implements BurstOwner {
   }
 
   /**
+   * Return the Adaptive Quality Level.
+   *
+   * @returns Level: `0` full quality, `1` CSS resolution, `2` no shadows / shine / trails, `3` fewer particles
+   */
+  public getQualityLevel(): number {
+    return this.quality?.getLevel() ?? 0;
+  }
+
+  /**
    * Return Suspended State.
    *
    * @returns Suspended State
@@ -259,7 +300,11 @@ export class Engine implements BurstOwner {
    * @param perShotOrigin - Sample Origin Once Flag
    */
   private readonly spawn = (burst: Burst, count: number, perShotOrigin: boolean): void => {
-    const allowed = Math.min(count, this.maxParticles);
+    const wanted =
+      this.getQualityLevel() >= Engine.LEVEL_FEWER_PARTICLES
+        ? Math.ceil(count * Engine.FEWER_PARTICLES_SHARE)
+        : count;
+    const allowed = Math.min(wanted, this.maxParticles);
 
     if (allowed <= 0) {
       return;
@@ -277,6 +322,9 @@ export class Engine implements BurstOwner {
   private readonly onFrame = (time: number): void => {
     this.frameId = null;
 
+    const frameMs = this.lastTime === null ? null : time - this.lastTime;
+    // only frames with a known length are measured (the first frame of a run has none)
+    const started = this.quality !== null && frameMs !== null ? performance.now() : 0;
     const dt =
       this.lastTime === null
         ? Engine.FIRST_FRAME_SECONDS
@@ -289,14 +337,36 @@ export class Engine implements BurstOwner {
     const hasActive = this.fixedTimestep ? this.stepFixed(dt) : this.step(dt);
     this.renderer.render(this.surface, this.bursts);
 
+    if (this.quality !== null && frameMs !== null) {
+      this.watchQuality(this.quality, frameMs, performance.now() - started);
+    }
+
     if (hasActive) {
       this.requestFrame();
     } else {
       // everything paused or finished: idle until resume()/fire()
       this.lastTime = null;
       this.accumulator = 0;
+      this.quality?.restart();
     }
   };
+
+  /**
+   * Feed the Frame to the Quality Watcher and Apply a New Level.
+   *
+   * @param quality - Frame-Rate Watcher
+   * @param frameMs - Time Since the Previous Frame
+   * @param workMs - Time Spent Simulating and Drawing This Frame
+   */
+  private watchQuality(quality: QualityMonitor, frameMs: number, workMs: number): void {
+    if (!quality.sample(frameMs, workMs)) {
+      return;
+    }
+
+    const level = quality.getLevel();
+    this.surface.setPixelRatioCap(level >= Engine.LEVEL_LOW_RESOLUTION ? 1 : Infinity);
+    this.renderer.setEffects(level < Engine.LEVEL_NO_EFFECTS);
+  }
 
   /**
    * Advance in Fixed 1/60 s Steps (the same seed then replays exactly on any display).

@@ -51,7 +51,7 @@ Konfeti.fire(); // that's it: a classic confetti pop on a fullscreen overlay
   through declaration merging.
 - **Built for the frame loop.** Pooled particles, no allocations per frame, glyphs rasterized once and cached,
   spritesheets drawn by source rectangle, and the loop stops itself when nothing is left.
-- **Small, and only as big as what you use.** ~18 kB brotli for the full `Konfeti.fire()`, ~13 kB with
+- **Small, and only as big as what you use.** ~19 kB brotli for the full `Konfeti.fire()`, ~14 kB with
   `konfeti/lite`, and Web Worker rendering lives in its own entry — bundles that never use it carry none of it.
 
 ## Install
@@ -320,11 +320,11 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
-| `Konfeti` from `konfeti`             | ~18.4 kB |
-| everything from `konfeti`            | ~20.1 kB |
-| `Konfeti` from `konfeti/lite`        | ~13.0 kB |
-| `createWorker` from `konfeti/worker` | ~20.5 kB |
-| worker script (loaded on first use)  | ~17.8 kB |
+| `Konfeti` from `konfeti`             | ~19.3 kB |
+| everything from `konfeti`            | ~21.0 kB |
+| `Konfeti` from `konfeti/lite`        | ~13.8 kB |
+| `createWorker` from `konfeti/worker` | ~21.4 kB |
+| worker script (loaded on first use)  | ~18.6 kB |
 
 ## Browser support
 
@@ -338,6 +338,8 @@ the DOM.
 konfeti fits single-file playable ads: no dependencies, no network requests of its own, no storage, no `eval`.
 Pass images as `data:` URIs or elements your engine already loaded, fire on `pointerdown` if your engine cancels
 touch events, pause with `Konfeti.pause()` on MRAID `viewableChange`, and call `disableBanner()` in production.
+On low-end phones, `KonfetiFactory.create(null, { adaptiveQuality: true })` lowers the resolution, then the
+effects, then the particle count while frames are slow.
 The [guide](https://konfeti.mbattaloglu.com/docs/#playable-ads--webviews) has the full checklist.
 
 ## Documentation

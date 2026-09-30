@@ -10,4 +10,5 @@ export const DEFAULT_CREATE_OPTIONS = {
   maxDevicePixelRatio: 2,
   disableForReducedMotion: false,
   fixedTimestep: false,
+  adaptiveQuality: false,
 } as const satisfies Required<Omit<CreateOptions, "defaults" | "frameScheduler">>;

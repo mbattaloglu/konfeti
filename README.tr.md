@@ -54,8 +54,8 @@ Konfeti.fire(); // bu kadar: tam ekran bir katmanda klasik bir konfeti patlamas�
 - **Kare döngüsü için tasarlandı.** Havuzlanan parçacıklar, karede sıfır bellek ayırma, bir kez rasterize edilip
   önbelleğe alınan glifler, kaynak dikdörtgeniyle çizilen spritesheet'ler; ekranda bir şey kalmayınca döngü
   kendini durdurur.
-- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~18 kB brotli, `konfeti/lite` ile
-  ~13 kB; Web Worker ile çizim ayrı bir girişte yaşar — onu hiç kullanmayan bundle'lar ondan hiçbir şey
+- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~19 kB brotli, `konfeti/lite` ile
+  ~14 kB; Web Worker ile çizim ayrı bir girişte yaşar — onu hiç kullanmayan bundle'lar ondan hiçbir şey
   taşımaz.
 
 ## Kurulum
@@ -328,11 +328,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~18.4 kB |
-| `konfeti` içinden her şey               | ~20.1 kB |
-| `konfeti/lite` içinden `Konfeti`        | ~13.0 kB |
-| `konfeti/worker` içinden `createWorker` | ~20.5 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~17.8 kB |
+| `konfeti` içinden `Konfeti`             | ~19.3 kB |
+| `konfeti` içinden her şey               | ~21.0 kB |
+| `konfeti/lite` içinden `Konfeti`        | ~13.8 kB |
+| `konfeti/worker` içinden `createWorker` | ~21.4 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~18.6 kB |
 
 ## Tarayıcı desteği
 
@@ -346,7 +346,9 @@ DOM'a hiç dokunmaz.
 konfeti tek dosyalık playable reklamlara uyar: bağımlılık yok, kendi başına ağ isteği yok, depolama yok,
 `eval` yok. Görselleri `data:` URI ya da motorunun zaten yüklediği elementler olarak ver, motorun dokunma
 olaylarını iptal ediyorsa `pointerdown` ile patlat, MRAID `viewableChange` olayında `Konfeti.pause()` ile duraklat
-ve production'da `disableBanner()` çağır. Tam kontrol listesi
+ve production'da `disableBanner()` çağır. Düşük donanımlı telefonlarda
+`KonfetiFactory.create(null, { adaptiveQuality: true })`, kareler yavaşladıkça önce çözünürlüğü, sonra efektleri,
+en son parçacık sayısını düşürür. Tam kontrol listesi
 [rehberde](https://konfeti.mbattaloglu.com/docs/?lang=tr#playable-reklamlar-ve-webviewlar).
 
 ## Dokümantasyon

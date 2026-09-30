@@ -55,4 +55,10 @@ export type RenderSurface = {
    * @returns Local Point
    */
   clientToLocal(clientX: number, clientY: number): { x: number; y: number };
+  /**
+   * Limit the Pixel Ratio (adaptive quality renders fewer pixels on slow devices).
+   *
+   * @param cap - Largest Pixel Ratio (`Infinity` removes the limit)
+   */
+  setPixelRatioCap(cap: number): void;
 };

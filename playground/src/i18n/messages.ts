@@ -34,6 +34,9 @@ const EN = {
   "tools.workerModeTitle": "createWorker(canvas) from konfeti/worker — renders in a Web Worker",
   "tools.pointerStream": "Pointer Stream",
   "tools.fixedStep": "Fixed Step",
+  "tools.adaptive": "Adaptive Quality",
+  "tools.adaptiveTitle":
+    "adaptiveQuality: on a slow device, render at CSS resolution, then drop effects, then particles",
   "tools.fixedStepTitle":
     "fixedTimestep: simulate in 1/60 s steps, so a replay with the same seed is exact on any display",
   "tools.pointerStreamTitle":
@@ -149,6 +152,9 @@ const TR: Readonly<Record<MessageKey, string>> = {
   "tools.workerModeTitle": "konfeti/worker içinden createWorker(canvas) — Web Worker içinde çizer",
   "tools.pointerStream": "İmleçten Akış",
   "tools.fixedStep": "Sabit Adım",
+  "tools.adaptive": "Uyarlanabilir Kalite",
+  "tools.adaptiveTitle":
+    "adaptiveQuality: yavaş cihazda önce CSS çözünürlüğüne iner, sonra efektleri, sonra parçacıkları azaltır",
   "tools.fixedStepTitle":
     "fixedTimestep: 1/60 sn'lik adımlarla simüle eder; aynı seed'le tekrar her ekranda birebir aynı olur",
   "tools.pointerStreamTitle":

@@ -50,6 +50,16 @@ export class OffscreenSurface implements RenderSurface {
   private pixelRatio = 1;
 
   /**
+   * Pixel Ratio Measured on the Main Thread (before the adaptive-quality limit).
+   */
+  private requestedPixelRatio = 1;
+
+  /**
+   * Largest Pixel Ratio Allowed by Adaptive Quality (`Infinity` = no limit).
+   */
+  private pixelRatioCap = Infinity;
+
+  /**
    * Create Surface.
    *
    * @param canvas - Offscreen Canvas
@@ -77,9 +87,22 @@ export class OffscreenSurface implements RenderSurface {
   public resize(width: number, height: number, pixelRatio: number): void {
     this.width = width;
     this.height = height;
-    this.pixelRatio = pixelRatio;
-    this.canvas.width = Math.round(width * pixelRatio);
-    this.canvas.height = Math.round(height * pixelRatio);
+    this.requestedPixelRatio = pixelRatio;
+    this.pixelRatio = Math.min(pixelRatio, this.pixelRatioCap);
+    this.canvas.width = Math.round(width * this.pixelRatio);
+    this.canvas.height = Math.round(height * this.pixelRatio);
+  }
+
+  /**
+   * Limit the Pixel Ratio.
+   *
+   * @param cap - Largest Pixel Ratio (`Infinity` removes the limit)
+   */
+  public setPixelRatioCap(cap: number): void {
+    if (cap !== this.pixelRatioCap) {
+      this.pixelRatioCap = cap;
+      this.resize(this.width, this.height, this.requestedPixelRatio);
+    }
   }
 
   /**

@@ -17,6 +17,10 @@ export type WorkerRuntimeSettings = {
    * Simulate in Fixed 1/60 s Steps Flag.
    */
   readonly fixedTimestep: boolean;
+  /**
+   * Lower the Quality on Slow Devices Flag.
+   */
+  readonly adaptiveQuality: boolean;
 };
 
 /**
@@ -71,5 +75,6 @@ export type WorkerToMain =
       readonly total: number;
       readonly spawned: number;
       readonly died: number;
+      readonly quality: number;
       readonly bursts: readonly (readonly [id: number, count: number])[];
     };
