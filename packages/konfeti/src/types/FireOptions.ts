@@ -76,6 +76,24 @@ export type FireOptions = BurstHooks & {
    */
   readonly emission?: EmissionOptions;
   /**
+   * Start Delay.
+   * Waits this long after `fire()` before the burst starts. Give the entries of a list different delays to
+   * choreograph them: a cannon shot, then a message, then a finale.
+   *
+   * @defaultValue `0`
+   * @example
+   * ```ts
+   * Konfeti.fire([
+   *   { origin: { x: 0, y: 0.8 }, angle: 60 },
+   *   { origin: { x: 1, y: 0.8 }, angle: 120, delay: 250 },
+   *   { formation: { text: "HOORAY" }, delay: 600 },
+   * ]);
+   * ```
+   * @remarks Unit: milliseconds; must be zero or more. Paused time does not count, and the handle resolves once
+   * the delayed burst has finished.
+   */
+  readonly delay?: Milliseconds;
+  /**
    * Paper Style (and base style for every shape).
    *
    * @see {@link PaperStyle}

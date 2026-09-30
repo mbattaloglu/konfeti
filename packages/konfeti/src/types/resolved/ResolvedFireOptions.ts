@@ -57,6 +57,10 @@ export type ResolvedFireOptions = {
    */
   readonly seed: number;
   /**
+   * Start Delay in Milliseconds.
+   */
+  readonly delay: number;
+  /**
    * Formation of This Burst, or Null for a Regular Burst.
    */
   readonly formation: IFormation | null;

@@ -63,9 +63,10 @@ export const DEFAULT_FIRE_OPTIONS = {
   startVelocity: [1000, 1800],
   lifetime: [2800, 3600],
   emission: { mode: "burst" },
+  delay: 0,
 } as const satisfies Required<
   Pick<
     FireOptions,
-    "particleCount" | "angle" | "spread" | "startVelocity" | "lifetime" | "emission"
+    "particleCount" | "angle" | "spread" | "startVelocity" | "lifetime" | "emission" | "delay"
   >
 >;

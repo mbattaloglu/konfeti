@@ -143,3 +143,10 @@ describe("adaptive quality", () => {
     expectTypeOf(Konfeti).not.toHaveProperty("getQualityLevel");
   });
 });
+
+describe("delay", () => {
+  it("is a burst option in milliseconds", () => {
+    expectTypeOf<{ delay: 250 }>().toExtend<FireOptions>();
+    expectTypeOf<{ delay: "soon" }>().not.toExtend<FireOptions>();
+  });
+});

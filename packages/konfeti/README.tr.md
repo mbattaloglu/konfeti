@@ -234,6 +234,17 @@ Konfeti.fire({
 Aralıklı atışlarda çıkış noktası her atışta bir kez seçilir; aralık olarak verilen bir `origin` farklı
 noktalarda havai fişek etkisi yaratır.
 
+`delay` bir patlamayı sonra başlatır (milisaniye; duraklatılan süre sayılmaz). Bir listenin elemanlarına farklı
+gecikmeler vererek onları sıraya koyabilirsin:
+
+```ts run
+Konfeti.fire([
+  { origin: { x: 0, y: 0.8 }, angle: 60 },
+  { origin: { x: 1, y: 0.8 }, angle: 120, delay: 250 },
+  { origin: { x: 0.5, y: 0.5 }, spread: 360, startVelocity: [500, 1000], delay: 700 },
+]);
+```
+
 ## Sürekli yayıcı
 
 `emit()` sen durdurana kadar parçacık akıtır — bir fıskiye, imlecin arkasında bir iz, bir elementten çıkan

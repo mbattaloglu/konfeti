@@ -493,6 +493,10 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
       range("intervalTimes", "Times", "emission.times", [1, 30, 1], 5, {
         when: ["emissionMode", "interval"],
       }),
+      range("delay", "Delay", "delay", [0, 3000, 50], 0, {
+        unit: "ms",
+        hint: "The burst starts this long after fire(); use it to choreograph a list.",
+      }),
     ],
   },
   {

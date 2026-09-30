@@ -447,6 +447,7 @@ export function buildOptions(
           },
         }),
     ...(emission === undefined ? {} : { emission }),
+    ...(num(state, "delay") > 0 ? { delay: num(state, "delay") } : {}),
     ...(bool(state, "useSeed") ? { seed: num(state, "seed") } : {}),
     paper: buildPaper(state),
     ...(shapes.length > 0 ? { shapes } : {}),

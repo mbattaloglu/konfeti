@@ -75,6 +75,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   streamDuration: { label: "Süre" },
   intervalEvery: { label: "Aralık" },
   intervalTimes: { label: "Tekrar" },
+  delay: {
+    label: "Gecikme",
+    hint: "Patlama fire() çağrısından bu kadar sonra başlar; bir listeyi sıraya koymak için.",
+  },
 
   // formation
   formation: {

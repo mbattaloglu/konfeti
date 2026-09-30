@@ -232,6 +232,17 @@ Konfeti.fire({
 
 Interval shots sample the origin once per shot — ranged origins produce fireworks at different spots.
 
+`delay` starts a burst later (in milliseconds; paused time does not count). Give the entries of a list different
+delays to choreograph them:
+
+```ts run
+Konfeti.fire([
+  { origin: { x: 0, y: 0.8 }, angle: 60 },
+  { origin: { x: 1, y: 0.8 }, angle: 120, delay: 250 },
+  { origin: { x: 0.5, y: 0.5 }, spread: 360, startVelocity: [500, 1000], delay: 700 },
+]);
+```
+
 ## Continuous emitter
 
 `emit()` streams particles until you stop it — a fountain, a trail behind the pointer, sparks from an

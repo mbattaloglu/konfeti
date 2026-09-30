@@ -197,6 +197,12 @@ export class Burst implements KonfetiHandle {
     const emission = this.options.emission;
     const count = this.options.particleCount;
     this.emissionElapsed += dtMs;
+    // a delayed burst waits; its own schedule starts counting once the delay has passed
+    const elapsed = this.emissionElapsed - this.options.delay;
+
+    if (elapsed < 0) {
+      return;
+    }
 
     switch (emission.mode) {
       case "burst":
@@ -208,7 +214,7 @@ export class Burst implements KonfetiHandle {
         }
         break;
       case "stream": {
-        const progress = Math.min(this.emissionElapsed / emission.duration, 1);
+        const progress = Math.min(elapsed / emission.duration, 1);
         // the +1 emits the first particle on the very first tick
         const due = Math.min(count, Math.floor(progress * count) + 1);
         this.requestSpawn(spawn, due - this.emittedCount, false);
@@ -218,16 +224,13 @@ export class Burst implements KonfetiHandle {
       }
       case "continuous": {
         // everything due so far, minus what was already requested: fractional rates add up over time
-        const due = Math.floor((this.emissionElapsed / Burst.MS_PER_SECOND) * emission.rate);
+        const due = Math.floor((elapsed / Burst.MS_PER_SECOND) * emission.rate);
         this.requestSpawn(spawn, due - this.emittedCount, false);
         this.emittedCount = due;
         break;
       }
       case "interval": {
-        const dueShots = Math.min(
-          emission.times,
-          Math.floor(this.emissionElapsed / emission.every) + 1,
-        );
+        const dueShots = Math.min(emission.times, Math.floor(elapsed / emission.every) + 1);
 
         while (this.emittedShots < dueShots) {
           this.requestSpawn(spawn, count, true);

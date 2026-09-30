@@ -83,9 +83,14 @@ export class OptionResolver {
     const particleCount =
       ResolveUtils.pick(layers, "particleCount") ?? DEFAULT_FIRE_OPTIONS.particleCount;
     const spread = ResolveUtils.pick(layers, "spread") ?? DEFAULT_FIRE_OPTIONS.spread;
+    const delay = ResolveUtils.pick(layers, "delay") ?? DEFAULT_FIRE_OPTIONS.delay;
 
     ResolveUtils.assertFinite(particleCount, "particleCount");
     ResolveUtils.assertFinite(spread, "spread");
+
+    if (!Number.isFinite(delay) || delay < 0) {
+      throw new TypeError(`konfeti: "delay" must be zero or more, got ${String(delay)}`);
+    }
 
     const emission = OptionResolver.resolveEmission(
       ResolveUtils.pick(layers, "emission") ?? DEFAULT_FIRE_OPTIONS.emission,
@@ -122,6 +127,7 @@ export class OptionResolver {
       physics: PhysicsResolver.resolve(layers.map((layer) => layer.physics)),
       hooks: OptionResolver.resolveHooks(layers),
       seed: ResolveUtils.pick(layers, "seed") ?? Random.createSeed(),
+      delay,
       // an explicit particleCount caps a formation; otherwise its spacing decides
       formation:
         formation === undefined
