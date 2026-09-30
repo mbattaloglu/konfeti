@@ -1,3 +1,4 @@
+import type { OriginTracker } from "../../core/OriginTracker";
 import type { AttractFalloff } from "../AttractOptions";
 import type { EmitterTarget } from "../EmitterTarget";
 import type { PhysicsDefinition } from "../PhysicsDefinition";
@@ -33,9 +34,10 @@ export type ResolvedPhysics = {
   readonly floor: { readonly y: number; readonly bounce: number; readonly friction: number } | null;
   /**
    * Attractor (the target is tracked by the pipeline's AttractModule), or Null when Off.
+   * The target is a tracker when something outside places it (the worker runtime, fed by the main thread).
    */
   readonly attract: {
-    readonly target: EmitterTarget;
+    readonly target: EmitterTarget | OriginTracker;
     readonly strength: RangeTuple;
     readonly radius: number;
     readonly falloff: AttractFalloff;

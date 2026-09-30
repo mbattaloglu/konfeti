@@ -95,6 +95,18 @@ async function flush(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
+/**
+ * Collect the Attractor Places Sent to the Worker.
+ *
+ * @param fake - Fake Worker
+ * @returns Every `attract` Message, in Order
+ */
+function attractMessages(fake: FakeWorker): Extract<MainToWorker, { type: "attract" }>[] {
+  return fake.sent.filter(
+    (message): message is Extract<MainToWorker, { type: "attract" }> => message.type === "attract",
+  );
+}
+
 describe("WorkerKonfetiInstance", () => {
   it("runs bursts in the worker and resolves handles", async () => {
     const fake = createFakeWorker();
@@ -261,6 +273,83 @@ describe("WorkerKonfetiInstance", () => {
     const fire = fake.sent.find((message) => message.type === "fire");
 
     expect(fire?.type === "fire" && fire.options.origin).toEqual({ x: 0.5, y: 0 });
+    stage.destroy();
+  });
+
+  it("sends the attractor's pointer to the worker until the burst ends", async () => {
+    const fake = createFakeWorker();
+    const canvas = transferableCanvas();
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 400, 200));
+    const stage = new WorkerKonfetiInstance(canvas, {}, () => Promise.resolve(fake.port));
+    await flush();
+
+    const handle = stage.fire({ particleCount: 4, lifetime: 100, physics: { attract: true } });
+    // announced right away, but the pointer stays unknown until it moves
+    expect(attractMessages(fake)).toEqual([{ type: "attract", id: 1, at: null }]);
+
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 100, clientY: 50 }));
+    expect(attractMessages(fake).at(-1)).toEqual({
+      type: "attract",
+      id: 1,
+      at: { x: 0.25, y: 0.25 },
+    });
+
+    fake.scheduler.step(20);
+    await handle;
+    await flush();
+    const sent = attractMessages(fake).length;
+    window.dispatchEvent(new PointerEvent("pointermove", { clientX: 300, clientY: 150 }));
+    expect(attractMessages(fake)).toHaveLength(sent);
+    stage.destroy();
+  });
+
+  it("measures an element attractor every frame", async () => {
+    const fake = createFakeWorker();
+    const canvas = transferableCanvas();
+    vi.spyOn(canvas, "getBoundingClientRect").mockReturnValue(new DOMRect(0, 0, 400, 200));
+    const basket = document.createElement("div");
+    document.body.append(basket);
+    const place = vi
+      .spyOn(basket, "getBoundingClientRect")
+      .mockReturnValue(new DOMRect(90, 40, 20, 20));
+    const stage = new WorkerKonfetiInstance(canvas, {}, () => Promise.resolve(fake.port));
+    await flush();
+
+    const handle = stage.fire({ lifetime: 1000, physics: { attract: { target: basket } } });
+    const fire = fake.sent.find((message) => message.type === "fire");
+
+    // an element cannot be posted, so it travels as a point and is kept up to date from here
+    expect(fire?.type === "fire" && fire.options.physics?.attract).toMatchObject({
+      target: { x: 0.25, y: 0.25 },
+    });
+    expect(attractMessages(fake).at(-1)).toMatchObject({ at: { x: 0.25, y: 0.25 } });
+
+    place.mockReturnValue(new DOMRect(290, 140, 20, 20));
+    await vi.waitFor(() => {
+      expect(attractMessages(fake).at(-1)).toMatchObject({ at: { x: 0.75, y: 0.75 } });
+    });
+
+    handle.stop();
+    fake.scheduler.step();
+    await handle;
+    stage.destroy();
+  });
+
+  it("follows the attractor of the instance defaults", async () => {
+    const fake = createFakeWorker();
+    const stage = new WorkerKonfetiInstance(
+      transferableCanvas(),
+      { defaults: { physics: { attract: true } } },
+      () => Promise.resolve(fake.port),
+    );
+    await flush();
+
+    stage.fire({ particleCount: 2 });
+    stage.fire({ particleCount: 2, physics: { attract: false } });
+    stage.fire({ particleCount: 2, physics: { attract: { target: { x: 0.5, y: 0 } } } });
+
+    // only the first burst aims at something the worker cannot see
+    expect(attractMessages(fake).map((message) => message.id)).toEqual([1]);
     stage.destroy();
   });
 

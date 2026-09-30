@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import type { Burst } from "../../src/core/Burst";
 import type { WorkerToMain } from "../../src/worker/WorkerProtocol";
 import { WorkerRuntime } from "../../src/worker/WorkerRuntime";
 import { ManualScheduler } from "../helpers/ManualScheduler";
@@ -89,6 +90,41 @@ describe("WorkerRuntime", () => {
     scheduler.step();
     await Promise.resolve();
     expect(messages).toContainEqual({ type: "complete", id: 2 });
+  });
+
+  it("pulls toward the attractor target only once the main thread places it", () => {
+    const { runtime, scheduler } = setup();
+    runtime.handle({
+      type: "fire",
+      id: 4,
+      options: {
+        startVelocity: 0,
+        lifetime: 60_000,
+        origin: { x: 0.5, y: 0.8 },
+        physics: { gravity: 0, drag: 0, wind: 0, attract: { target: "pointer", strength: 3000 } },
+      },
+    });
+    // the runtime keeps bursts private; read the one just fired to see where its particles are
+    const burst = (runtime as unknown as { bursts: Map<number, Burst> }).bursts.get(4);
+    const meanY = (): number => {
+      const particles = burst?.getParticles() ?? [];
+      return particles.reduce((sum, particle) => sum + particle.y, 0) / particles.length;
+    };
+    const start = meanY();
+
+    // the worker cannot see the pointer: nothing pulls before the first "attract" message
+    scheduler.step(5);
+    expect(meanY()).toBeCloseTo(start, 5);
+
+    runtime.handle({ type: "attract", id: 4, at: { x: 0.5, y: 0 } });
+    scheduler.step(5);
+    expect(meanY()).toBeLessThan(start - 1);
+
+    runtime.handle({ type: "attract", id: 4, at: null });
+    const hidden = meanY();
+    scheduler.step(5);
+    // drag is off, so the speed gained so far carries on, but no longer grows
+    expect(hidden - meanY()).toBeLessThan((start - hidden) * 2);
   });
 
   it("errors before init", () => {

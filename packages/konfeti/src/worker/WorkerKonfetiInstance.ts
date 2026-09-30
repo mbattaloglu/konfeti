@@ -20,6 +20,7 @@ import { WorkerEmitterHandle } from "./WorkerEmitterHandle";
 import { WorkerOptionsPreparer } from "./WorkerOptionsPreparer";
 import type { WorkerPort } from "./WorkerPort";
 import type { MainToWorker, WorkerToMain } from "./WorkerProtocol";
+import { WorkerTargetFollower } from "./WorkerTargetFollower";
 
 /**
  * Worker Connector (injectable for tests).
@@ -272,8 +273,6 @@ export class WorkerKonfetiInstance {
     const handle = new WorkerBurstHandle((action) => {
       this.send({ type: "control", id, action });
     });
-    const measure = (origin: Element | { clientX: number; clientY: number }): OriginPoint =>
-      WorkerOptionsPreparer.toPoint(origin, this.getBounds());
     const target = follow ?? {};
 
     if (this.failure !== null) {
@@ -293,8 +292,9 @@ export class WorkerKonfetiInstance {
         id,
         options: prepared,
         rate,
-        at: WorkerEmitterHandle.initialPlace(target, measure),
+        at: WorkerTargetFollower.initialPlace(target, this.measureOrigin),
       });
+      this.followAttractor(id, handle, fireOptions);
     }
 
     return new WorkerEmitterHandle(
@@ -302,7 +302,7 @@ export class WorkerKonfetiInstance {
       (at) => {
         this.send({ type: "move", id, at });
       },
-      measure,
+      this.measureOrigin,
       target,
     );
   }
@@ -502,7 +502,39 @@ export class WorkerKonfetiInstance {
     const prepared = WorkerOptionsPreparer.prepare(options, this.getBounds());
     this.handles.set(id, handle);
     this.send({ type: "fire", id, options: prepared });
+    this.followAttractor(id, handle, options);
     return handle;
+  }
+
+  /**
+   * Keep a Burst's Attractor Target Placed in the Worker.
+   * The worker sees neither the pointer nor elements, so the main thread follows them and sends every new place
+   * until the burst finishes — the same way a worker emitter's origin is followed.
+   *
+   * @param id - Burst Id
+   * @param handle - Burst Handle
+   * @param options - Worker-Safe Burst Options
+   */
+  private followAttractor(id: number, handle: WorkerBurstHandle, options: WorkerFireOptions): void {
+    const target = WorkerOptionsPreparer.followedAttractTarget([
+      this.options.defaults.physics?.attract,
+      options.physics?.attract,
+    ]);
+
+    if (target === null) {
+      return;
+    }
+
+    const follower = new WorkerTargetFollower((at) => {
+      this.send({ type: "attract", id, at });
+    }, this.measureOrigin);
+    const release = (): void => {
+      follower.unfollow();
+    };
+
+    // announce the current place: an element in the instance defaults was only measured at startup
+    follower.follow(target, true);
+    void handle.then(release, release);
   }
 
   /**
@@ -702,6 +734,16 @@ export class WorkerKonfetiInstance {
     const rect = this.canvas.getBoundingClientRect();
     return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
   }
+
+  /**
+   * Convert an Element or Viewport Point into a Normalized Point on This Canvas.
+   *
+   * @param origin - Element or Viewport Point
+   * @returns Normalized Point
+   */
+  private readonly measureOrigin = (
+    origin: Element | { clientX: number; clientY: number },
+  ): OriginPoint => WorkerOptionsPreparer.toPoint(origin, this.getBounds());
 
   /**
    * Send Size to the Worker if It Changed.

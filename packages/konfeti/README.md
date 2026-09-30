@@ -323,10 +323,11 @@ Options travel to the worker by `postMessage`, so they must be structured-clonea
 | `image` / `spritesheet` with a URL or an `ImageBitmap` | `HTMLImageElement`, `Path2D` and other DOM sources   |
 | `origin` as a point, an element or a click event       | —                                                    |
 
-Element and click origins are measured on the main thread before sending. Use `await` on the handle instead
-of `onComplete`.
+Element and click origins are measured on the main thread before sending; the pointer or element that an
+emitter follows or an attractor pulls toward is tracked there too and sent over while the burst runs. Use
+`await` on the handle instead of `onComplete`.
 
-The worker script itself (~15.1 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~15.4 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -404,11 +405,11 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~15.8 kB            |
-| everything from `konfeti`                            | ~17.3 kB            |
+| `Konfeti` from `konfeti`                             | ~16.0 kB            |
+| everything from `konfeti`                            | ~17.7 kB            |
 | `Konfeti` from `konfeti/lite`                        | ~12.6 kB            |
-| `createWorker` from `konfeti/worker`                 | ~17.7 kB            |
-| worker script (loaded on the first `createWorker()`) | ~14.2 kB            |
+| `createWorker` from `konfeti/worker`                 | ~18.1 kB            |
+| worker script (loaded on the first `createWorker()`) | ~15.4 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:

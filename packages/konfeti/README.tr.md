@@ -327,10 +327,11 @@ Tipler (`WorkerFireOptions`) bunu zorunlu kılar:
 | URL ya da `ImageBitmap` ile `image` / `spritesheet` | `HTMLImageElement`, `Path2D` ve diğer DOM kaynakları    |
 | nokta, element ya da tıklama olayı olarak `origin`  | —                                                       |
 
-Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de ölçülür. `onComplete` yerine dönen handle'ı
-`await` et.
+Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de ölçülür; yayıcının takip ettiği ya da
+çekimin yöneldiği imleç veya element de orada izlenir ve patlama sürdükçe worker'a iletilir. `onComplete` yerine
+dönen handle'ı `await` et.
 
-Worker betiği (~15.1 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
+Worker betiği (~15.4 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
 betik bir `blob:` URL olarak gömülür; `<script>` sürümü ise `konfeti.worker.js` dosyasını kendi klasöründen
 yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/konfeti.worker.js` dosyasını
 kendin barındır:
@@ -408,11 +409,11 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
-| `konfeti` içinden `Konfeti`                              | ~15.8 kB             |
-| `konfeti` içinden her şey                                | ~17.3 kB             |
+| `konfeti` içinden `Konfeti`                              | ~16.0 kB             |
+| `konfeti` içinden her şey                                | ~17.7 kB             |
 | `konfeti/lite` içinden `Konfeti`                         | ~12.6 kB             |
-| `konfeti/worker` içinden `createWorker`                  | ~17.7 kB             |
-| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~14.2 kB             |
+| `konfeti/worker` içinden `createWorker`                  | ~18.1 kB             |
+| worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~15.4 kB             |
 
 `konfeti` tüm yerleşik şekilleri senin için kaydeder. `konfeti/lite` ise **yalnızca kağıt** ile başlar; sadece
 kullandığın şekilleri kaydedersen bundler geri kalanını atar:

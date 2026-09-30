@@ -94,6 +94,11 @@ export class WorkerRuntime {
   private readonly trackers = new Map<number, OriginTracker>();
 
   /**
+   * Attractor Target Trackers by Burst Id (placed by the main thread's "attract" messages).
+   */
+  private readonly attractors = new Map<number, OriginTracker>();
+
+  /**
    * Last Reported Stats Key (skips identical reports).
    */
   private lastStats = "";
@@ -193,8 +198,9 @@ export class WorkerRuntime {
       case "emit":
         this.fire(message.id, message.options, { rate: message.rate, at: message.at });
         break;
-      case "move": {
-        const tracker = this.trackers.get(message.id);
+      case "move":
+      case "attract": {
+        const tracker = (message.type === "move" ? this.trackers : this.attractors).get(message.id);
 
         if (tracker !== undefined) {
           WorkerRuntime.place(tracker, message.at);
@@ -296,12 +302,26 @@ export class WorkerRuntime {
         };
       }
 
+      // attractor: the worker sees neither the pointer nor elements, so the main thread keeps its target placed
+      const attract = resolved.physics.attract;
+
+      if (attract !== null && !(attract.target instanceof OriginTracker)) {
+        const tracker = new OriginTracker();
+        tracker.moveTo(attract.target);
+        this.attractors.set(id, tracker);
+        resolved = {
+          ...resolved,
+          physics: { ...resolved.physics, attract: { ...attract, target: tracker } },
+        };
+      }
+
       const burst = new Burst(resolved, engine);
       this.bursts.set(id, burst);
       engine.add(burst);
       void burst.then(() => {
         this.bursts.delete(id);
         this.trackers.delete(id);
+        this.attractors.delete(id);
         this.post({ type: "complete", id });
       });
     } catch (error) {
@@ -385,5 +405,7 @@ export class WorkerRuntime {
     }
 
     this.bursts.clear();
+    this.trackers.clear();
+    this.attractors.clear();
   }
 }

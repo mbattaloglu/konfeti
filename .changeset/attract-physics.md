@@ -4,4 +4,5 @@
 
 Attractor / repulsor physics: `physics.attract` pulls particles toward the pointer, an element or a point
 (`{ target, strength, radius, falloff }`); a negative `strength` pushes them away. The target is located once per
-frame, and pointer tracking stops when the burst ends.
+frame, and pointer tracking stops when the burst ends. Works in worker instances too: the main thread follows the
+pointer or element and sends it over.

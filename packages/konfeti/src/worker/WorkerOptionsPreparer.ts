@@ -1,7 +1,11 @@
+import { DEFAULT_ATTRACT } from "../config/FireDefaults";
+import type { AttractOptions } from "../types/AttractOptions";
+import type { EmitterTarget } from "../types/EmitterTarget";
 import type { Origin } from "../types/Origin";
 import type { OriginPoint } from "../types/OriginPoint";
 import { ImageSource } from "../utils/ImageSource";
 import type { WorkerFireOptions } from "../types/worker/WorkerFireOptions";
+import { WorkerTargetFollower } from "./WorkerTargetFollower";
 
 /**
  * Canvas Bounds in Viewport Coordinates.
@@ -80,6 +84,34 @@ export class WorkerOptionsPreparer {
         attract: { ...attract, target: WorkerOptionsPreparer.toPoint(attract.target, bounds) },
       },
     };
+  }
+
+  /**
+   * Find the Attractor Target the Main Thread Has to Follow.
+   * Merges the `attract` layers the way the resolver does: `false` turns it off, `true` keeps the current
+   * target (the pointer by default), an object may set a new one.
+   *
+   * @param layers - Attract Values, Lowest Priority First (instance defaults, then the burst)
+   * @returns The Pointer or an Element, or Null when the Attractor Is Off or Aims at a Fixed Point
+   */
+  public static followedAttractTarget(
+    layers: readonly (boolean | AttractOptions | undefined)[],
+  ): Element | "pointer" | null {
+    let target: EmitterTarget | null = null;
+
+    for (const layer of layers) {
+      if (layer === false) {
+        target = null;
+      } else if (layer === true) {
+        target ??= DEFAULT_ATTRACT.target;
+      } else if (layer !== undefined) {
+        target = layer.target ?? target ?? DEFAULT_ATTRACT.target;
+      }
+    }
+
+    return target === "pointer" || (target !== null && WorkerTargetFollower.isElement(target))
+      ? target
+      : null;
   }
 
   /**

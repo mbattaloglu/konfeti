@@ -25,7 +25,7 @@ export class AttractModule implements IPhysicsModule {
   /**
    * Tracked Target.
    */
-  private readonly tracker = new OriginTracker();
+  private readonly tracker: OriginTracker;
 
   /**
    * Reach in Pixels (Infinity = whole canvas).
@@ -55,14 +55,24 @@ export class AttractModule implements IPhysicsModule {
   /**
    * Create Module.
    *
-   * @param target - Element, `"pointer"` or Normalized Point
+   * @param target - Element, `"pointer"`, Normalized Point, or a Tracker Placed from Outside
    * @param radius - Reach in Pixels
    * @param falloff - Distance Falloff
    */
-  public constructor(target: EmitterTarget, radius: number, falloff: AttractFalloff) {
+  public constructor(
+    target: EmitterTarget | OriginTracker,
+    radius: number,
+    falloff: AttractFalloff,
+  ) {
     this.radius = radius;
     this.falloff = falloff;
-    this.tracker.moveTo(target);
+
+    if (target instanceof OriginTracker) {
+      this.tracker = target;
+    } else {
+      this.tracker = new OriginTracker();
+      this.tracker.moveTo(target);
+    }
   }
 
   /**

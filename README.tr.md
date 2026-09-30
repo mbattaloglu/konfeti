@@ -302,11 +302,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~15.8 kB |
-| `konfeti` içinden her şey               | ~17.3 kB |
+| `konfeti` içinden `Konfeti`             | ~16.0 kB |
+| `konfeti` içinden her şey               | ~17.7 kB |
 | `konfeti/lite` içinden `Konfeti`        | ~12.6 kB |
-| `konfeti/worker` içinden `createWorker` | ~17.7 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~15.1 kB |
+| `konfeti/worker` içinden `createWorker` | ~18.1 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~15.4 kB |
 
 ## Tarayıcı desteği
 

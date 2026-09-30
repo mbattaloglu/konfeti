@@ -28,7 +28,8 @@ export type AttractOptions = {
    * or a normalized point `{ x, y }` (0–1 of the canvas).
    *
    * @defaultValue `"pointer"`
-   * @remarks In worker instances an element is measured once when fired and `"pointer"` has no effect.
+   * @remarks Worker instances follow the pointer or element on the main thread and send every new place to the
+   * worker.
    */
   readonly target?: EmitterTarget;
   /**

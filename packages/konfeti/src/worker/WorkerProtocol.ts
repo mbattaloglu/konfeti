@@ -36,6 +36,7 @@ export type MainToWorker =
       readonly at: OriginPoint | null;
     }
   | { readonly type: "move"; readonly id: number; readonly at: OriginPoint | null }
+  | { readonly type: "attract"; readonly id: number; readonly at: OriginPoint | null }
   | { readonly type: "control"; readonly id: number; readonly action: BurstAction }
   | { readonly type: "reset" }
   | {
