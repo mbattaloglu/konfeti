@@ -1,6 +1,6 @@
 {
   "name": "konfeti",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Zero-dependency, strictly typed, highly customizable canvas confetti with emoji, text, image and spritesheet particles.",
   "license": "MIT",
   "author": "mbattaloglu",

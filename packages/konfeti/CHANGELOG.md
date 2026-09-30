@@ -1,5 +1,29 @@
 # konfeti
 
+## 0.3.0
+
+### Minor Changes
+
+- e65ce13: Attractor / repulsor physics: `physics.attract` pulls particles toward the pointer, an element or a point
+  (`{ target, strength, radius, falloff }`); a negative `strength` pushes them away. The target is located once per
+  frame, and pointer tracking stops when the burst ends. Works in worker instances too: the main thread follows the
+  pointer or element and sends it over.
+- 931863d: Color themes: `KonfetiPalettes` offers eleven ready-made color lists (`CLASSIC`, `PASTEL`, `GOLD`, `NEON`,
+  `RAINBOW`, `WINTER`, `AUTUMN`, `OCEAN`, `CANDY`, `FOREST`, `MONOCHROME`) for any `colors` option. Plain data —
+  bundles that don't use them don't carry them.
+- e16d4cb: Inline SVG images: an `image` or `spritesheet` `src` (and `loadImage()`) that starts with `<svg` is used as SVG
+  markup — no file or URL needed. Worker instances reject it with a clear error, since browsers cannot decode SVG
+  inside a worker.
+- 9eaa748: Motion trails: the `trail` style option (`true` or `{ length, width, opacity, color }`) draws a streak behind
+  each particle that thins and fades toward its tail and fades with the particle. Works on every shape; the
+  position buffer is allocated once per pooled particle, so trails add no per-frame allocations.
+
+### Patch Changes
+
+- bf352e1: Types for `konfeti/lite` and `konfeti/worker` now resolve in projects using the older
+  `moduleResolution: "node"` (common with webpack + ts-loader), which ignores `exports`: the package adds a
+  `typesVersions` map.
+
 ## 0.2.0
 
 ### Minor Changes
