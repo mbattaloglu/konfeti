@@ -41,6 +41,12 @@ const PRESET_CARDS: readonly PresetCard[] = [
   { name: "GOLDEN", label: "Golden", icon: "🏆" },
   { name: "CONGRATS", label: "Congrats", icon: "🔠" },
   { name: "LOGO_REVEAL", label: "Logo Reveal", icon: "🏅" },
+  { name: "JACKPOT", label: "Jackpot", icon: "🪙" },
+  { name: "LEVEL_UP", label: "Level Up", icon: "🆙" },
+  { name: "SUCCESS", label: "Success", icon: "✅" },
+  { name: "SPARKLER", label: "Sparkler", icon: "🎇" },
+  { name: "FIREFLIES", label: "Fireflies", icon: "🪲" },
+  { name: "FORCE_FIELD", label: "Force Field", icon: "🛡️" },
 ];
 
 /**

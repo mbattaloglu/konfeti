@@ -149,7 +149,7 @@ export const KonfetiPresets = {
 
   /**
    * Snow.
-   * Soft white flakes drifting down from the top edge for six seconds.
+   * Soft round flakes and six-armed snow crystals drifting down from the top edge for six seconds.
    */
   SNOW: {
     particleCount: 180,
@@ -169,12 +169,26 @@ export const KonfetiPresets = {
       form: "circle",
       colors: ["#ffffff", "#e8f4ff"],
       width: [3, 7],
+      // without it the height falls back to the paper default and the "circles" turn into ovals
+      aspectRatio: 1,
       flip: false,
       rotationSpeed: 0,
       wobble: { amplitude: [4, 12], frequency: [0.2, 0.5] },
       opacity: [0.6, 1],
       fadeIn: 0.05,
     },
+    shapes: [
+      { type: "paper", weight: 3 },
+      {
+        // six arms with a V near each tip: open lines, drawn by the stroke
+        type: "path",
+        weight: 1,
+        path: "M12 1.5L12 22.5M21.1 6.8L2.9 17.3M2.9 6.8L21.1 17.3M9.6 3.4L12 5.8L14.4 3.4M3.3 9.8L6.6 8.9L5.7 5.6M5.7 18.4L6.6 15.1L3.3 14.2M14.4 20.6L12 18.2L9.6 20.6M20.7 14.2L17.4 15.1L18.3 18.4M18.3 5.6L17.4 8.9L20.7 9.8",
+        size: [10, 17],
+        stroke: { color: "#ffffff", width: [1, 1.5] },
+        rotationSpeed: [-40, 40],
+      },
+    ],
   },
 
   /**
@@ -326,6 +340,164 @@ export const KonfetiPresets = {
     },
     // smaller pieces keep the star's edges crisp
     paper: { scale: 0.7 },
+  },
+
+  /**
+   * Jackpot.
+   * Gold coins pour down for one and a half seconds, spin, bounce on the bottom edge and settle there (shows the
+   * `floor`).
+   */
+  JACKPOT: {
+    particleCount: 120,
+    emission: { mode: "stream", duration: 1500 },
+    origin: { x: [0.1, 0.9], y: -0.05 },
+    angle: 270,
+    spread: 25,
+    startVelocity: [150, 400],
+    lifetime: [4500, 6000],
+    physics: { gravity: 1400, drag: 0.8, floor: { y: 1, bounce: 0.45, friction: 0.5 } },
+    paper: {
+      form: "circle",
+      width: [12, 16],
+      aspectRatio: 1,
+      colors: ["#ffd700", "#ffcc33", "#f5b700", "#c9a227"],
+      stroke: { color: "#a67c00", width: 1.2 },
+      flip: { axis: "x", frequency: [1.5, 3] },
+      shine: 0.9,
+      fadeOut: { start: 0.85 },
+    },
+  },
+
+  /**
+   * Level Up.
+   * "LEVEL UP!" assembles while stars with trails shoot up from below, and a star burst follows the moment the
+   * letters break apart (a list choreographed with `delay`).
+   */
+  LEVEL_UP: [
+    {
+      origin: { x: 0.5, y: 0.4 },
+      formation: { text: "LEVEL UP!", font: "900 110px sans-serif", assemble: 800, hold: 1000 },
+      paper: { colors: ["#39ff14", "#00f0ff", "#fff01f", "#ff6ec7"] },
+      shapes: [
+        { type: "paper", weight: 3 },
+        { type: "star", size: [9, 13], colors: ["#fff01f", "#ffe400", "#fdffb8"] },
+      ],
+    },
+    {
+      particleCount: 24,
+      origin: { x: [0.15, 0.85], y: 1.02 },
+      spread: 30,
+      startVelocity: [1500, 2100],
+      lifetime: [900, 1300],
+      physics: { gravity: 900, drag: 1 },
+      shapes: [
+        {
+          type: "star",
+          size: [9, 13],
+          colors: ["#fff01f", "#ffe400", "#fdffb8"],
+          trail: { length: 20, width: [2, 3], opacity: 0.7 },
+        },
+      ],
+    },
+    {
+      delay: 1800,
+      particleCount: 70,
+      origin: { x: 0.5, y: 0.4 },
+      spread: 360,
+      startVelocity: [600, 1200],
+      lifetime: [1400, 2000],
+      physics: { gravity: 500, drag: 2.5 },
+      shapes: [
+        { type: "star", size: [10, 16], colors: ["#fff01f", "#ffe400", "#fdffb8"], shine: 0.6 },
+      ],
+    },
+  ],
+
+  /**
+   * Success.
+   * A green check mark appears made of confetti, then bursts apart (for "saved", "sent", "done" moments).
+   */
+  SUCCESS: {
+    origin: { x: 0.5, y: 0.45 },
+    formation: { text: "✔", font: "900 220px sans-serif", mode: "appear", hold: 900, spacing: 7 },
+    paper: { colors: ["#2dc653", "#25a244", "#6ede8a", "#b7efc5"], scale: 0.8 },
+  },
+
+  /**
+   * Sparkler.
+   * Hot, glowing sparks with short trails spray from the center for one and a half seconds (additive `lighter`
+   * blending: brightest on dark backgrounds).
+   */
+  SPARKLER: {
+    particleCount: 220,
+    emission: { mode: "stream", duration: 1500 },
+    origin: { x: 0.5, y: 0.5 },
+    spread: 360,
+    startVelocity: [400, 1100],
+    lifetime: [500, 900],
+    physics: { gravity: 500, drag: 2 },
+    paper: {
+      form: "circle",
+      width: [2, 3.5],
+      aspectRatio: 1,
+      colors: ["#fff6d5", "#ffd98a", "#ffb347"],
+      // additive blending gives the glow; a shadow would also blur every trail segment (slow)
+      blendMode: "lighter",
+      trail: { length: 10, width: [1.5, 2.5], opacity: 0.8 },
+      flip: false,
+      wobble: false,
+      fadeOut: { start: 0.3, easing: "easeInQuad" },
+    },
+  },
+
+  /**
+   * Fireflies.
+   * Glowing dots appear over the lower part of the canvas, drift and wander slowly, then fade (made for dark
+   * backgrounds).
+   */
+  FIREFLIES: {
+    particleCount: 40,
+    emission: { mode: "stream", duration: 2500 },
+    origin: { x: [0.1, 0.9], y: [0.35, 0.9] },
+    spread: 360,
+    startVelocity: [10, 40],
+    lifetime: [4000, 6500],
+    physics: { gravity: -8, drag: 0.8, swirl: { strength: [30, 80], frequency: [0.2, 0.5] } },
+    paper: {
+      form: "circle",
+      width: [4, 7],
+      aspectRatio: 1,
+      colors: ["#f9ffb5", "#e8ff7a", "#caffbf"],
+      blendMode: "lighter",
+      shadow: { color: "#dfff4f", blur: 14 },
+      opacity: [0.7, 1],
+      flip: false,
+      wobble: false,
+      rotationSpeed: 0,
+      fadeIn: 0.25,
+      fadeOut: { start: 0.6, easing: "easeInOutQuad" },
+    },
+  },
+
+  /**
+   * Force Field.
+   * A cool-colored rain falls for five seconds; the pointer pushes the drops away as it moves through them (a
+   * negative `physics.attract` strength).
+   */
+  FORCE_FIELD: {
+    particleCount: 260,
+    emission: { mode: "stream", duration: 5000 },
+    origin: { x: [0, 1], y: -0.03 },
+    angle: 270,
+    spread: 20,
+    startVelocity: [150, 320],
+    lifetime: [5000, 7000],
+    physics: {
+      gravity: 220,
+      drag: 1.2,
+      attract: { target: "pointer", strength: -2600, radius: 160, falloff: "linear" },
+    },
+    paper: { colors: ["#00f0ff", "#8ecae6", "#ffffff"], width: [4, 7], scale: 0.9 },
   },
 } as const satisfies Readonly<Record<string, FireInput>>;
 

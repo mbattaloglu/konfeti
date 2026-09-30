@@ -9,13 +9,13 @@
     "name": "konfeti — everything",
     "path": "packages/konfeti/dist/index.js",
     "import": "*",
-    "limit": "22.4 kB"
+    "limit": "23 kB"
   },
   {
     "name": "konfeti/lite — Konfeti.fire() (paper only)",
     "path": "packages/konfeti/dist/lite.js",
     "import": "{ Konfeti }",
-    "limit": "14.2 kB"
+    "limit": "14.3 kB"
   },
   {
     "name": "konfeti/worker — createWorker() (initial load, worker script excluded)",

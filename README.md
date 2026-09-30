@@ -163,8 +163,10 @@ Konfeti.fire(extendPreset(KonfetiPresets.FIREWORKS, { particleCount: 80 })); // 
 ```
 
 `BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
-`HEART_BURST`, plus five that show off newer options: `SHOOTING_STARS` (trails), `MAGNET` (attractor), `GOLDEN`
-(gold palette), `CONGRATS` (text formation) and `LOGO_REVEAL` (image formation).
+`HEART_BURST`, plus presets that show off newer options: `SHOOTING_STARS` (trails), `MAGNET` (attractor),
+`FORCE_FIELD` (repulsor), `GOLDEN` (gold palette), `SPARKLER` and `FIREFLIES` (additive glow), `JACKPOT` (floor),
+`CONGRATS`, `SUCCESS` and `LEVEL_UP` (text formations; `LEVEL_UP` is choreographed with `delay`) and `LOGO_REVEAL`
+(image formation).
 
 ### Continuous emitter
 
@@ -322,8 +324,8 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
 | `Konfeti` from `konfeti`             | ~19.3 kB |
-| everything from `konfeti`            | ~22.0 kB |
-| `Konfeti` from `konfeti/lite`        | ~13.8 kB |
+| everything from `konfeti`            | ~22.6 kB |
+| `Konfeti` from `konfeti/lite`        | ~13.9 kB |
 | `createWorker` from `konfeti/worker` | ~21.4 kB |
 | worker script (loaded on first use)  | ~18.6 kB |
 

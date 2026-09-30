@@ -323,8 +323,10 @@ Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", dur
 ```
 
 `BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
-`HEART_BURST`, plus five that show off newer options: `SHOOTING_STARS` (trails), `MAGNET` (attractor), `GOLDEN`
-(gold palette), `CONGRATS` (text formation) and `LOGO_REVEAL` (image formation). Presets are plain, read-only options (`SIDE_SHOTS` and `SCHOOL_PRIDE` are two bursts). `extendPreset`
+`HEART_BURST`, plus presets that show off newer options: `SHOOTING_STARS` (trails), `MAGNET` (attractor),
+`FORCE_FIELD` (repulsor), `GOLDEN` (gold palette), `SPARKLER` and `FIREFLIES` (additive glow), `JACKPOT` (floor),
+`CONGRATS`, `SUCCESS` and `LEVEL_UP` (text formations; `LEVEL_UP` is choreographed with `delay`) and `LOGO_REVEAL`
+(image formation). Presets are plain, read-only options (`SIDE_SHOTS` and `SCHOOL_PRIDE` are two bursts). `extendPreset`
 merges your settings into every burst without changing the preset; `paper` and `physics` merge key by key.
 
 ## Hooks
@@ -495,8 +497,8 @@ with the transform already applied.
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
 | `Konfeti` from `konfeti`                             | ~19.3 kB            |
-| everything from `konfeti`                            | ~22.0 kB            |
-| `Konfeti` from `konfeti/lite`                        | ~13.8 kB            |
+| everything from `konfeti`                            | ~22.6 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~13.9 kB            |
 | `createWorker` from `konfeti/worker`                 | ~21.4 kB            |
 | worker script (loaded on the first `createWorker()`) | ~18.6 kB            |
 

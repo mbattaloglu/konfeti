@@ -325,8 +325,10 @@ Konfeti.fire(extendPreset(KonfetiPresets.SNOW, { emission: { mode: "stream", dur
 ```
 
 `BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
-`HEART_BURST`; bunlara ek olarak yeni seçenekleri gösteren beş tane daha: `SHOOTING_STARS` (iz), `MAGNET` (çekim),
-`GOLDEN` (altın paleti), `CONGRATS` (metin formasyonu) ve `LOGO_REVEAL` (görsel formasyonu). Hazır ayarlar sıradan, salt okunur seçeneklerdir (`SIDE_SHOTS` ve `SCHOOL_PRIDE` iki patlamadır).
+`HEART_BURST`; bunlara ek olarak yeni seçenekleri gösterenler: `SHOOTING_STARS` (iz), `MAGNET` (çekim),
+`FORCE_FIELD` (itme), `GOLDEN` (altın paleti), `SPARKLER` ve `FIREFLIES` (toplamalı ışıma), `JACKPOT` (zemin),
+`CONGRATS`, `SUCCESS` ve `LEVEL_UP` (metin formasyonu; `LEVEL_UP` `delay` ile sıralanır) ve `LOGO_REVEAL`
+(görsel formasyonu). Hazır ayarlar sıradan, salt okunur seçeneklerdir (`SIDE_SHOTS` ve `SCHOOL_PRIDE` iki patlamadır).
 `extendPreset` senin ayarlarını hazır ayarı değiştirmeden her patlamaya ekler; `paper` ve `physics` anahtar anahtar
 birleşir.
 
@@ -499,8 +501,8 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
 | `konfeti` içinden `Konfeti`                              | ~19.3 kB             |
-| `konfeti` içinden her şey                                | ~22.0 kB             |
-| `konfeti/lite` içinden `Konfeti`                         | ~13.8 kB             |
+| `konfeti` içinden her şey                                | ~22.6 kB             |
+| `konfeti/lite` içinden `Konfeti`                         | ~13.9 kB             |
 | `konfeti/worker` içinden `createWorker`                  | ~21.4 kB             |
 | worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~18.6 kB             |
 

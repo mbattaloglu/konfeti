@@ -376,4 +376,10 @@ export const PRESETS_TR: Readonly<Record<string, string>> = {
   GOLDEN: "Altın",
   CONGRATS: "Tebrik Yazısı",
   LOGO_REVEAL: "Logo Gösterimi",
+  JACKPOT: "Büyük İkramiye",
+  LEVEL_UP: "Seviye Atlama",
+  SUCCESS: "Başarılı",
+  SPARKLER: "Maytap",
+  FIREFLIES: "Ateş Böcekleri",
+  FORCE_FIELD: "Kalkan",
 };
