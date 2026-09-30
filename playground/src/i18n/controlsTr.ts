@@ -367,4 +367,9 @@ export const PRESETS_TR: Readonly<Record<string, string>> = {
   EMOJI_RAIN: "Emoji Yağmuru",
   HEART_BURST: "Kalp Patlaması",
   SIDE_SHOTS: "Yan Atışlar",
+  SHOOTING_STARS: "Kayan Yıldızlar",
+  MAGNET: "Mıknatıs",
+  GOLDEN: "Altın",
+  CONGRATS: "Tebrik Yazısı",
+  LOGO_REVEAL: "Logo Gösterimi",
 };

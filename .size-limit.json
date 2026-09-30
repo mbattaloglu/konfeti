@@ -9,7 +9,7 @@
     "name": "konfeti — everything",
     "path": "packages/konfeti/dist/index.js",
     "import": "*",
-    "limit": "21.4 kB"
+    "limit": "22.4 kB"
   },
   {
     "name": "konfeti/lite — Konfeti.fire() (paper only)",

@@ -233,6 +233,100 @@ export const KonfetiPresets = {
       },
     ],
   },
+
+  /**
+   * Shooting Stars.
+   * Pale golden stars streaking down across the upper sky with long, fading trails, in six quick volleys
+   * (shows the `trail` style option).
+   */
+  SHOOTING_STARS: {
+    particleCount: 5,
+    emission: { mode: "interval", every: 220, times: 6 },
+    origin: { x: [0.05, 0.6], y: [0.05, 0.3] },
+    angle: [-35, -20],
+    spread: 8,
+    startVelocity: [900, 1400],
+    lifetime: [900, 1300],
+    physics: { gravity: 120, drag: 0.6 },
+    shapes: [
+      {
+        type: "star",
+        size: [8, 12],
+        colors: ["#fffbe6", "#ffe38a", "#ffd23f"],
+        shine: 0.6,
+        trail: { length: 24, width: [2, 3], opacity: 0.75 },
+      },
+    ],
+  },
+
+  /**
+   * Magnet.
+   * A slow, floating cloud that follows the pointer while it moves over the page (shows `physics.attract`).
+   */
+  MAGNET: {
+    particleCount: 150,
+    origin: { x: 0.5, y: 0.5 },
+    spread: 360,
+    startVelocity: [200, 700],
+    lifetime: [6000, 8000],
+    physics: {
+      gravity: 60,
+      drag: 1.6,
+      swirl: { strength: [120, 280], frequency: [0.3, 0.8] },
+      attract: { target: "pointer", strength: 1600, radius: 500, falloff: "linear" },
+    },
+    paper: { scale: 0.8, fadeOut: { start: 0.8 } },
+  },
+
+  /**
+   * Golden.
+   * Gold paper with strong glints as the pieces flip (the colors of `KonfetiPalettes.GOLD`).
+   */
+  GOLDEN: {
+    particleCount: 160,
+    origin: { y: 0.7 },
+    spread: 80,
+    startVelocity: [1200, 1800],
+    paper: {
+      colors: ["#ffd700", "#ffcc33", "#f5b700", "#e6be8a", "#fff1b8", "#c9a227"],
+      form: ["rect", "strip"],
+      shine: 0.9,
+      flip: { frequency: [0.8, 1.6] },
+    },
+  },
+
+  /**
+   * Congrats.
+   * Paper and stars fly in from beyond the edges to spell "CONGRATS!", hold it, then burst apart (shows a text
+   * `formation`).
+   */
+  CONGRATS: {
+    origin: { x: 0.5, y: 0.42 },
+    formation: { text: "CONGRATS!", font: "900 120px sans-serif", hold: 1200 },
+    shapes: [
+      { type: "paper", weight: 4 },
+      { type: "star", size: [9, 13], colors: ["#ffe400", "#ffbd00", "#fdffb8"] },
+    ],
+  },
+
+  /**
+   * Logo Reveal.
+   * A star badge appears made of confetti in its own colors, then bursts apart (shows an image `formation`;
+   * the badge is a small PNG data URL, so it also works in worker instances).
+   */
+  LOGO_REVEAL: {
+    origin: { x: 0.5, y: 0.45 },
+    formation: {
+      image:
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACO0lEQVR42s1Xr08DMRS+P+Uk7mYQJIgFFGJhCgxiFhQCdwEzQ8gEggSzZIaQIBaCQCCWEwuKQKZwMDUE5hJMxwYr+W7tpdfrde8GC9fkJffjvX6v78fX1nHmGL7HXN9jZU1cZ5HD91jV91jL91joe4xnSCh0qn8JXPM91pcgjY0hbx+OeOd8nBB8wz/FGdjUfgOMMAeYrL465LcnYx4OJlwdeDd9gy5shCNB7vT4HivJUF/sjzj7mE7++vBtWmkiMtDBgA1sldSUcoM/3XzFwGdbn9yS+4RAVzqCOchOiLAnwBFOKrAusDU44docCFRwhNQGUF95j8Smgzk0JwJbtUd5o668vXcVCTUSSk3UTA70UbkoHuSPEuK3681IKLqYE3OL7uibSCb2lFJwjfUXzh+XIsEzpTC1yFZVB8BeUQ9TV985Oo0dwDM1CsAQ7y3VgRB9TCk8KeHdWuwAnik2siAFj4Rq6+k/p2Gr9KLV6XJ/XI/BpeCbSRdzqGSlLdJ1xE4W8TlGqoIPmikwqsBWnw8DWOK9nHBAyU9CmttdzrrLZGDowsaYusEkvwOSdNBys8ChYyMnqwOmFKQq+XInExz/ZtmbUpBZhFnkY1u9lTtMRZinDVXyyRIbKRnbMA8RgfdVMNlq6jfb3mAjIhIVPzd341Cr/Y1nmRro5KZi6maE9rLRLv5BJ/dmRNmOkVt11ZmbTqWXqgPSdjzPgSQP/888kBTiSPbvh9JCHMsLcTEpxNWsMJfTRV/PfwCRz6O9nmJS6gAAAABJRU5ErkJggg==",
+      width: 260,
+      mode: "appear",
+      hold: 1500,
+      spacing: 7,
+    },
+    // smaller pieces keep the star's edges crisp
+    paper: { scale: 0.7 },
+  },
 } as const satisfies Readonly<Record<string, FireInput>>;
 
 /**

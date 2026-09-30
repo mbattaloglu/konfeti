@@ -36,6 +36,11 @@ const PRESET_CARDS: readonly PresetCard[] = [
   { name: "EMOJI_RAIN", label: "Emoji Rain", icon: "🌧️" },
   { name: "HEART_BURST", label: "Heart Burst", icon: "💖" },
   { name: "SIDE_SHOTS", label: "Side Shots", icon: "↔️" },
+  { name: "SHOOTING_STARS", label: "Shooting Stars", icon: "🌠" },
+  { name: "MAGNET", label: "Magnet", icon: "🧲" },
+  { name: "GOLDEN", label: "Golden", icon: "🏆" },
+  { name: "CONGRATS", label: "Congrats", icon: "🔠" },
+  { name: "LOGO_REVEAL", label: "Logo Reveal", icon: "🏅" },
 ];
 
 /**

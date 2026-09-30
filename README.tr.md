@@ -168,7 +168,8 @@ Konfeti.fire(extendPreset(KonfetiPresets.FIREWORKS, { particleCount: 80 })); // 
 ```
 
 `BASIC`, `REALISTIC`, `CANNON`, `SIDE_SHOTS`, `SCHOOL_PRIDE`, `FIREWORKS`, `SNOW`, `STARS`, `EMOJI_RAIN`,
-`HEART_BURST`.
+`HEART_BURST`; bunlara ek olarak yeni seçenekleri gösteren beş tane daha: `SHOOTING_STARS` (iz), `MAGNET` (çekim),
+`GOLDEN` (altın paleti), `CONGRATS` (metin formasyonu) ve `LOGO_REVEAL` (görsel formasyonu).
 
 ### Sürekli yayıcı
 
@@ -329,7 +330,7 @@ tree-shaking ile atılır.
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
 | `konfeti` içinden `Konfeti`             | ~19.3 kB |
-| `konfeti` içinden her şey               | ~21.0 kB |
+| `konfeti` içinden her şey               | ~22.0 kB |
 | `konfeti/lite` içinden `Konfeti`        | ~13.8 kB |
 | `konfeti/worker` içinden `createWorker` | ~21.4 kB |
 | worker betiği (ilk kullanımda yüklenir) | ~18.6 kB |
