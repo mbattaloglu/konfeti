@@ -54,6 +54,22 @@ describe("trail", () => {
     expect(particle.trailHead).toBe(2);
   });
 
+  it("records the drawn (wobbling) position, so the trail ends at its particle", () => {
+    const particle = new Particle();
+    particle.trailX = new Float32Array(32);
+    particle.trailY = new Float32Array(32);
+    particle.trailLength = 4;
+    particle.x = 100;
+    particle.wobbleAmplitude = 8;
+    particle.wobblePhase = Math.PI / 2;
+
+    TrailRecorder.record(particle);
+
+    // the shape is drawn 8 px right of the physics position; the trail point must be there too
+    expect(particle.getDrawX()).toBe(108);
+    expect(particle.trailX[0]).toBe(108);
+  });
+
   it("strokes the trail behind moving particles — and nothing without one", () => {
     const scheduler = new ManualScheduler();
     const canvas = document.createElement("canvas");

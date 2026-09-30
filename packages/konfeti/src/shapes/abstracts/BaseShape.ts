@@ -317,7 +317,7 @@ export abstract class BaseShape implements IShape {
     this.mb = sin * sx;
     this.mc = cos * sx * skew - sin * sy;
     this.md = sin * sx * skew + cos * sy;
-    this.me = (particle.x + particle.wobbleAmplitude * Math.sin(particle.wobblePhase)) * pixelRatio;
+    this.me = particle.getDrawX() * pixelRatio;
     this.mf = particle.y * pixelRatio;
   }
 }

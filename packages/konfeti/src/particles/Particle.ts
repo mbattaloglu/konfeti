@@ -370,6 +370,16 @@ export class Particle {
   }
 
   /**
+   * Return the Drawn X Position (physics position plus the wobble sway).
+   * Shapes and trails both use it, so a trail always ends at the particle it belongs to.
+   *
+   * @returns X in Canvas Pixels
+   */
+  public getDrawX(): number {
+    return this.x + this.wobbleAmplitude * Math.sin(this.wobblePhase);
+  }
+
+  /**
    * Return Life Progress.
    *
    * @returns Progress (0–1)

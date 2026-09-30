@@ -17,7 +17,8 @@ export class TrailRecorder {
       return;
     }
 
-    particle.trailX[particle.trailHead] = particle.x;
+    // the drawn position, not the physics one: otherwise the wobble sway pulls the particle off its trail
+    particle.trailX[particle.trailHead] = particle.getDrawX();
     particle.trailY[particle.trailHead] = particle.y;
     particle.trailHead = (particle.trailHead + 1) % length;
     particle.trailCount = Math.min(particle.trailCount + 1, length);
