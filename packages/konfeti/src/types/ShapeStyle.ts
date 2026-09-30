@@ -7,6 +7,7 @@ import type { GradientOptions } from "./GradientOptions";
 import type { Range } from "./Range";
 import type { ScaleOverLifeOptions } from "./ScaleOverLifeOptions";
 import type { ShadowOptions } from "./ShadowOptions";
+import type { TrailOptions } from "./TrailOptions";
 import type { StrokeOptions } from "./StrokeOptions";
 import type { WobbleOptions } from "./WobbleOptions";
 import type { Degrees, DegreesPerSecond, Multiplier, Ratio } from "./Units";
@@ -177,4 +178,18 @@ export type ShapeStyle = {
    * @defaultValue `"source-over"`
    */
   readonly blendMode?: GlobalCompositeOperation;
+  /**
+   * Motion Trail.
+   * `true` draws the default streak behind each particle, `false` disables it, an object sets length, width,
+   * opacity and color.
+   *
+   * @defaultValue `false`
+   * @example
+   * ```ts
+   * Konfeti.fire({ paper: { trail: { length: 14, color: "#ffd000" } } });
+   * ```
+   * @remarks Costs about one extra draw call per trail point per particle.
+   * @see {@link TrailOptions}
+   */
+  readonly trail?: boolean | TrailOptions;
 };

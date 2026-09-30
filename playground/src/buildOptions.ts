@@ -153,6 +153,14 @@ function buildPaper(state: ControlState): PaperStyle {
       : false,
     shine: num(state, "shine"),
     blendMode: str(state, "blendMode") as GlobalCompositeOperation,
+    trail: bool(state, "trail")
+      ? {
+          length: num(state, "trailLength"),
+          width: num(state, "trailWidth"),
+          opacity: num(state, "trailOpacity"),
+          color: bool(state, "trailCustomColor") ? asColor(str(state, "trailColor")) : "particle",
+        }
+      : false,
   };
 }
 

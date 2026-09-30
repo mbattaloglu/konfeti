@@ -1,3 +1,4 @@
+import type { TrailOptions } from "../types/TrailOptions";
 import type { ColorInput } from "../types/ColorInput";
 import type { FadeOutOptions } from "../types/FadeOutOptions";
 import type { FlipOptions } from "../types/FlipOptions";
@@ -55,6 +56,21 @@ export const DEFAULT_SHADOW = {
 } as const satisfies Required<ShadowOptions>;
 
 /**
+ * Default Trail Settings (used when `trail` is `true` or partially set).
+ */
+export const DEFAULT_TRAIL = {
+  length: 10,
+  width: 3,
+  opacity: 0.5,
+  color: "particle",
+} as const satisfies Required<TrailOptions>;
+
+/**
+ * Shortest and Longest Trail (positions kept per particle; the buffer is allocated at the longest size).
+ */
+export const TRAIL_LENGTH_LIMITS = [2, 32] as const;
+
+/**
  * Default Stroke Width.
  */
 export const DEFAULT_STROKE_WIDTH = 1;
@@ -94,6 +110,7 @@ export const DEFAULT_STYLE = {
   shadow: false,
   shine: 0,
   blendMode: "source-over",
+  trail: false,
 } as const satisfies Required<ShapeStyle>;
 
 /**

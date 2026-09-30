@@ -233,7 +233,7 @@ export abstract class BaseShape implements IShape {
    * @param progress - Life Progress (0–1)
    * @returns Opacity (0–1)
    */
-  private static computeAlpha(particle: Particle, progress: number): number {
+  public static computeAlpha(particle: Particle, progress: number): number {
     let alpha = particle.opacity;
 
     if (particle.fadeIn > 0 && progress < particle.fadeIn) {

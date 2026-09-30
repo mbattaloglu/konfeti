@@ -1,4 +1,5 @@
 import type { Particle } from "../particles/Particle";
+import { TrailRecorder } from "../particles/TrailRecorder";
 import { SpriteAnimator } from "../particles/SpriteAnimator";
 import type { PhysicsWorld } from "../physics/abstracts/PhysicsWorld";
 import type { Canvas2DRenderer } from "../renderers/Canvas2DRenderer";
@@ -317,6 +318,7 @@ export class Engine implements BurstOwner {
     // stable in-place compaction keeps spawn order (oldest first) for makeRoom()
     for (const particle of particles) {
       pipeline.step(particle, dt, this.world);
+      TrailRecorder.record(particle);
       SpriteAnimator.advance(particle, dtMs);
       hooks.onParticleUpdate?.(particle, dt);
 

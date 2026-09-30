@@ -3,36 +3,36 @@
     "name": "konfeti — Konfeti.fire() (all shapes registered)",
     "path": "packages/konfeti/dist/index.js",
     "import": "{ Konfeti }",
-    "limit": "15.8 kB"
+    "limit": "16.2 kB"
   },
   {
     "name": "konfeti — everything",
     "path": "packages/konfeti/dist/index.js",
     "import": "*",
-    "limit": "17.2 kB"
+    "limit": "17.7 kB"
   },
   {
     "name": "konfeti/lite — Konfeti.fire() (paper only)",
     "path": "packages/konfeti/dist/lite.js",
     "import": "{ Konfeti }",
-    "limit": "12.6 kB"
+    "limit": "13 kB"
   },
   {
     "name": "konfeti/worker — createWorker() (initial load, worker script excluded)",
     "path": "packages/konfeti/dist/worker.js",
     "import": "{ createWorker }",
     "entry": "index",
-    "limit": "17.7 kB"
+    "limit": "18.1 kB"
   },
   {
     "name": "konfeti/worker — createWorker() + inlined worker script (loaded on first use)",
     "path": "packages/konfeti/dist/worker.js",
     "import": "{ createWorker }",
-    "limit": "32.5 kB"
+    "limit": "33.4 kB"
   },
   {
     "name": "konfeti.worker.js — standalone worker script",
     "path": "packages/konfeti/dist/konfeti.worker.js",
-    "limit": "15.1 kB"
+    "limit": "15.5 kB"
   }
 ]

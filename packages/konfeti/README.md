@@ -120,12 +120,14 @@ Konfeti.fire({
     fadeOut: { start: 0.6, easing: "easeInQuad" },
     scaleOverLife: { to: 0.4 },
     shine: 0.5,
+    trail: { length: 12 }, // a fading streak behind each piece
   },
 });
 ```
 
 Forms: `rect`, `square`, `circle`, `strip`, `leaf`. Other style keys: `scale`, `colorMode`, `backShade`,
-`colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`.
+`colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`, `trail` (it works on every
+shape, e.g. `{ type: "star", trail: true }`).
 Every option is documented in the type definitions — hover it in your editor.
 
 ## Shapes
@@ -319,7 +321,7 @@ Options travel to the worker by `postMessage`, so they must be structured-clonea
 Element and click origins are measured on the main thread before sending. Use `await` on the handle instead
 of `onComplete`.
 
-The worker script itself (~14.7 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~15.1 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -335,7 +337,7 @@ Hooks cannot run inside a worker, so a worker instance counts for you: `stage.ge
 ## Playable ads & webviews
 
 konfeti works in single-file playable ads: it has no dependencies, makes no network requests of its own, uses
-no storage and no `eval`. `Konfeti.fire()` adds about 51 kB minified (15 kB brotli); ad networks usually count
+no storage and no `eval`. `Konfeti.fire()` adds about 54 kB minified (16 kB brotli); ad networks usually count
 uncompressed size. Keep these in mind:
 
 - **Images:** pass a `data:` URI or an image / canvas your engine already loaded — a URL like `/coin.png` is a
@@ -397,10 +399,10 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~15.4 kB            |
-| everything from `konfeti`                            | ~16.8 kB            |
-| `Konfeti` from `konfeti/lite`                        | ~12.2 kB            |
-| `createWorker` from `konfeti/worker`                 | ~17.3 kB            |
+| `Konfeti` from `konfeti`                             | ~15.8 kB            |
+| everything from `konfeti`                            | ~17.3 kB            |
+| `Konfeti` from `konfeti/lite`                        | ~12.6 kB            |
+| `createWorker` from `konfeti/worker`                 | ~17.7 kB            |
 | worker script (loaded on the first `createWorker()`) | ~14.2 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the

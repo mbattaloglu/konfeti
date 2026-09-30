@@ -638,6 +638,27 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
       range("shine", "Shine", "paper.shine", [0, 1, 0.05], 0, {
         hint: "Glossy highlight that sweeps as the particle turns.",
       }),
+      toggle("trail", "Trail", "paper.trail", false, {
+        hint: "A streak behind each particle that thins and fades toward the tail.",
+      }),
+      range("trailLength", "Trail Length", "paper.trail.length", [2, 32, 1], 10, {
+        hint: "Recent positions (one per frame) the trail runs through.",
+        when: ["trail", true],
+      }),
+      range("trailWidth", "Trail Width", "paper.trail.width", [0.5, 12, 0.5], 3, {
+        unit: "px",
+        when: ["trail", true],
+      }),
+      range("trailOpacity", "Trail Opacity", "paper.trail.opacity", [0.05, 1, 0.05], 0.5, {
+        when: ["trail", true],
+      }),
+      toggle("trailCustomColor", "Custom Trail Color", "paper.trail.color", false, {
+        hint: "Off: every trail takes its particle's color.",
+        when: ["trail", true],
+      }),
+      color("trailColor", "Trail Color", "paper.trail.color", "#ffd000", {
+        when: ["trailCustomColor", true],
+      }),
     ],
   },
   {

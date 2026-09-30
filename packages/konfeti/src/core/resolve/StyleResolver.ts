@@ -5,6 +5,8 @@ import {
   DEFAULT_FLIP,
   DEFAULT_GRADIENT_ANGLE,
   DEFAULT_SHADOW,
+  DEFAULT_TRAIL,
+  TRAIL_LENGTH_LIMITS,
   DEFAULT_STROKE_WIDTH,
   DEFAULT_STYLE,
   DEFAULT_WOBBLE,
@@ -20,6 +22,7 @@ import type { ResolvedStyle } from "../../types/resolved/ResolvedStyle";
 import type { Rgba } from "../../types/resolved/Rgba";
 import type { ShadowOptions } from "../../types/ShadowOptions";
 import type { ShapeStyle } from "../../types/ShapeStyle";
+import type { TrailOptions } from "../../types/TrailOptions";
 import type { WeightedColor } from "../../types/WeightedColor";
 import type { WobbleOptions } from "../../types/WobbleOptions";
 import { ColorMix } from "../../utils/ColorMix";
@@ -76,6 +79,10 @@ export class StyleResolver {
     const shadow = ResolveUtils.mergeToggle<Required<ShadowOptions>>(
       all.map((layer) => layer?.shadow),
       DEFAULT_SHADOW,
+    );
+    const trail = ResolveUtils.mergeToggle<Required<TrailOptions>>(
+      all.map((layer) => layer?.trail),
+      DEFAULT_TRAIL,
     );
 
     return {
@@ -154,6 +161,18 @@ export class StyleResolver {
             },
       shine: MathUtils.clamp(value("shine"), 0, 1),
       blendMode: value("blendMode"),
+      trail:
+        trail === false
+          ? null
+          : {
+              length: Math.round(
+                MathUtils.clamp(trail.length, TRAIL_LENGTH_LIMITS[0], TRAIL_LENGTH_LIMITS[1]),
+              ),
+              width: RangeUtils.toTuple(trail.width, `${name}.trail.width`),
+              opacity: MathUtils.clamp(trail.opacity, 0, 1),
+              color:
+                trail.color === "particle" ? null : ColorUtils.toCss(ColorUtils.parse(trail.color)),
+            },
     };
   }
 

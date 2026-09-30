@@ -6,7 +6,7 @@ birleştirilebilir fizik, Web Worker ile çizim ve tamamen tipli bir eklenti API
 
 [![npm](https://img.shields.io/npm/v/konfeti?color=d6ff3f)](https://www.npmjs.com/package/konfeti)
 [![CI](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml/badge.svg)](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml)
-![size](<https://img.shields.io/badge/Konfeti.fire()-~15%20kB%20brotli-d6ff3f>)
+![size](<https://img.shields.io/badge/Konfeti.fire()-~16%20kB%20brotli-d6ff3f>)
 ![dependencies](https://img.shields.io/badge/dependencies-0-d6ff3f)
 ![types](https://img.shields.io/badge/types-included-3178c6)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -54,8 +54,8 @@ Konfeti.fire(); // bu kadar: tam ekran bir katmanda klasik bir konfeti patlamas�
 - **Kare döngüsü için tasarlandı.** Havuzlanan parçacıklar, karede sıfır bellek ayırma, bir kez rasterize edilip
   önbelleğe alınan glifler, kaynak dikdörtgeniyle çizilen spritesheet'ler; ekranda bir şey kalmayınca döngü
   kendini durdurur.
-- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~15 kB brotli, `konfeti/lite` ile
-  ~12 kB; Web Worker ile çizim ayrı bir girişte yaşar — onu hiç kullanmayan bundle'lar ondan hiçbir şey
+- **Küçük, ve yalnızca kullandığın kadar büyük.** Tam `Konfeti.fire()` için ~16 kB brotli, `konfeti/lite` ile
+  ~13 kB; Web Worker ile çizim ayrı bir girişte yaşar — onu hiç kullanmayan bundle'lar ondan hiçbir şey
   taşımaz.
 
 ## Kurulum
@@ -111,6 +111,7 @@ Konfeti.fire({
     flip: { axis: "both", frequency: [0.5, 1.5] }, // arka yüz daha koyu bir ton gösterir
     wobble: { amplitude: [2, 8] },
     shine: 0.5, // dönerken parlak bir yansıma
+    trail: { length: 12 }, // her parçanın arkasında sönen bir iz
     fadeOut: { start: 0.6, easing: "easeInQuad" },
   },
 });
@@ -297,11 +298,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~15.4 kB |
-| `konfeti` içinden her şey               | ~16.8 kB |
-| `konfeti/lite` içinden `Konfeti`        | ~12.2 kB |
-| `konfeti/worker` içinden `createWorker` | ~17.3 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~14.7 kB |
+| `konfeti` içinden `Konfeti`             | ~15.8 kB |
+| `konfeti` içinden her şey               | ~17.3 kB |
+| `konfeti/lite` içinden `Konfeti`        | ~12.6 kB |
+| `konfeti/worker` içinden `createWorker` | ~17.7 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~15.1 kB |
 
 ## Tarayıcı desteği
 

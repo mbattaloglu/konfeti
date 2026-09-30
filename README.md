@@ -6,7 +6,7 @@ Web Worker rendering and a fully typed plugin API. Zero dependencies.
 
 [![npm](https://img.shields.io/npm/v/konfeti?color=d6ff3f)](https://www.npmjs.com/package/konfeti)
 [![CI](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml/badge.svg)](https://github.com/mbattaloglu/konfeti/actions/workflows/ci.yml)
-![size](<https://img.shields.io/badge/Konfeti.fire()-~15%20kB%20brotli-d6ff3f>)
+![size](<https://img.shields.io/badge/Konfeti.fire()-~16%20kB%20brotli-d6ff3f>)
 ![dependencies](https://img.shields.io/badge/dependencies-0-d6ff3f)
 ![types](https://img.shields.io/badge/types-included-3178c6)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
@@ -51,7 +51,7 @@ Konfeti.fire(); // that's it: a classic confetti pop on a fullscreen overlay
   through declaration merging.
 - **Built for the frame loop.** Pooled particles, no allocations per frame, glyphs rasterized once and cached,
   spritesheets drawn by source rectangle, and the loop stops itself when nothing is left.
-- **Small, and only as big as what you use.** ~15 kB brotli for the full `Konfeti.fire()`, ~12 kB with
+- **Small, and only as big as what you use.** ~16 kB brotli for the full `Konfeti.fire()`, ~13 kB with
   `konfeti/lite`, and Web Worker rendering lives in its own entry — bundles that never use it carry none of it.
 
 ## Install
@@ -106,6 +106,7 @@ Konfeti.fire({
     flip: { axis: "both", frequency: [0.5, 1.5] }, // the back shows a darker shade
     wobble: { amplitude: [2, 8] },
     shine: 0.5, // glossy highlight as it turns
+    trail: { length: 12 }, // a fading streak behind each piece
     fadeOut: { start: 0.6, easing: "easeInQuad" },
   },
 });
@@ -289,11 +290,11 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
-| `Konfeti` from `konfeti`             | ~15.4 kB |
-| everything from `konfeti`            | ~16.8 kB |
-| `Konfeti` from `konfeti/lite`        | ~12.2 kB |
-| `createWorker` from `konfeti/worker` | ~17.3 kB |
-| worker script (loaded on first use)  | ~14.7 kB |
+| `Konfeti` from `konfeti`             | ~15.8 kB |
+| everything from `konfeti`            | ~17.3 kB |
+| `Konfeti` from `konfeti/lite`        | ~12.6 kB |
+| `createWorker` from `konfeti/worker` | ~17.7 kB |
+| worker script (loaded on first use)  | ~15.1 kB |
 
 ## Browser support
 

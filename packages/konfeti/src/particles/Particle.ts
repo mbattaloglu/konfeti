@@ -204,6 +204,38 @@ export class Particle {
    */
   public blendMode: GlobalCompositeOperation = "source-over";
   /**
+   * Trail X Positions (ring buffer, allocated once per particle and reused through the pool).
+   */
+  public trailX: Float32Array | null = null;
+  /**
+   * Trail Y Positions (ring buffer).
+   */
+  public trailY: Float32Array | null = null;
+  /**
+   * Next Ring Slot to Write.
+   */
+  public trailHead = 0;
+  /**
+   * Recorded Trail Points (up to trailLength).
+   */
+  public trailCount = 0;
+  /**
+   * Trail Length in Points (`0` = no trail).
+   */
+  public trailLength = 0;
+  /**
+   * Trail Head Width in Pixels.
+   */
+  public trailWidth = 0;
+  /**
+   * Trail Head Opacity.
+   */
+  public trailOpacity = 0;
+  /**
+   * Trail Color (`null` = front color).
+   */
+  public trailColor: string | null = null;
+  /**
    * Vector Path (vector shapes).
    */
   public path: Path2D | null = null;
@@ -307,6 +339,10 @@ export class Particle {
     this.shadowBlur = 0;
     this.shadowOffsetX = 0;
     this.shadowOffsetY = 0;
+    this.trailHead = 0;
+    this.trailCount = 0;
+    this.trailLength = 0;
+    this.trailColor = null;
     this.shine = 0;
     this.blendMode = "source-over";
     this.path = null;

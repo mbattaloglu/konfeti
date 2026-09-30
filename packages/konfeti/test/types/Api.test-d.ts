@@ -78,3 +78,14 @@ describe("physics.attract", () => {
     expectTypeOf<{ physics: { attract: { target: "mouse" } } }>().not.toExtend<FireOptions>();
   });
 });
+
+describe("trail", () => {
+  it("is a style option on paper and on every shape", () => {
+    expectTypeOf<{ paper: { trail: true } }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      shapes: [{ type: "star"; trail: { length: 16; width: [2, 4]; opacity: 0.8; color: "gold" } }];
+    }>().toExtend<FireOptions>();
+    expectTypeOf<{ paper: { trail: { color: "particle" } } }>().toExtend<FireOptions>();
+    expectTypeOf<{ paper: { trail: { length: "long" } } }>().not.toExtend<FireOptions>();
+  });
+});

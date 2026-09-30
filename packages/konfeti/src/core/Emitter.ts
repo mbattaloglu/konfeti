@@ -1,3 +1,4 @@
+import { TRAIL_LENGTH_LIMITS } from "../config/PaperDefaults";
 import type { Particle } from "../particles/Particle";
 import type { OriginBox } from "../types/resolved/OriginBox";
 import type { ResolvedFireOptions } from "../types/resolved/ResolvedFireOptions";
@@ -202,6 +203,16 @@ export class Emitter {
     particle.shadowOffsetY = style.shadow?.offsetY ?? 0;
     particle.shine = style.shine;
     particle.blendMode = style.blendMode;
+
+    if (style.trail !== null) {
+      // the buffers are sized for the longest trail, so a reused particle never reallocates
+      particle.trailX ??= new Float32Array(TRAIL_LENGTH_LIMITS[1]);
+      particle.trailY ??= new Float32Array(TRAIL_LENGTH_LIMITS[1]);
+      particle.trailLength = style.trail.length;
+      particle.trailWidth = Math.max(0, RangeUtils.sample(style.trail.width, random)) * scale;
+      particle.trailOpacity = style.trail.opacity;
+      particle.trailColor = style.trail.color;
+    }
   }
 
   /**

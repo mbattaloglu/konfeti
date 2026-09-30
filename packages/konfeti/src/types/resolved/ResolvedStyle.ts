@@ -88,4 +88,13 @@ export type ResolvedStyle = {
    * Canvas Blend Mode.
    */
   readonly blendMode: GlobalCompositeOperation;
+  /**
+   * Motion Trail (color `null` = the particle's front color), or Null when Off.
+   */
+  readonly trail: {
+    readonly length: number;
+    readonly width: RangeTuple;
+    readonly opacity: number;
+    readonly color: string | null;
+  } | null;
 };

@@ -1,5 +1,6 @@
 import type { Burst } from "../core/Burst";
 import type { RenderSurface } from "../core/RenderSurface";
+import { TrailPainter } from "./TrailPainter";
 
 /**
  * Canvas 2D Renderer.
@@ -48,6 +49,10 @@ export class Canvas2DRenderer {
           context.shadowBlur = shadowBlur * pixelRatio;
           context.shadowOffsetX = particle.shadowOffsetX * pixelRatio;
           context.shadowOffsetY = particle.shadowOffsetY * pixelRatio;
+        }
+
+        if (particle.trailCount > 1) {
+          TrailPainter.draw(context, particle, pixelRatio);
         }
 
         particle.shape?.draw(context, particle, pixelRatio);

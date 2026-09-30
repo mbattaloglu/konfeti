@@ -121,12 +121,14 @@ Konfeti.fire({
     fadeOut: { start: 0.6, easing: "easeInQuad" },
     scaleOverLife: { to: 0.4 },
     shine: 0.5,
+    trail: { length: 12 }, // her parçanın arkasında sönen bir iz
   },
 });
 ```
 
 Formlar: `rect`, `square`, `circle`, `strip`, `leaf`. Diğer stil ayarları: `scale`, `colorMode`, `backShade`,
-`colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`.
+`colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`, `trail` (her şekilde
+çalışır, ör. `{ type: "star", trail: true }`).
 Her seçenek tip tanımlarında açıklanmıştır; editöründe üzerine gelmen yeterli.
 
 ## Şekiller
@@ -324,7 +326,7 @@ Tipler (`WorkerFireOptions`) bunu zorunlu kılar:
 Element ve tıklama çıkış noktaları gönderilmeden önce ana thread'de ölçülür. `onComplete` yerine dönen handle'ı
 `await` et.
 
-Worker betiği (~14.7 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
+Worker betiği (~15.1 kB brotli) yalnızca ilk worker instance'ı oluşturulduğunda yüklenir. Bundler kullanıyorsan
 betik bir `blob:` URL olarak gömülür; `<script>` sürümü ise `konfeti.worker.js` dosyasını kendi klasöründen
 yükler. `worker-src blob:` izni olmayan sıkı bir Content-Security-Policy'de `konfeti/konfeti.worker.js` dosyasını
 kendin barındır:
@@ -341,7 +343,7 @@ Hook'lar worker içinde çalışamaz, bu yüzden worker instance'ı sayımı ken
 ## Playable reklamlar ve webview'lar
 
 konfeti tek dosyalık playable reklamlarda çalışır: bağımlılığı yoktur, kendi başına ağ isteği yapmaz, depolama ve
-`eval` kullanmaz. `Konfeti.fire()` yaklaşık 51 kB minified (15 kB brotli) ekler; reklam ağları genelde
+`eval` kullanmaz. `Konfeti.fire()` yaklaşık 54 kB minified (16 kB brotli) ekler; reklam ağları genelde
 sıkıştırılmamış boyutu sayar. Dikkat edilecekler:
 
 - **Görseller:** `data:` URI ya da motorunun zaten yüklediği bir görsel / canvas ver — `/coin.png` gibi bir URL
@@ -402,10 +404,10 @@ kontrol verir; dönüşüm (transform) önceden uygulanmış olur.
 
 | Kullanım                                                 | Boyut (min + brotli) |
 | -------------------------------------------------------- | -------------------- |
-| `konfeti` içinden `Konfeti`                              | ~15.4 kB             |
-| `konfeti` içinden her şey                                | ~16.8 kB             |
-| `konfeti/lite` içinden `Konfeti`                         | ~12.2 kB             |
-| `konfeti/worker` içinden `createWorker`                  | ~17.3 kB             |
+| `konfeti` içinden `Konfeti`                              | ~15.8 kB             |
+| `konfeti` içinden her şey                                | ~17.3 kB             |
+| `konfeti/lite` içinden `Konfeti`                         | ~12.6 kB             |
+| `konfeti/worker` içinden `createWorker`                  | ~17.7 kB             |
 | worker betiği (ilk `createWorker()` çağrısında yüklenir) | ~14.2 kB             |
 
 `konfeti` tüm yerleşik şekilleri senin için kaydeder. `konfeti/lite` ise **yalnızca kağıt** ile başlar; sadece

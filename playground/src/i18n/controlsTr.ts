@@ -142,6 +142,15 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   shadowX: { label: "Gölge Kayması X" },
   shadowY: { label: "Gölge Kayması Y" },
   shine: { label: "Parlama", hint: "Parçacık döndükçe üzerinden geçen parlak yansıma." },
+  trail: { label: "İz", hint: "Her parçacığın arkasında, kuyruğa doğru incelip sönen bir çizgi." },
+  trailLength: { label: "İz Uzunluğu", hint: "İzin geçtiği son konumlar (karede bir tane)." },
+  trailWidth: { label: "İz Kalınlığı" },
+  trailOpacity: { label: "İz Opaklığı" },
+  trailCustomColor: {
+    label: "Özel İz Rengi",
+    hint: "Kapalı: her iz kendi parçacığının rengini alır.",
+  },
+  trailColor: { label: "İz Rengi" },
 
   // shape cards
   "star.points": { label: "Uç Sayısı" },
