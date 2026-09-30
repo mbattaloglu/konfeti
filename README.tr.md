@@ -60,9 +60,22 @@ Konfeti.fire(); // bu kadar: tam ekran bir katmanda klasik bir konfeti patlamas�
 
 ## Kurulum
 
+**npm**
+
 ```sh
 npm install konfeti
-# ya da: pnpm add konfeti · yarn add konfeti
+```
+
+**pnpm**
+
+```sh
+pnpm add konfeti
+```
+
+**yarn**
+
+```sh
+yarn add konfeti
 ```
 
 Bundler olmadan `<script>` sürümünü yükle (`window.konfeti`'yi tanımlar):

@@ -56,9 +56,22 @@ Konfeti.fire(); // that's it: a classic confetti pop on a fullscreen overlay
 
 ## Install
 
+**npm**
+
 ```sh
 npm install konfeti
-# or: pnpm add konfeti · yarn add konfeti
+```
+
+**pnpm**
+
+```sh
+pnpm add konfeti
+```
+
+**yarn**
+
+```sh
+yarn add konfeti
 ```
 
 Without a bundler, load the `<script>` build (it defines `window.konfeti`):

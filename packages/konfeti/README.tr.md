@@ -6,8 +6,22 @@ eklenti API'si tiplidir.
 
 [English](./README.md) · **Türkçe**
 
+**npm**
+
 ```sh
 npm install konfeti
+```
+
+**pnpm**
+
+```sh
+pnpm add konfeti
+```
+
+**yarn**
+
+```sh
+yarn add konfeti
 ```
 
 ```ts run

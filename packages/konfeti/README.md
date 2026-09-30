@@ -5,8 +5,22 @@ and spritesheet** particles, composable physics and a typed plugin API.
 
 **English** · [Türkçe](./README.tr.md)
 
+**npm**
+
 ```sh
 npm install konfeti
+```
+
+**pnpm**
+
+```sh
+pnpm add konfeti
+```
+
+**yarn**
+
+```sh
+yarn add konfeti
 ```
 
 ```ts run
