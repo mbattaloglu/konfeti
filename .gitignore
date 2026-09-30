@@ -17,3 +17,6 @@ e2e/playwright-report/
 
 # release script scratch
 .release-notes.md
+
+# local MCP config (per developer)
+.mcp.json
