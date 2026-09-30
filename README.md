@@ -112,6 +112,9 @@ Konfeti.fire({
 });
 ```
 
+Color themes are ready-made: `paper: { colors: KonfetiPalettes.PASTEL }` — also `GOLD`, `NEON`, `RAINBOW`, `WINTER`,
+`AUTUMN`, `OCEAN`, `CANDY`, `FOREST`, `MONOCHROME` and `CLASSIC`.
+
 ### Shapes: emoji, text, images, spritesheets …
 
 Mix any shapes with weights; each one can override the paper style.

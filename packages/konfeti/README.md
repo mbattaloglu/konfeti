@@ -125,6 +125,9 @@ Konfeti.fire({
 });
 ```
 
+Color themes: `KonfetiPalettes.PASTEL`, `GOLD`, `NEON`, `RAINBOW`, `WINTER`, `AUTUMN`, `OCEAN`, `CANDY`, `FOREST`,
+`MONOCHROME` and `CLASSIC` are ready-made color lists — `paper: { colors: KonfetiPalettes.GOLD }`.
+
 Forms: `rect`, `square`, `circle`, `strip`, `leaf`. Other style keys: `scale`, `colorMode`, `backShade`,
 `colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`, `trail` (it works on every
 shape, e.g. `{ type: "star", trail: true }`).

@@ -126,6 +126,9 @@ Konfeti.fire({
 });
 ```
 
+Renk temaları: `KonfetiPalettes.PASTEL`, `GOLD`, `NEON`, `RAINBOW`, `WINTER`, `AUTUMN`, `OCEAN`, `CANDY`, `FOREST`,
+`MONOCHROME` ve `CLASSIC` hazır renk listeleridir — `paper: { colors: KonfetiPalettes.GOLD }`.
+
 Formlar: `rect`, `square`, `circle`, `strip`, `leaf`. Diğer stil ayarları: `scale`, `colorMode`, `backShade`,
 `colorOverLife`, `opacity`, `fadeIn`, `rotation`, `rotationSpeed`, `tilt`, `shadow`, `blendMode`, `trail` (her şekilde
 çalışır, ör. `{ type: "star", trail: true }`).

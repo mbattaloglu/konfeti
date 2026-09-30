@@ -6,12 +6,14 @@ import type {
   FireOptions,
   KonfetiEmitter,
   KonfetiHandle,
+  KonfetiPaletteName,
   KonfetiInstance,
   KonfetiPresetName,
   SharedKonfeti,
 } from "../../src/index";
 import type { KonfetiFactory } from "../../src/index";
 import { Konfeti, KonfetiPresets, extendPreset } from "../../src/index";
+import type { KonfetiPalettes } from "../../src/index";
 
 describe("public API shape", () => {
   it("types the shared Konfeti object", () => {
@@ -87,5 +89,16 @@ describe("trail", () => {
     }>().toExtend<FireOptions>();
     expectTypeOf<{ paper: { trail: { color: "particle" } } }>().toExtend<FireOptions>();
     expectTypeOf<{ paper: { trail: { length: "long" } } }>().not.toExtend<FireOptions>();
+  });
+});
+
+describe("KonfetiPalettes", () => {
+  it("members are color lists that fit every colors option", () => {
+    expectTypeOf<{ paper: { colors: typeof KonfetiPalettes.PASTEL } }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      shapes: [{ type: "star"; colors: typeof KonfetiPalettes.NEON }];
+    }>().toExtend<FireOptions>();
+    expectTypeOf<"GOLD">().toExtend<KonfetiPaletteName>();
+    expectTypeOf<"gold">().not.toExtend<KonfetiPaletteName>();
   });
 });

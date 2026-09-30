@@ -117,6 +117,9 @@ Konfeti.fire({
 });
 ```
 
+Renk temaları hazır: `paper: { colors: KonfetiPalettes.PASTEL }` — ayrıca `GOLD`, `NEON`, `RAINBOW`, `WINTER`,
+`AUTUMN`, `OCEAN`, `CANDY`, `FOREST`, `MONOCHROME` ve `CLASSIC`.
+
 ### Şekiller: emoji, metin, görsel, spritesheet …
 
 İstediğin şekilleri ağırlıklarla karıştır; her biri kağıt stilini kendi içinde geçersiz kılabilir.

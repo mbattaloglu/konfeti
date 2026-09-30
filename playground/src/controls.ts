@@ -1,3 +1,5 @@
+import { KonfetiPalettes } from "konfeti";
+
 import type {
   ChipsControl,
   ColorControl,
@@ -66,6 +68,14 @@ const BLEND_MODES = [
   "difference",
   "exclusion",
   "color-dodge",
+] as const;
+
+/**
+ * Color Theme Choices: "custom" plus every `KonfetiPalettes` member (lowercase, with spaces).
+ */
+const THEME_OPTIONS = [
+  "custom",
+  ...Object.keys(KonfetiPalettes).map((name) => name.toLowerCase().replace(/_/g, " ")),
 ] as const;
 
 /**
@@ -516,6 +526,9 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
     title: "Colors",
     icon: "◐",
     controls: [
+      select("colorTheme", "Theme", "KonfetiPalettes", THEME_OPTIONS, "custom", {
+        hint: "Fill the palette below with a built-in theme; edit it freely afterwards.",
+      }),
       palette(
         "colors",
         "Colors",

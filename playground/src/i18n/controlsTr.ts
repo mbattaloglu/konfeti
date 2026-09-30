@@ -91,6 +91,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   skew: { label: "Eğme", hint: "[-değer, değer] olarak gönderilir." },
 
   // colors
+  colorTheme: {
+    label: "Tema",
+    hint: "Aşağıdaki paleti hazır bir temayla doldur; sonra istediğin gibi düzenle.",
+  },
   colors: {
     label: "Renkler",
     hint: "Düzenlemek için bir renge tıkla, eklemek için +, kaldırmak için ×.",
@@ -278,6 +282,18 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   "demo canvas": "Demo Canvas",
   "demo url": "Demo URL",
   "inline svg": "Satır İçi SVG",
+  custom: "Özel",
+  classic: "Klasik",
+  pastel: "Pastel",
+  gold: "Altın",
+  neon: "Neon",
+  rainbow: "Gökkuşağı",
+  winter: "Kış",
+  autumn: "Sonbahar",
+  ocean: "Okyanus",
+  candy: "Şeker",
+  forest: "Orman",
+  monochrome: "Tek Renk",
   upload: "Yükleme",
   linear: "Doğrusal",
   pointer: "İmleç",

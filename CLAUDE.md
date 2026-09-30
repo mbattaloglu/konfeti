@@ -63,6 +63,7 @@ packages/
       physics/          # PhysicsPipeline + abstracts/IPhysicsModule + concretes/{Force,Swirl,Drag,TerminalVelocity,Floor}Module
       renderers/        # Canvas2DRenderer (blend/shadow state) — draws to any RenderSurface (DOM or offscreen)
       presets/          # KonfetiPresets (10 built-ins, enum-style UPPER_SNAKE members, plain data), extendPreset, PresetUtils
+      palettes/         # KonfetiPalettes (color themes, literal data only — same tree-shaking rule as presets)
       types/            # public option types (types/shapes/* per shape), types/resolved/* internal
       config/           # PaperDefaults, ShapeDefaults, FireDefaults, CreateDefaults, EasingFunctions
       utils/            # MathUtils, ColorUtils, ColorMix, Random, RangeUtils, WeightedListUtils, ImageSource, GlyphRasterizer, VectorPaths, EnvUtils, CanvasFactory

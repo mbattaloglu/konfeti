@@ -1,5 +1,11 @@
-import { KonfetiFactory, KonfetiPresets, loadImage, VERSION } from "konfeti";
-import type { FireInput, KonfetiEmitter, KonfetiHandle, KonfetiInstance } from "konfeti";
+import { KonfetiFactory, KonfetiPalettes, KonfetiPresets, loadImage, VERSION } from "konfeti";
+import type {
+  FireInput,
+  KonfetiEmitter,
+  KonfetiHandle,
+  KonfetiInstance,
+  KonfetiPaletteName,
+} from "konfeti";
 import { createWorker, WorkerKonfetiInstance } from "konfeti/worker";
 import type { WorkerEmitOptions, WorkerFireInput, WorkerStats } from "konfeti/worker";
 
@@ -209,6 +215,15 @@ async function init(): Promise<void> {
     localizeSections(CONTROL_SECTIONS),
     state,
     (key) => {
+      // picking a theme fills the palette with its colors (a normal, editable palette afterwards)
+      if (key === "colorTheme") {
+        const theme = str(state, "colorTheme").toUpperCase().replace(/ /g, "_");
+
+        if (theme in KonfetiPalettes) {
+          controls.setValue("colors", [...KonfetiPalettes[theme as KonfetiPaletteName]]);
+        }
+      }
+
       if (key === "image.upload") {
         const url = str(state, "image.upload");
 

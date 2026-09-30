@@ -7,6 +7,8 @@ export { definePhysics } from "./api/definePhysics";
 export { defineShape } from "./api/defineShape";
 export { disableBanner } from "./api/disableBanner";
 export { loadImage } from "./api/loadImage";
+export { KonfetiPalettes } from "./palettes/KonfetiPalettes";
+export type { KonfetiPaletteName } from "./palettes/KonfetiPalettes";
 export { KonfetiInstance } from "./core/KonfetiInstance";
 export { emojiShape } from "./shapes/handlers/emojiShape";
 export { heartShape } from "./shapes/handlers/heartShape";
