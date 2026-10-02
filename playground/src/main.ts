@@ -6,6 +6,7 @@ import type {
   KonfetiHandle,
   KonfetiInstance,
   KonfetiPaletteName,
+  KonfetiPresetName,
 } from "konfeti";
 import { createWorker, WorkerKonfetiInstance } from "konfeti/worker";
 import type { WorkerEmitOptions, WorkerFireInput, WorkerStats } from "konfeti/worker";
@@ -15,7 +16,13 @@ import { buildBurst, buildInput } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
 import type { ControlState } from "./controlTypes";
 import { createDemoAssets } from "./demoAssets";
-import { CONTROL_INDEX, deriveTheme, initialBurst, MAX_BURSTS } from "./editor/burstState";
+import {
+  CONTROL_INDEX,
+  deriveTheme,
+  initialBurst,
+  MAX_BURSTS,
+  sameBursts,
+} from "./editor/burstState";
 import type { BurstState } from "./editor/burstState";
 import {
   addBurst,
@@ -30,6 +37,8 @@ import type { BurstTabs } from "./editor/burstTabs";
 import { countHiddenAdvanced } from "./editor/editorMode";
 import { seedList, withClickOrigin } from "./editor/fireInput";
 import { createOverrideSource } from "./editor/overrides";
+import { presetToEditor } from "./editor/presetToEditor";
+import type { LoadIssue } from "./editor/presetToEditor";
 import { buildHooks, createCounters } from "./hooks";
 import { t } from "./i18n/messages";
 import { localizeSections } from "./i18n/localizeControls";
@@ -41,7 +50,8 @@ import { renderBurstTabs } from "./ui/renderBurstTabs";
 import { renderControls } from "./ui/renderControls";
 import { renderModeSwitch } from "./ui/renderModeSwitch";
 import { renderPresets } from "./ui/renderPresets";
-import { toCode } from "./share/codeExport";
+import type { PresetGallery } from "./ui/renderPresets";
+import { presetCode, toCode } from "./share/codeExport";
 import type { CodeMode } from "./share/codeExport";
 import {
   createShareLink,
@@ -82,6 +92,16 @@ const URL_CHECK_TIMEOUT_MS = 10_000;
  * Start of Inline SVG Markup, Which Is Not an Address.
  */
 const SVG_MARKUP_START = "<svg";
+
+/**
+ * Check Whether a Name Is a Built-in Preset.
+ *
+ * @param name - Any Name (from a share link)
+ * @returns Preset Name Flag
+ */
+function isPresetName(name: string): name is KonfetiPresetName {
+  return Object.hasOwn(KonfetiPresets, name);
+}
 
 /**
  * Check Whether a Typed Image Address Loads, Requested the Way the Library Requests It.
@@ -216,6 +236,15 @@ async function init(): Promise<void> {
   const state: ControlState = {};
   // every burst of the editor; the shown one lives in the controls (the burst tabs, Advanced)
   let burstTabs: BurstTabs = createTabs([], initialBurst());
+  // the preset the editor holds (the chip) and the bursts it loaded, to tell when the editor no longer matches it
+  let loadedPreset: {
+    readonly name: KonfetiPresetName;
+    readonly bursts: readonly BurstState[];
+  } | null = null;
+  let presetGallery: PresetGallery | null = null;
+  const presetChip = byId("preset-chip", HTMLElement);
+  const presetChipName = byId("preset-chip-name", HTMLElement);
+  const presetChipEdited = byId("preset-chip-edited", HTMLElement);
   const counters = createCounters();
   // the stage is a regular canvas element, so the whole playground is a KonfetiFactory.create(canvas) demo
   let main: Stage = createStage(false, {});
@@ -371,6 +400,7 @@ async function init(): Promise<void> {
 
       syncJson();
       restartStream();
+      refreshChip();
       refreshExport();
       refreshBadge();
     },
@@ -442,18 +472,66 @@ async function init(): Promise<void> {
     burstNotice.hidden = count <= 1;
     burstNotice.textContent =
       count > 1 ? t("bursts.notice", { n: burstTabs.active + 1, count }) : "";
+    refreshChip();
     refreshBadge();
   }
 
   renderTabs();
 
-  // every binding of both scopes goes back to its initial value (the library defaults)
-  byId("reset-controls", HTMLButtonElement).addEventListener("click", () => {
+  /**
+   * Check Whether the Editor No Longer Holds Exactly the Loaded Preset.
+   * Both sides are canonical bursts, and the derived theme is not compared, so a tab switch or the preset's own
+   * share link never counts as an edit.
+   *
+   * @returns Edited Flag (false without a loaded preset)
+   */
+  function isPresetEdited(): boolean {
+    return loadedPreset !== null && !sameBursts(currentBursts(), loadedPreset.bursts);
+  }
+
+  /**
+   * Show the Loaded Preset's Chip (and Mark Its Card), or Hide Both.
+   */
+  function refreshChip(): void {
+    presetChip.hidden = loadedPreset === null;
+    presetChipName.textContent = loadedPreset?.name ?? "";
+    presetChipEdited.hidden = !isPresetEdited();
+    presetGallery?.setCurrent(loadedPreset?.name ?? null);
+  }
+
+  /**
+   * Show Bursts in the Editor: Tabs from the List, the First One in the Controls.
+   * A load wins over JSON edited by hand, like a reset.
+   *
+   * @param bursts - Canonical Burst States
+   */
+  function loadEditor(bursts: readonly BurstState[]): void {
+    burstTabs = createTabs(bursts, initialBurst());
+    controls.load("burst", burstTabs.bursts[0] ?? initialBurst());
+    renderTabs();
+    syncJson(true);
+  }
+
+  /**
+   * Report What a Load Could Not Represent.
+   *
+   * @param issues - Load Issues
+   */
+  function reportIssues(issues: readonly LoadIssue[]): void {
+    showToast(t("load.issues", { paths: issues.map((item) => item.path).join(", ") }), true);
+    console.warn("[konfeti playground] not loaded:", issues);
+  }
+
+  // every binding of both scopes goes back to its initial value (the library defaults), and no preset is held
+  const resetEditor = (): void => {
+    loadedPreset = null;
     burstTabs = createTabs([], initialBurst());
     controls.reset();
     renderTabs();
     syncJson(true);
-  });
+  };
+  byId("reset-controls", HTMLButtonElement).addEventListener("click", resetEditor);
+  byId("preset-clear", HTMLButtonElement).addEventListener("click", resetEditor);
 
   // top bar
   byId("fire", HTMLButtonElement).addEventListener("click", () => {
@@ -476,8 +554,16 @@ async function init(): Promise<void> {
   });
 
   // presets gallery
-  renderPresets(byId("presets", HTMLElement), (name) => {
-    fireMain(KonfetiPresets[name]);
+  presetGallery = renderPresets(byId("presets", HTMLElement), (name) => {
+    const { bursts, issues } = presetToEditor(KonfetiPresets[name], assets);
+    loadedPreset = { name, bursts };
+    loadEditor(bursts);
+    // the editor's build, not the raw preset: the round-trip test proves they fire the same
+    fireMain(buildInput(currentBursts(), assets));
+
+    if (issues.length > 0) {
+      reportIssues(issues);
+    }
   });
 
   // json panel
@@ -495,6 +581,21 @@ async function init(): Promise<void> {
   });
   byId("sync-json", HTMLButtonElement).addEventListener("click", () => {
     syncJson(true);
+  });
+  byId("load-json", HTMLButtonElement).addEventListener("click", () => {
+    try {
+      const { bursts, issues } = presetToEditor(parseJson(jsonArea.value, assets), assets);
+      loadedPreset = null;
+      loadEditor(bursts);
+
+      if (issues.length > 0) {
+        reportIssues(issues);
+      } else {
+        showToast(t("json.loaded"));
+      }
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : String(error), true);
+    }
   });
   byId("copy-json", HTMLButtonElement).addEventListener("click", () => {
     navigator.clipboard.writeText(jsonArea.value).then(
@@ -685,18 +786,21 @@ async function init(): Promise<void> {
 
   // share link: only settings that differ from the defaults travel in the URL (upload URLs never do)
   const shareSettings = (): ShareV2 | null =>
-    toShareSettings(currentBursts(), controls.capture("global"));
+    toShareSettings(currentBursts(), controls.capture("global"), loadedPreset?.name);
   const shared = readShareLink();
 
   if (shared !== null) {
     // a link is outside input: every value is checked against its control before it is shown, and a v1 link is
     // migrated to the v2 controls first
     const restored = restoreShared(shared);
-    burstTabs = createTabs(restored.bursts, initialBurst());
-    controls.load("burst", burstTabs.bursts[0] ?? initialBurst());
+    // a link names the preset its sender held: the chip compares with that preset (an unknown name is ignored)
+    const preset = restored.preset;
+    loadedPreset =
+      preset !== undefined && isPresetName(preset)
+        ? { name: preset, bursts: presetToEditor(KonfetiPresets[preset], assets).bursts }
+        : null;
     controls.load("global", restored.globals);
-    renderTabs();
-    syncJson(true);
+    loadEditor(restored.bursts);
     showToast(t("share.loaded"));
   }
 
@@ -728,11 +832,15 @@ async function init(): Promise<void> {
   let codeMode: CodeMode = "changed";
   // "Changed only" is the minimal build (what differs from the library defaults), "All settings" the explicit one
   const currentCode = (): string =>
-    toCode(
-      buildInput(currentBursts(), assets, { mode: codeMode === "all" ? "explicit" : "minimal" }),
-      assets,
-      codeMode,
-    );
+    codeMode === "changed" && loadedPreset !== null && !isPresetEdited()
+      ? presetCode(loadedPreset.name)
+      : toCode(
+          buildInput(currentBursts(), assets, {
+            mode: codeMode === "all" ? "explicit" : "minimal",
+          }),
+          assets,
+          codeMode,
+        );
   const modeButtons = [...document.querySelectorAll<HTMLButtonElement>(".code-mode-option")];
 
   for (const button of modeButtons) {

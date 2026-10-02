@@ -1119,10 +1119,65 @@ textarea:focus {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* the preset the editor holds, and whether it was changed since it was loaded */
+.preset-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 6px 8px;
+  border: 1px solid var(--accent-dim);
+  background: var(--accent-soft);
+  font-size: 11px;
+}
+
+.preset-chip[hidden] {
+  display: none;
+}
+
+.preset-chip-label {
+  color: var(--fg-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.preset-chip-name {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--accent);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-chip-edited {
+  color: var(--warn);
+}
+
+.preset-chip-clear {
+  margin-left: auto;
+  padding: 0 4px;
+  border: none;
+  background: transparent;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.preset-chip-clear:hover,
+.preset-chip-clear:focus-visible {
+  color: var(--err);
+}
+
+.preset[aria-current="true"] {
+  border-color: var(--accent-dim);
+}
+
 /* burst tabs (Advanced): each tab is one entry of the fired list */
 .burst-bar {
   display: flex;
-  align-items: stretch;
+  /* the buttons stay one row tall while the tabs wrap */
+  align-items: flex-start;
   gap: 6px;
   margin-bottom: 10px;
 }

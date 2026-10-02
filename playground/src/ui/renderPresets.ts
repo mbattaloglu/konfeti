@@ -50,12 +50,28 @@ const PRESET_CARDS: readonly PresetCard[] = [
 ];
 
 /**
+ * Rendered Preset Gallery.
+ */
+export type PresetGallery = {
+  /**
+   * Mark the Card of the Preset the Editor Holds (null: none).
+   */
+  readonly setCurrent: (name: KonfetiPresetName | null) => void;
+};
+
+/**
  * Render Preset Gallery Buttons.
  *
  * @param root - Container Element
  * @param onPick - Called with the Picked Preset
+ * @returns Preset Gallery
  */
-export function renderPresets(root: HTMLElement, onPick: (name: KonfetiPresetName) => void): void {
+export function renderPresets(
+  root: HTMLElement,
+  onPick: (name: KonfetiPresetName) => void,
+): PresetGallery {
+  const buttons = new Map<KonfetiPresetName, HTMLButtonElement>();
+
   for (const card of PRESET_CARDS) {
     const button = el("button", "preset");
     button.type = "button";
@@ -72,6 +88,20 @@ export function renderPresets(root: HTMLElement, onPick: (name: KonfetiPresetNam
     button.addEventListener("click", () => {
       onPick(card.name);
     });
+    buttons.set(card.name, button);
     root.append(button);
   }
+
+  return {
+    // not aria-pressed: activating the current card loads the preset again instead of releasing it
+    setCurrent: (name) => {
+      for (const [cardName, button] of buttons) {
+        if (cardName === name) {
+          button.setAttribute("aria-current", "true");
+        } else {
+          button.removeAttribute("aria-current");
+        }
+      }
+    },
+  };
 }

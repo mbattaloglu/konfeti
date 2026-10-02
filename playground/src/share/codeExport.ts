@@ -152,3 +152,20 @@ export function toCode(input: FireInput, assets: DemoAssets, mode: CodeMode): st
     "",
   ].join("\n");
 }
+
+/**
+ * Write the Code that Fires a Built-in Preset as It Is.
+ * Used while the editor holds an unchanged preset: shorter than its options, and it follows later library updates
+ * of that preset.
+ *
+ * @param name - Preset Name
+ * @returns TypeScript Snippet
+ */
+export function presetCode(name: string): string {
+  return [
+    'import { Konfeti, KonfetiPresets } from "konfeti";',
+    "",
+    `Konfeti.fire(KonfetiPresets.${name}); // ${t("code.commentPreset")}`,
+    "",
+  ].join("\n");
+}

@@ -393,6 +393,79 @@ test.describe("built site (editor)", () => {
     expect(site.errors).toEqual([]);
   });
 
+  test("a preset loads into the editor, shows its chip and knows when it was edited", async ({
+    page,
+    site,
+  }) => {
+    await openSite(page, "");
+    const card = page.locator("button.preset", {
+      has: page.locator("code", { hasText: /^SNOW$/ }),
+    });
+    const chip = page.locator("#preset-chip");
+    const edited = page.locator("#preset-chip-edited");
+    const json = async (): Promise<Record<string, unknown>> =>
+      JSON.parse(await page.locator("#json").inputValue()) as Record<string, unknown>;
+
+    await card.click();
+    await expect(chip).toBeVisible();
+    await expect(page.locator("#preset-chip-name")).toHaveText("SNOW");
+    await expect(card).toHaveAttribute("aria-current", "true");
+    await expect(edited).toBeHidden();
+    expect((await json())["particleCount"]).toBe(180);
+
+    // an unchanged preset is written as itself
+    await page.locator('.panel-tab[data-tab="export"]').click();
+    await expect(page.locator("#code-preview")).toContainText("Konfeti.fire(KonfetiPresets.SNOW);");
+    await page.locator('.panel-tab[data-tab="controls"]').click();
+
+    const count = page.locator('[data-key="particleCount"]');
+    await count.locator(".control-value-edit").click();
+    await page.keyboard.type("90");
+    await page.keyboard.press("Enter");
+    await expect(edited).toBeVisible();
+    await count.locator(".control-value-edit").click();
+    await page.keyboard.type("180");
+    await page.keyboard.press("Enter");
+    await expect(edited).toBeHidden();
+
+    await page.locator("#preset-clear").click();
+    await expect(chip).toBeHidden();
+    await expect(card).not.toHaveAttribute("aria-current", "true");
+    expect(await json()).toEqual({});
+    await expect(page.locator(".toast.is-error")).toHaveCount(0);
+    expect(site.errors).toEqual([]);
+  });
+
+  test("a list preset becomes burst tabs, and its own link is not edited", async ({
+    page,
+    site,
+  }) => {
+    await openSite(page, "");
+    await page.locator('#editor-mode [data-mode="advanced"]').click();
+    await page
+      .locator("button.preset", { has: page.locator("code", { hasText: /^REALISTIC$/ }) })
+      .click();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(5);
+    await page.locator("#burst-tab-3").click();
+    await expect(page.locator("#preset-chip-edited")).toBeHidden();
+
+    await page.locator('.panel-tab[data-tab="export"]').click();
+    const link = await page.locator("#share-link").inputValue();
+    await page.goto(link);
+    await expect(page.locator("#preset-chip-name")).toHaveText("REALISTIC");
+    await expect(page.locator("#preset-chip-edited")).toBeHidden();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(5);
+
+    // pasted JSON loads into the controls (and no preset is held then)
+    await page.locator('.panel-tab[data-tab="export"]').click();
+    await page.locator("#json").fill('{ "particleCount": 77, "shapes": [{ "type": "star" }] }');
+    await page.locator("#load-json").click();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(1);
+    await expect(page.locator("#preset-chip")).toBeHidden();
+    await expect(page.locator('[data-key="star.enabled"]')).toHaveClass(/is-enabled/);
+    expect(site.errors).toEqual([]);
+  });
+
   test("several bursts fire as a list and travel in the share link", async ({ page, site }) => {
     await openSite(page, "");
     await page.locator('#editor-mode [data-mode="advanced"]').click();

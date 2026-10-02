@@ -72,6 +72,10 @@ export type RestoredSettings = {
    * Global (Hooks) State.
    */
   readonly globals: GlobalState;
+  /**
+   * Name of the Preset the Editor Held When the Link Was Made (not checked here).
+   */
+  readonly preset?: string;
 };
 
 /**
@@ -140,16 +144,23 @@ function isEmpty(diff: Readonly<Record<string, unknown>>): boolean {
  *
  * @param bursts - Burst States in Tab Order
  * @param globals - Global (Hooks) State
+ * @param preset - Name of the Preset the Editor Holds (the receiver sees its chip)
  * @returns Settings, or Null When Nothing Differs from the Defaults
  */
 export function toShareSettings(
   bursts: readonly BurstState[],
   globals: GlobalState,
+  preset?: string,
 ): ShareV2 | null {
   const burstDiffs = bursts.map((burst) => diffBurst(burst));
   const globalDiff = diffGlobals(globals);
 
-  if (burstDiffs.length <= 1 && burstDiffs.every(isEmpty) && isEmpty(globalDiff)) {
+  if (
+    preset === undefined &&
+    burstDiffs.length <= 1 &&
+    burstDiffs.every(isEmpty) &&
+    isEmpty(globalDiff)
+  ) {
     return null;
   }
 
@@ -157,6 +168,7 @@ export function toShareSettings(
     v: SHARE_VERSION,
     b: burstDiffs,
     ...(isEmpty(globalDiff) ? {} : { g: globalDiff }),
+    ...(preset === undefined ? {} : { p: preset }),
   };
 }
 
@@ -275,5 +287,6 @@ export function restoreShared(shared: SharedSettings): RestoredSettings {
   return {
     bursts: shared.settings.b.map((diff) => applyBurstDiff(diff)),
     globals: applyGlobalDiff(shared.settings.g ?? {}),
+    ...(shared.settings.p === undefined ? {} : { preset: shared.settings.p }),
   };
 }

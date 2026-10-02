@@ -350,8 +350,8 @@ The [guide](https://konfeti.mbattaloglu.com/docs/#playable-ads--webviews) has th
 - **[Guide](https://konfeti.mbattaloglu.com/docs/)** — every feature with runnable examples
   ([source](packages/konfeti/README.md), [Türkçe](packages/konfeti/README.tr.md))
 - **[API reference](https://konfeti.mbattaloglu.com/docs/api/)** — every option, its unit, range and default
-- **[Playground](https://konfeti.mbattaloglu.com/)** — tune every option live, then share a link or copy the
-  `Konfeti.fire()` code
+- **[Playground](https://konfeti.mbattaloglu.com/)** — tune every option live (Basic or Advanced), load any preset
+  into the editor, then share a link or copy the `Konfeti.fire()` code
 - **[Changelog](packages/konfeti/CHANGELOG.md)**
 
 ## Development

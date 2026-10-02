@@ -360,8 +360,8 @@ en son parçacık sayısını düşürür. Tam kontrol listesi
   ([kaynak](packages/konfeti/README.tr.md), [English](packages/konfeti/README.md))
 - **[API referansı](https://konfeti.mbattaloglu.com/docs/api/)** (İngilizce) — her seçenek, birimi, aralığı ve
   varsayılanı
-- **[Deneme Alanı](https://konfeti.mbattaloglu.com/?lang=tr)** — her seçeneği canlı ayarla, sonra bir bağlantı
-  paylaş ya da `Konfeti.fire()` kodunu kopyala
+- **[Deneme Alanı](https://konfeti.mbattaloglu.com/?lang=tr)** — her seçeneği canlı ayarla (Temel ya da Gelişmiş),
+  herhangi bir hazır ayarı düzenleyiciye yükle, sonra bir bağlantı paylaş ya da `Konfeti.fire()` kodunu kopyala
 - **[Değişiklik günlüğü](packages/konfeti/CHANGELOG.md)** (İngilizce)
 
 ## Geliştirme

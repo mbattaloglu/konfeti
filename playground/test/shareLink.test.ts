@@ -559,3 +559,12 @@ describe("several bursts in a link", () => {
     expect(restoreShared({ version: 2, settings: settings! }).bursts).toEqual(bursts);
   });
 });
+
+describe("the preset in a link", () => {
+  it("travels as p, also when nothing else differs", () => {
+    const settings = toShareSettings([initialBurst()], initialGlobals(), "BASIC");
+
+    expect(settings).toEqual({ v: 2, b: [{}], p: "BASIC" });
+    expect(restoreShared({ version: 2, settings: settings! }).preset).toBe("BASIC");
+  });
+});

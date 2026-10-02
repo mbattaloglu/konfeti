@@ -1001,3 +1001,112 @@ export const GEOMETRY_GROUPS: readonly GeometryGroup[] = [
   },
   geometryPair("skew", toPair(DEFAULT_PAPER_GEOMETRY.skew)),
 ];
+
+/**
+ * Compute What the Base `paper` Gets for a Style Key Given Its Option Value (the loader's reading).
+ *
+ * @param key - Style Key
+ * @param value - Option Value of `paper[key]`
+ * @returns Full Value, or Null When the Editor Cannot Show It
+ */
+export function paperStyleOf(key: StyleKey, value: unknown): StyleFull | null {
+  return effectiveStyle(key, [DEFAULT_STYLE[key], value]);
+}
+
+/**
+ * Compute What a Shape Entry Gets for a Style Key: the library default, its handler's default, `paper`, then the
+ * entry's own value.
+ *
+ * @param key - Style Key
+ * @param shapeType - Shape Type
+ * @param paper - Base `paper` Options
+ * @param entry - Option Value on the Entry
+ * @returns Full Value, or Null When the Editor Cannot Show It
+ */
+export function entryStyleOf(
+  key: StyleKey,
+  shapeType: string,
+  paper: Readonly<Record<string, unknown>>,
+  entry: unknown,
+): StyleFull | null {
+  return effectiveStyle(key, [
+    DEFAULT_STYLE[key],
+    HANDLER_STYLES.get(shapeType)?.[key],
+    paper[key],
+    entry,
+  ]);
+}
+
+/**
+ * Read a Paper Geometry Option Value (the loader's reading).
+ * A form is a string or a list of strings; a corner radius is a range, or an object of corners (a missing corner is
+ * 0, as the library reads it); the other keys are ranges.
+ *
+ * @param key - Geometry Key
+ * @param value - Option Value
+ * @returns Full Value, or Null When the Editor Cannot Show It
+ */
+export function readGeometry(key: GeometryKey, value: unknown): StyleFull | null {
+  if (key === "form") {
+    const forms = typeof value === "string" ? [value] : asList(value);
+
+    return forms !== null &&
+      forms.length > 0 &&
+      forms.every((form): form is string => typeof form === "string")
+      ? forms
+      : null;
+  }
+
+  // an object without both min and max is a per-corner radius (the library's own test)
+  if (key === "cornerRadius" && isRecord(value) && !("min" in value && "max" in value)) {
+    const corners: Record<string, StylePart> = {};
+
+    for (const [corner] of CORNERS) {
+      const given = value[corner];
+      const part = given === undefined ? toPair(OMITTED_CORNER_RADIUS) : pairOf(given);
+
+      if (part === null) {
+        return null;
+      }
+
+      corners[corner] = part;
+    }
+
+    return corners;
+  }
+
+  return pairOf(value);
+}
+
+/**
+ * Turn a Paper Geometry Full Value into the Values of Its Controls.
+ *
+ * @param key - Geometry Key
+ * @param full - Full Value
+ * @returns Control Values by Base Control Key
+ */
+export function writeGeometry(key: GeometryKey, full: StyleFull): Record<string, ControlValue> {
+  if (full === false) {
+    return {};
+  }
+
+  if (key !== "cornerRadius") {
+    return isStyleObject(full) ? {} : { [key]: full };
+  }
+
+  if (!isStyleObject(full)) {
+    return { cornerPerCorner: false, cornerRadius: full };
+  }
+
+  const values: Record<string, ControlValue> = { cornerPerCorner: true };
+
+  for (const [corner, control] of CORNERS) {
+    const part = full[corner];
+
+    if (part !== undefined) {
+      values[control] = part;
+    }
+  }
+
+  return values;
+}

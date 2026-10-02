@@ -306,6 +306,28 @@
               Reset Controls
             </button>
           </div>
+          <div id="preset-chip" class="preset-chip" hidden>
+            <span class="preset-chip-label" data-i18n="preset.label">Preset</span>
+            <code id="preset-chip-name" class="preset-chip-name"></code>
+            <span
+              id="preset-chip-edited"
+              class="preset-chip-edited"
+              data-i18n="preset.edited"
+              hidden
+              >edited</span
+            >
+            <button
+              id="preset-clear"
+              class="preset-chip-clear"
+              type="button"
+              aria-label="Clear the preset and reset the controls"
+              title="Clear the preset and reset the controls"
+              data-i18n-aria-label="preset.clear"
+              data-i18n-title="preset.clear"
+            >
+              ×
+            </button>
+          </div>
           <div id="burst-bar" class="burst-bar" data-advanced>
             <div
               id="burst-tabs"
@@ -441,7 +463,8 @@
           </div>
           <p class="section-description" data-i18n-html="json.description">
             Functions and elements are omitted. <code>"$asset:…"</code> placeholders stand for the
-            demo canvases. Arrays fire several bursts at once.
+            demo canvases. Arrays fire several bursts at once; Load into Controls turns them into
+            burst tabs.
           </p>
           <textarea id="json" spellcheck="false"></textarea>
           <div class="json-actions">
@@ -453,6 +476,9 @@
             </button>
             <button id="sync-json" class="btn btn--ghost btn--small" data-i18n="json.sync">
               Sync from Controls
+            </button>
+            <button id="load-json" class="btn btn--ghost btn--small" data-i18n="json.load">
+              Load into Controls
             </button>
           </div>
         </section>

@@ -81,6 +81,16 @@ const OVERRIDE_ENTRIES: ReadonlyMap<string, ControlEntry> = new Map(
 );
 
 /**
+ * Look Up the Index Entry of Any Burst Key, Override Keys Included.
+ *
+ * @param key - State Key
+ * @returns Entry, or Undefined for an Unknown Key
+ */
+export function entryOf(key: string): ControlEntry | undefined {
+  return CONTROL_INDEX.entries.get(key) ?? OVERRIDE_ENTRIES.get(key);
+}
+
+/**
  * Return the Initial Value of a Static Key.
  *
  * @param key - State Key
