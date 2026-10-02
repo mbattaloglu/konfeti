@@ -13,7 +13,7 @@ import {
 } from "konfeti";
 import type { ShapeStyle } from "konfeti";
 
-import type { ControlState, NumberPair } from "../controlTypes";
+import type { ControlState, ControlValue, NumberPair } from "../controlTypes";
 import { bool, list, num, pair, str } from "../stateReaders";
 import {
   DEFAULT_FADE_OUT,
@@ -840,6 +840,84 @@ export function inheritedStyle(
     effectiveStyle(key, [DEFAULT_STYLE[key], HANDLER_STYLES.get(shapeType)?.[key], paper[key]]) ??
     libraryStyle(key)
   );
+}
+
+/**
+ * Control Keys of the Sub-Keys of the Effect Groups, by Style Key.
+ * The shadow and trail colors are left out: each is shown by two controls (see writeStyle).
+ */
+const SUB_CONTROLS: Readonly<Partial<Record<StyleKey, Readonly<Record<string, string>>>>> = {
+  gradient: { colors: "gradientColors", angle: "gradientAngle" },
+  colorOverLife: { to: "colorOverLifeTo", easing: "colorOverLifeEasing" },
+  stroke: { color: "strokeColor", width: "strokeWidth" },
+  fadeOut: { start: "fadeStart", easing: "fadeEasing" },
+  scaleOverLife: { to: "scaleTo", easing: "scaleEasing" },
+  flip: { frequency: "flipFrequency", axis: "flipAxis" },
+  wobble: { amplitude: "wobbleAmplitude", frequency: "wobbleFrequency" },
+  shadow: { blur: "shadowBlur", offsetX: "shadowX", offsetY: "shadowY" },
+  trail: { length: "trailLength", width: "trailWidth", opacity: "trailOpacity" },
+};
+
+/**
+ * Turn a Full Value into the Values of Its Group's Controls (the inverse of the group's read).
+ * Controls the value does not decide are left out: the sub-keys of an effect that is off, and the trail color while
+ * the trail takes the particle's color.
+ *
+ * @param key - Style Key
+ * @param full - Full Value
+ * @returns Control Values by Base Control Key
+ */
+export function writeStyle(key: StyleKey, full: StyleFull): Record<string, ControlValue> {
+  const group = STYLE_GROUP_BY_KEY[key];
+
+  if (group.kind === "plain") {
+    if (full === false || isStyleObject(full)) {
+      return {};
+    }
+
+    // the back color's "auto" is the empty palette
+    return { [key]: key === "backColor" && full === "auto" ? [] : full };
+  }
+
+  const [toggle] = group.controls;
+
+  if (toggle === undefined || !(full === false || isStyleObject(full))) {
+    return {};
+  }
+
+  if (full === false) {
+    return { [toggle]: false };
+  }
+
+  const values: Record<string, ControlValue> = { [toggle]: true };
+
+  for (const [sub, control] of Object.entries(SUB_CONTROLS[key] ?? {})) {
+    const part = full[sub];
+
+    if (part !== undefined) {
+      values[control] = part;
+    }
+  }
+
+  if (key === "shadow") {
+    const color = splitColor(full["color"]);
+
+    if (color !== null) {
+      values["shadowColor"] = color.hex;
+      values["shadowAlpha"] = color.alpha;
+    }
+  }
+
+  if (key === "trail") {
+    const color = full["color"];
+    values["trailCustomColor"] = color !== "particle";
+
+    if (typeof color === "string" && color !== "particle") {
+      values["trailColor"] = color;
+    }
+  }
+
+  return values;
 }
 
 /**

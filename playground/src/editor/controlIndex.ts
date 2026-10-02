@@ -1,4 +1,5 @@
 import type {
+  ChipsControl,
   Control,
   ControlCard,
   ControlSection,
@@ -6,6 +7,7 @@ import type {
   ToggleControl,
   ValueDomain,
 } from "../controlTypes";
+import { overrideGroupsFor, stylesKey } from "./overrideGroups";
 
 /**
  * One Static Control with Everything the Pure Editor Model Needs to Know about It.
@@ -35,6 +37,10 @@ export type ControlEntry = {
    * Card Switch Flag (`<prefix>.enabled`).
    */
   readonly isCardSwitch: boolean;
+  /**
+   * Own Style List Flag (`<prefix>.styles`): the groups the card overrides, each adding its own keys.
+   */
+  readonly isStyleList: boolean;
   /**
    * Advanced-Only Flag (its own flag or its section's).
    */
@@ -150,6 +156,25 @@ function cardSwitch(card: ControlCard): ToggleControl {
 }
 
 /**
+ * Describe a Card's List of Own Style Groups as a Chips Control (one chip per group it can override).
+ *
+ * @param card - Card Definition
+ * @param prefix - Card Prefix
+ * @returns Chips Control for `<prefix>.styles` (rendered as the card's own-style area, not as chips)
+ */
+function styleList(card: ControlCard, prefix: string): ChipsControl {
+  return {
+    kind: "chips",
+    key: stylesKey(prefix),
+    label: card.title,
+    param: card.param,
+    options: overrideGroupsFor(prefix).map((group) => group.key),
+    initial: [],
+    advanced: true,
+  };
+}
+
+/**
  * Index Every Static Control of the Control Table.
  * Built once; localized sections index the same keys, initials, options and domains as the English ones.
  *
@@ -167,6 +192,7 @@ export function createControlIndex(sections: readonly ControlSection[]): Control
     control: Control,
     card: string | null,
     isCardSwitch: boolean,
+    isStyleList = false,
   ): void => {
     const domain = control.kind === "range" || control.kind === "span" ? control.domain : undefined;
     const global = section.global === true;
@@ -177,6 +203,7 @@ export function createControlIndex(sections: readonly ControlSection[]): Control
       section: section.id,
       card,
       isCardSwitch,
+      isStyleList,
       advanced: control.advanced === true || section.advanced === true,
       global,
       local: control.kind === "file",
@@ -200,6 +227,8 @@ export function createControlIndex(sections: readonly ControlSection[]): Control
       for (const control of card.controls) {
         add(section, control, prefix, false);
       }
+
+      add(section, styleList(card, prefix), prefix, false, true);
     }
   }
 

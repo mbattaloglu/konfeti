@@ -40,11 +40,6 @@ export type SectionText = {
 export const SHAPE_CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   weight: { label: "Ağırlık", hint: "Şekil karışımı içindeki göreli seçilme şansı." },
   size: { label: "Boyut" },
-  colors: {
-    label: "Renkleri Geçersiz Kıl",
-    hint: "Boş = paper.colors renklerini kullanır.",
-    empty: "Kağıt Renklerini Kullan",
-  },
 };
 
 /**
@@ -99,6 +94,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   formationText: { label: "Metin", hint: "Yeni satır için \\n yaz." },
   formationFont: { label: "Font", hint: "CSS font kısaltması: kalınlık, boyut, aile." },
   formationImage: { label: "Görsel" },
+  formationImageUrl: {
+    label: "Görsel URL'si",
+    hint: "Bir http(s) URL'si, data: URL'si ya da <svg> metni; yüklenen dosyanın aksine paylaşım bağlantısında taşınır. Başka sitelerdeki görseller yalnızca sunucuları CORS'a izin veriyorsa yüklenir.",
+  },
   formationUpload: { label: "Görsel Yükle", hint: "Görselin opak pikselleri şekli oluşturur." },
   useFormationWidth: { label: "Sabit Genişlik", hint: "Kapalı: görsel kendi genişliğini korur." },
   formationWidth: { label: "Görsel Genişliği" },
@@ -246,13 +245,27 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   "text.fontWeight": { label: "Yazı Kalınlığı" },
   "image.src": {
     label: "Kaynak",
-    hint: "Demo Canvas elementin kendisini, Demo URL bir blob URL metnini, Satır İçi SVG bir <svg> metnini gönderir.",
+    hint: "Demo Canvas elementin kendisini, Demo URL bir blob URL metnini, Satır İçi SVG bir <svg> metnini, URL kendi adresini ya da data: URL'sini gönderir.",
+  },
+  "image.url": {
+    label: "Görsel URL'si",
+    hint: "Bir http(s) URL'si, data: URL'si ya da <svg> metni; yüklenen dosyanın aksine paylaşım bağlantısında taşınır. Başka sitelerdeki görseller yalnızca sunucuları CORS'a izin veriyorsa yüklenir.",
   },
   "image.upload": {
     label: "Görsel Yükle",
     hint: "Herhangi bir görsel seç; object URL olarak gönderilir.",
   },
-  "sprite.src": { label: "Kaynak", hint: "Kodla üretilmiş, 8 kareli dönen para (tek satır)." },
+  "sprite.src": {
+    label: "Kaynak",
+    hint: "Kodla üretilmiş, 8 kareli dönen para (tek satır) ya da URL ile kendi sayfan.",
+  },
+  "sprite.url": {
+    label: "Sayfa URL'si",
+    hint: "Bir sprite sheet'in http(s) ya da data: URL'si; Sütun ve Satır'ı ona göre ayarla. Başka sitelerdeki sayfalar yalnızca sunucuları CORS'a izin veriyorsa yüklenir.",
+  },
+  "sprite.cols": { label: "Sütun" },
+  "sprite.rows": { label: "Satır" },
+  "sprite.count": { label: "Kare Sayısı", hint: "0 = ızgaradaki tüm hücreler.", zero: "tümü" },
   "sprite.fps": { label: "Saniyedeki Kare" },
   "sprite.loop": { label: "Döngü" },
   "sprite.randomStart": { label: "Rastgele Başlangıç Karesi" },
@@ -315,7 +328,7 @@ export const SECTIONS_TR: Readonly<Record<string, SectionText>> = {
   shapes: {
     title: "Şekiller",
     description:
-      "Ağırlıklı bir karışım için şekil türlerini aç. Hiçbiri açık değilse sadece kağıt atılır. Her şekil paper.* stil ayarlarını devralır.",
+      "Ağırlıklı bir karışım için şekil türlerini aç. Hiçbiri açık değilse sadece kağıt atılır. Her şekil paper.* stil ayarlarını devralır; Gelişmiş modda bir kart kendi stilini belirleyebilir.",
   },
   physics: { title: "Fizik" },
   hooks: {
@@ -372,6 +385,7 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   "demo canvas": "Demo Canvas",
   "demo url": "Demo URL",
   "inline svg": "Satır İçi SVG",
+  url: "URL",
   custom: "Özel",
   classic: "Klasik",
   pastel: "Pastel",

@@ -10,6 +10,7 @@ import {
   normalizeBurst,
 } from "../src/editor/burstState";
 import type { EditorMode } from "../src/editor/editorMode";
+import { createOverrideSource } from "../src/editor/overrides";
 import { renderControls } from "../src/ui/renderControls";
 import type { ControlsHandle } from "../src/ui/renderControls";
 import { createFakeAssets } from "./helpers/fakeAssets";
@@ -630,9 +631,11 @@ describe("renderControls", () => {
     const root = document.createElement("div");
     modeRoot.append(root);
     document.body.append(modeRoot);
-    const controls = renderControls(root, CONTROL_SECTIONS, {}, () => undefined, {
+    const state: ControlState = {};
+    const controls = renderControls(root, CONTROL_SECTIONS, state, () => undefined, {
       mode: "basic",
       modeRoot,
+      overrides: createOverrideSource(CONTROL_SECTIONS, state),
     });
     const burst = controls.capture("burst");
     const spans = [...CONTROL_INDEX.entries.values()].filter(
@@ -850,5 +853,110 @@ describe("span thumbs", () => {
     pointer(high, "pointermove", 66);
 
     expect(panel.state["size"]).toEqual([60, 200]);
+  });
+});
+
+describe("own style groups", () => {
+  /**
+   * Render the Real Control Table with Per-Card Overrides.
+   *
+   * @returns Controls, Their State, the Root and the Changed Keys
+   */
+  function renderReal(): {
+    controls: ControlsHandle;
+    state: ControlState;
+    root: HTMLElement;
+    changes: string[];
+  } {
+    const modeRoot = document.createElement("div");
+    const root = document.createElement("div");
+    const state: ControlState = {};
+    const changes: string[] = [];
+    modeRoot.append(root);
+    document.body.append(modeRoot);
+    const controls = renderControls(
+      root,
+      CONTROL_SECTIONS,
+      state,
+      (key) => {
+        changes.push(key);
+      },
+      { mode: "advanced", modeRoot, overrides: createOverrideSource(CONTROL_SECTIONS, state) },
+    );
+
+    return { controls, state, root, changes };
+  }
+
+  /**
+   * Find an Element of a Card's Own Style Area.
+   *
+   * @param root - Controls Root
+   * @param prefix - Card Prefix
+   * @param selector - Selector inside the Area
+   * @param type - Expected Element Class
+   * @returns Element
+   */
+  function inArea<T extends Element>(
+    root: HTMLElement,
+    prefix: string,
+    selector: string,
+    type: new () => T,
+  ): T {
+    const element = root.querySelector(`[data-key="${prefix}.styles"] ${selector}`);
+
+    if (!(element instanceof type)) {
+      throw new Error(`no ${selector} on ${prefix}`);
+    }
+
+    return element;
+  }
+
+  it("adds a picked group with the inherited values, and removes it again", () => {
+    const { controls, state, root, changes } = renderReal();
+    controls.setValue("star.enabled", true);
+    const picker = inArea(root, "star", ".override-picker", HTMLSelectElement);
+    const add = inArea(root, "star", ".override-add", HTMLButtonElement);
+
+    expect(add.disabled).toBe(true);
+    picker.value = "trail";
+    picker.dispatchEvent(new Event("change"));
+    expect(add.disabled).toBe(false);
+    add.click();
+
+    expect(state["star.styles"]).toEqual(["trail"]);
+    expect(state["star.trail"]).toBe(false);
+    expect(state["star.trailLength"]).toBe(state["trailLength"]);
+    expect(controls.capture("burst")).toHaveProperty("star.trailLength");
+    expect(root.querySelector('[data-key="star.styles"] [data-style="trail"]')).not.toBeNull();
+    // a group in the list is no longer offered
+    expect([...picker.options].map((option) => option.value)).not.toContain("trail");
+    expect(changes.at(-1)).toBe("star.styles");
+
+    inArea(root, "star", '[data-style="trail"] .override-remove', HTMLButtonElement).click();
+
+    expect(state["star.styles"]).toEqual([]);
+    expect(state).not.toHaveProperty("star.trail");
+    expect(controls.capture("burst")).not.toHaveProperty("star.trailLength");
+    expect(root.querySelector('[data-key="star.styles"] [data-style="trail"]')).toBeNull();
+  });
+
+  it("rebuilds the groups a loaded burst lists, and reset removes them", () => {
+    const { controls, state, root } = renderReal();
+    controls.load(
+      "burst",
+      normalizeBurst({ "heart.enabled": true, "heart.styles": ["shine"], "heart.shine": 0.4 }),
+    );
+
+    expect(state["heart.shine"]).toBe(0.4);
+    expect(root.querySelector('[data-key="heart.shine"]')).not.toBeNull();
+    expect(controls.capture("burst")).toEqual(
+      normalizeBurst({ "heart.enabled": true, "heart.styles": ["shine"], "heart.shine": 0.4 }),
+    );
+
+    controls.reset();
+
+    expect(state["heart.styles"]).toEqual([]);
+    expect(state).not.toHaveProperty("heart.shine");
+    expect(root.querySelector('[data-key="heart.shine"]')).toBeNull();
   });
 });

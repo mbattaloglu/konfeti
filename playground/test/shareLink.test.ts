@@ -18,6 +18,8 @@ import { migrateV1 } from "../src/share/migrateV1";
 import type { MigratedLink } from "../src/share/migrateV1";
 import {
   createShareLink,
+  isShareable,
+  MAX_SHARE_URL_LENGTH,
   readShareLink,
   restoreShared,
   toShareSettings,
@@ -339,7 +341,9 @@ describe("migrateV1", () => {
     const { burst, globals } = migrateV1({ particleCount: 123 });
 
     expect(normalizeBurst(burst)).toEqual(burst);
-    expect(Object.keys(burst)).toEqual(CONTROL_INDEX.burstKeys);
+    // v1's pink heart palette (its initial) comes back as the heart card's colors override
+    expect(burst["heart.styles"]).toEqual(["colors"]);
+    expect(Object.keys(burst)).toEqual([...CONTROL_INDEX.burstKeys, "heart.colors"]);
     expect(Object.keys(globals)).toEqual(CONTROL_INDEX.globalKeys);
   });
 
@@ -414,8 +418,9 @@ describe("migrateV1", () => {
     ["gradient", { gradientA: "#000000" }, "gradientColors", ["#000000", "#26ccff"]],
     ["formation width", { formationWidth: 300 }, "formationWidth", 300],
     ["star colors", { "star.colors": ["#ff0000"] }, "star.colors", ["#ff0000"]],
-    ["no star colors", {}, "star.colors", []],
-    ["empty heart colors", { "heart.colors": [] }, "heart.colors", []],
+    ["star colors as an override", { "star.colors": ["#ff0000"] }, "star.styles", ["colors"]],
+    ["no star colors", {}, "star.styles", []],
+    ["empty heart colors", { "heart.colors": [] }, "heart.styles", []],
     ["wrong kind", { particleCount: "x" }, "particleCount", 60],
     ["wrong kind of a reshaped key", { lifetime: "x" }, "lifetime", [2720, 3680]],
     ["value outside the domain", { delay: -1 }, "delay", 0],
@@ -507,5 +512,36 @@ describe("migrated v1 links fire like v1 did", () => {
     expect(resolveBursts(fired, compare)).toEqual(
       resolveBursts(parseJson(JSON.stringify(v1Options), assets), compare),
     );
+  });
+});
+
+describe("own style groups in links", () => {
+  it("restore a star palette from a link made before the overrides as a colors override", () => {
+    const restored = restoreShared({
+      version: 2,
+      settings: { v: 2, b: [{ "star.enabled": true, "star.colors": ["#ff0000"] }] },
+    });
+
+    expect(restored.bursts[0]?.["star.styles"]).toEqual(["colors"]);
+    expect(restored.bursts[0]?.["star.colors"]).toEqual(["#ff0000"]);
+  });
+
+  it("carry a listed group through a link", () => {
+    const burst = normalizeBurst({
+      "star.enabled": true,
+      "star.styles": ["shine"],
+      "star.shine": 0.8,
+    });
+    const settings = toShareSettings([burst], initialGlobals());
+
+    expect(settings).not.toBeNull();
+    expect(restoreShared({ version: 2, settings: settings! }).bursts).toEqual([burst]);
+  });
+});
+
+describe("link length", () => {
+  it("hands out links up to the limit the host opens", () => {
+    expect(isShareable("x".repeat(MAX_SHARE_URL_LENGTH))).toBe(true);
+    expect(isShareable("x".repeat(MAX_SHARE_URL_LENGTH + 1))).toBe(false);
   });
 });

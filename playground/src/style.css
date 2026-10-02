@@ -1119,6 +1119,98 @@ textarea:focus {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* a card's own style (Advanced): groups that override the inherited paper.* style */
+.card-overrides {
+  display: grid;
+  gap: 6px;
+  padding: 9px 0 3px;
+  border-top: 1px dotted var(--border);
+}
+
+/* wraps on narrow panels (phones): the picker and its button move under the title */
+.override-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.override-title {
+  flex: 0 0 auto;
+  color: var(--fg-dim);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.override-picker {
+  flex: 1 1 96px;
+  min-width: 0;
+}
+
+.override-add {
+  flex: 0 0 auto;
+}
+
+.override-groups {
+  display: grid;
+  gap: 6px;
+}
+
+.override-group {
+  display: grid;
+  padding: 0 8px;
+  border: 1px solid var(--border-2);
+  border-left: 2px solid var(--accent-dim);
+  background: var(--panel);
+}
+
+.override-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 7px;
+}
+
+.override-name {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.override-remove {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border-2);
+  background: transparent;
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.override-remove:hover,
+.override-remove:focus-visible {
+  border-color: var(--err);
+  color: var(--err);
+}
+
+/* why the share link field is empty (a link too long to open) */
+.share-note {
+  margin: 8px 0 0;
+  color: var(--warn);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 /* ---------- json ---------- */
 .json textarea {
   min-height: 240px;

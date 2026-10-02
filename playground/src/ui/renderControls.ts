@@ -17,7 +17,7 @@ import type {
   ValueDomain,
 } from "../controlTypes";
 import { isActiveIn } from "../editor/conditions";
-import { createControlIndex } from "../editor/controlIndex";
+import { cardPrefix, createControlIndex } from "../editor/controlIndex";
 import type { EditorMode } from "../editor/editorMode";
 import {
   asList,
@@ -27,6 +27,8 @@ import {
   parseNumberEntry,
   parseSpanEntry,
 } from "../editor/optionValues";
+import { stylesKey } from "../editor/overrideGroups";
+import type { OverrideSource, OverrideTemplate } from "../editor/overrides";
 import { t } from "../i18n/messages";
 import { splitList } from "../stateReaders";
 import { readableTextColor } from "./colorContrast";
@@ -67,7 +69,26 @@ export type RenderOptions = {
    * Element Whose `data-mode` Attribute Hides the Advanced Rows in Basic Mode (`#tab-controls`).
    */
   readonly modeRoot: HTMLElement;
+  /**
+   * Per-Card Own Style Groups (none: the cards offer no own style).
+   */
+  readonly overrides?: OverrideSource;
 };
+
+/**
+ * A Card's Own Style Area, as the Renderer Keeps It.
+ */
+type OverrideArea = {
+  /**
+   * Remove Every Group of the Card (bindings, state keys and elements).
+   */
+  readonly clear: () => void;
+};
+
+/**
+ * Elements a Newly Added Own Style Group Can Focus First.
+ */
+const GROUP_FOCUS_TARGET = "input, select, textarea, button:not(.override-remove)";
 
 /**
  * Imperative Access to Rendered Controls.
@@ -1031,16 +1052,39 @@ function renderText(control: TextControl, write: ValueWriter): Binding {
     );
   };
 
-  input.addEventListener("input", () => {
-    paint(input.value);
-    write(input.value);
-  });
+  // the value the state last got from this field
+  let committed = control.initial;
+  const commit = (): void => {
+    if (input.value !== committed) {
+      committed = input.value;
+      write(input.value);
+    }
+  };
+
+  if (control.commitOn === "change") {
+    // written on Enter or when the field loses focus: a half-typed address is never loaded
+    input.addEventListener("input", () => {
+      paint(input.value);
+    });
+    input.addEventListener("change", commit);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        commit();
+      }
+    });
+  } else {
+    input.addEventListener("input", () => {
+      paint(input.value);
+      commit();
+    });
+  }
 
   return {
     row,
     initial: control.initial,
     apply: (value) => {
       input.value = String(value);
+      committed = input.value;
       paint(input.value);
     },
     setDisabled: (disabled) => (input.disabled = disabled),
@@ -1413,6 +1457,9 @@ export function renderControls(
   const scopes = new Map<string, ControlScope>();
   // last activity shown per key, so a refresh only touches rows whose activity changed
   const shownActive = new Map<string, boolean>();
+  // per-card override controls, which the index does not know
+  const dynamicControls = new Map<string, Control>();
+  const overrideAreas: OverrideArea[] = [];
   const badges: { badge: HTMLElement; cards: readonly ControlCard[] }[] = [];
   const remembered = readOpenSections();
   const open = new Set(
@@ -1424,7 +1471,7 @@ export function renderControls(
   const refresh = (): void => {
     for (const [key, binding] of bindings) {
       // a control is active when its condition chain holds and, on a card, the card is on
-      const active = isActiveIn(state, key, index);
+      const active = isActiveIn(state, key, index, dynamicControls);
 
       if (shownActive.get(key) !== active) {
         shownActive.set(key, active);
@@ -1459,6 +1506,192 @@ export function renderControls(
       refresh();
       onChange(key);
     };
+
+  const registerDynamic = (control: Control, binding: Binding): HTMLElement => {
+    bindings.set(control.key, binding);
+    scopes.set(control.key, "burst");
+    dynamicControls.set(control.key, control);
+    binding.row.dataset["key"] = control.key;
+    // unlike register, a value already in the state is kept (a loaded or just-started group)
+    const value = state[control.key] ?? binding.initial;
+    state[control.key] = value;
+    binding.apply(value);
+
+    return binding.row;
+  };
+
+  const unregister = (key: string): void => {
+    bindings.delete(key);
+    scopes.delete(key);
+    shownActive.delete(key);
+    dynamicControls.delete(key);
+    Reflect.deleteProperty(state, key);
+  };
+
+  const renderOverrideArea = (card: ControlCard, source: OverrideSource): HTMLElement => {
+    const prefix = cardPrefix(card);
+    const listKey = stylesKey(prefix);
+    const templates = source.groupsFor(prefix);
+    const area = el("div", "card-overrides");
+    const bar = el("div", "override-bar");
+    const picker = el("select", "select override-picker");
+    const add = el("button", "btn btn--small override-add", t("style.addButton"));
+    const groups = el("div", "override-groups");
+    const rendered = new Map<string, { element: HTMLElement; keys: readonly string[] }>();
+    let isUsable = true;
+    // hidden in Basic mode by CSS; its groups keep being built
+    area.dataset["advanced"] = "";
+    picker.setAttribute("aria-label", t("style.addLabel", { card: card.title }));
+    add.type = "button";
+    add.disabled = true;
+    bar.append(el("span", "override-title", t("style.heading")), picker, add);
+    area.append(bar, groups);
+
+    const listed = (): readonly string[] => toStringList(state[listKey] ?? []);
+
+    const fillPicker = (): void => {
+      const taken = listed();
+      const empty = el("option", undefined, t("style.add"));
+      empty.value = "";
+      picker.replaceChildren(
+        empty,
+        ...templates
+          .filter((template) => !taken.includes(template.key))
+          .map((template) => {
+            const item = el("option", undefined, template.label);
+            item.value = template.key;
+
+            return item;
+          }),
+      );
+      picker.value = "";
+      add.disabled = true;
+    };
+
+    const removeGroup = (groupKey: string): void => {
+      const group = rendered.get(groupKey);
+
+      if (group === undefined) {
+        return;
+      }
+
+      for (const key of group.keys) {
+        unregister(key);
+      }
+
+      group.element.remove();
+      rendered.delete(groupKey);
+    };
+
+    const createGroup = (template: OverrideTemplate): void => {
+      const element = el("div", "override-group");
+      const head = el("div", "override-head");
+      const remove = el("button", "override-remove", "×");
+      element.dataset["style"] = template.key;
+      remove.type = "button";
+      remove.setAttribute("aria-label", t("style.remove", { style: template.label }));
+      head.append(el("span", "override-name", template.label), remove);
+      element.append(head);
+
+      for (const control of template.controls) {
+        element.append(
+          registerDynamic(
+            control,
+            renderControl(control, writer(control.key), () => mode),
+          ),
+        );
+      }
+
+      remove.addEventListener("click", () => {
+        state[listKey] = listed().filter((key) => key !== template.key);
+        removeGroup(template.key);
+        fillPicker();
+        // the focused button is gone
+        picker.focus();
+        refresh();
+        onChange(listKey);
+      });
+      rendered.set(template.key, {
+        element,
+        keys: template.controls.map((control) => control.key),
+      });
+    };
+
+    const sync = (value: ControlValue): void => {
+      const list = toStringList(value);
+
+      for (const key of [...rendered.keys()]) {
+        if (!list.includes(key)) {
+          removeGroup(key);
+        }
+      }
+
+      // the templates are in canonical order, so appending in their order keeps the groups sorted
+      for (const template of templates) {
+        if (!list.includes(template.key)) {
+          continue;
+        }
+
+        if (!rendered.has(template.key)) {
+          createGroup(template);
+        }
+
+        const group = rendered.get(template.key);
+
+        if (group !== undefined) {
+          groups.append(group.element);
+        }
+      }
+
+      fillPicker();
+    };
+
+    // the picker only selects; the button acts (a select used as an action menu misfires from the keyboard)
+    picker.addEventListener("change", () => {
+      add.disabled = !isUsable || picker.value === "";
+    });
+    add.addEventListener("click", () => {
+      const groupKey = picker.value;
+
+      if (!templates.some((template) => template.key === groupKey)) {
+        return;
+      }
+
+      Object.assign(state, source.startValues(prefix, groupKey));
+      const taken = listed();
+      const next = templates
+        .map((template) => template.key)
+        .filter((key) => key === groupKey || taken.includes(key));
+      state[listKey] = next;
+      sync(next);
+      rendered.get(groupKey)?.element.querySelector<HTMLElement>(GROUP_FOCUS_TARGET)?.focus();
+      refresh();
+      onChange(listKey);
+    });
+    register(
+      listKey,
+      {
+        row: area,
+        initial: [],
+        apply: sync,
+        setDisabled: (disabled) => {
+          isUsable = !disabled;
+          picker.disabled = disabled;
+          add.disabled = disabled || picker.value === "";
+        },
+      },
+      "burst",
+    );
+    overrideAreas.push({
+      clear: () => {
+        for (const key of [...rendered.keys()]) {
+          removeGroup(key);
+        }
+      },
+    });
+
+    return area;
+  };
 
   const bind = (control: Control, section: ControlSection): HTMLElement => {
     const binding = renderControl(control, writer(control.key), () => mode);
@@ -1504,6 +1737,10 @@ export function renderControls(
 
     for (const control of card.controls) {
       body.append(bind(control, section));
+    }
+
+    if (options.overrides !== undefined && section.global !== true) {
+      body.append(renderOverrideArea(card, options.overrides));
     }
 
     element.append(header, body);
@@ -1554,7 +1791,11 @@ export function renderControls(
       }
     },
     reset: () => {
-      for (const [key, binding] of bindings) {
+      for (const area of overrideAreas) {
+        area.clear();
+      }
+
+      for (const [key, binding] of [...bindings]) {
         state[key] = binding.initial;
         binding.apply(binding.initial);
       }
@@ -1574,14 +1815,38 @@ export function renderControls(
       return values;
     },
     load: (scope, values) => {
-      for (const [key, binding] of bindings) {
-        if (scopes.get(key) !== scope) {
-          continue;
+      const staticKeys = [...bindings.keys()].filter(
+        (key) => scopes.get(key) === scope && !dynamicControls.has(key),
+      );
+
+      if (scope === "burst") {
+        for (const area of overrideAreas) {
+          area.clear();
         }
 
-        const value = values[key] ?? binding.initial;
-        state[key] = value;
-        binding.apply(value);
+        // override values go in first: applying a card's style list rebuilds its groups from the state
+        for (const [key, value] of Object.entries(values)) {
+          if (!bindings.has(key)) {
+            state[key] = value;
+          }
+        }
+      }
+
+      for (const key of staticKeys) {
+        const binding = bindings.get(key);
+
+        if (binding !== undefined) {
+          const value = values[key] ?? binding.initial;
+          state[key] = value;
+          binding.apply(value);
+        }
+      }
+
+      // values of groups no style list names have no control
+      for (const key of Object.keys(values)) {
+        if (!bindings.has(key)) {
+          Reflect.deleteProperty(state, key);
+        }
       }
 
       refresh();

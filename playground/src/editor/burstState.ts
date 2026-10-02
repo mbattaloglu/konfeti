@@ -4,6 +4,14 @@ import { list } from "../stateReaders";
 import { createControlIndex } from "./controlIndex";
 import type { ControlEntry } from "./controlIndex";
 import { asList, deriveTheme, hexOf, inDomain, isNumberPair, sameValue } from "./optionValues";
+import {
+  canonicalStyles,
+  cloneForOverride,
+  listedOverrideKeys,
+  overrideGroupsFor,
+  overrideKey,
+  stylesKey,
+} from "./overrideGroups";
 
 export { deriveTheme } from "./optionValues";
 
@@ -40,6 +48,39 @@ const THEME_KEY = "colorTheme";
 const COLORS_KEY = "colors";
 
 /**
+ * Cards Whose Colors Were a Static Palette before the Per-Card Overrides (links made in between still carry them).
+ */
+const LEGACY_COLOR_CARDS = ["star", "heart"] as const;
+
+/**
+ * Group Key of the Colors Override.
+ */
+const COLORS_GROUP = "colors";
+
+/**
+ * Index Entry of Every Possible Override Key: the base control's entry with the copied control, so values pass the
+ * same checks as on the base control (a colors override must also keep one color).
+ */
+const OVERRIDE_ENTRIES: ReadonlyMap<string, ControlEntry> = new Map(
+  CONTROL_INDEX.cards.flatMap(({ prefix }) =>
+    overrideGroupsFor(prefix).flatMap((group) =>
+      group.controls.flatMap((baseKey) => {
+        const base = CONTROL_INDEX.entries.get(baseKey);
+
+        if (base === undefined) {
+          return [];
+        }
+
+        const key = overrideKey(prefix, baseKey);
+        const control = cloneForOverride(base.control, prefix, group.controls);
+
+        return [[key, { ...base, key, control, card: prefix }] as const];
+      }),
+    ),
+  ),
+);
+
+/**
  * Return the Initial Value of a Static Key.
  *
  * @param key - State Key
@@ -65,6 +106,20 @@ export function normalizeBurst(state: Readonly<Partial<ControlState>>): BurstSta
 
     if (value !== undefined) {
       burst[key] = value;
+    }
+  }
+
+  // every key of every listed override group, a missing one at its base control's initial
+  for (const { prefix } of CONTROL_INDEX.cards) {
+    const styles = canonicalStyles(prefix, burst[stylesKey(prefix)]);
+    burst[stylesKey(prefix)] = styles;
+
+    for (const [key, baseKey] of listedOverrideKeys(prefix, styles)) {
+      const value = state[key] ?? initialValueOf(baseKey);
+
+      if (value !== undefined) {
+        burst[key] = value;
+      }
     }
   }
 
@@ -243,7 +298,45 @@ function acceptDiff(
  * @returns Per-Burst Values That Differ from Their Initials (no upload URLs, no derived theme)
  */
 export function diffBurst(state: BurstState): Record<string, ControlValue> {
-  return diffKeys(state, CONTROL_INDEX.burstKeys);
+  const diff = diffKeys(state, CONTROL_INDEX.burstKeys);
+
+  // a listed group travels whole, even where it matches its base control's initial
+  for (const { prefix } of CONTROL_INDEX.cards) {
+    for (const [key] of listedOverrideKeys(
+      prefix,
+      canonicalStyles(prefix, state[stylesKey(prefix)]),
+    )) {
+      const value = state[key];
+
+      if (value !== undefined) {
+        diff[key] = value;
+      }
+    }
+  }
+
+  return diff;
+}
+
+/**
+ * Read the Own Style Groups an Untrusted Diff Lists for a Card.
+ * A star or heart colors palette without its list entry comes from a link made before the per-card overrides, when
+ * those two cards had a static colors palette: it becomes a colors override.
+ *
+ * @param prefix - Card Prefix
+ * @param diff - Untrusted Values by Key
+ * @returns Group Keys in Canonical Order
+ */
+function listedStyles(prefix: string, diff: Readonly<Record<string, unknown>>): readonly string[] {
+  const listed = asList(diff[stylesKey(prefix)]) ?? [];
+  const legacyColors = asList(diff[overrideKey(prefix, COLORS_GROUP)]);
+  const isLegacyCard = LEGACY_COLOR_CARDS.some((card) => card === prefix);
+
+  return canonicalStyles(
+    prefix,
+    isLegacyCard && legacyColors !== null && legacyColors.length > 0
+      ? [...listed, COLORS_GROUP]
+      : listed,
+  );
 }
 
 /**
@@ -256,6 +349,21 @@ export function diffBurst(state: BurstState): Record<string, ControlValue> {
 export function applyBurstDiff(diff: Readonly<Record<string, unknown>>): BurstState {
   const burst: ControlState = { ...initialBurst() };
   acceptDiff(burst, diff, false);
+
+  // override keys count only for the groups their card lists
+  for (const { prefix } of CONTROL_INDEX.cards) {
+    const styles = listedStyles(prefix, diff);
+    burst[stylesKey(prefix)] = styles;
+
+    for (const [key] of listedOverrideKeys(prefix, styles)) {
+      const entry = OVERRIDE_ENTRIES.get(key);
+      const accepted = entry === undefined ? null : acceptValue(entry, diff[key]);
+
+      if (accepted !== null) {
+        burst[key] = accepted;
+      }
+    }
+  }
 
   return normalizeBurst(burst);
 }

@@ -52,6 +52,7 @@ import {
   toPair,
 } from "./editor/optionValues";
 import type { SplitColor } from "./editor/optionValues";
+import { DEMO_SHEET_FRAMES } from "./demoAssets";
 
 /**
  * Optional Control Extras (tooltip, enable condition, Advanced flag).
@@ -184,6 +185,47 @@ const MAX_SPRITE_FPS = 1000;
  * Sprite Frame Rates from Zero to MAX_SPRITE_FPS (an editor-side rule; the library treats a negative rate as 0).
  */
 const SPRITE_FPS: ValueDomain = { min: 0, max: MAX_SPRITE_FPS };
+
+/**
+ * Source Option of a Typed Image Address (Advanced only).
+ */
+const URL_SOURCE = "url";
+
+/**
+ * Placeholder of the Image Address Fields (language-neutral, so not translated).
+ */
+const URL_PLACEHOLDER = "https://… / data:…";
+
+/**
+ * Hint of the Image and Formation Image Address Fields.
+ */
+const IMAGE_URL_HINT =
+  "An http(s) URL, a data: URL or <svg> markup; unlike an upload, it travels in share links. Images on other sites load only if their server allows CORS.";
+
+/**
+ * Rows of the Demo Sprite Sheet (its frames sit in one row).
+ */
+const DEMO_SHEET_ROWS = 1;
+
+/**
+ * Largest Column or Row Count on the Sprite Sheet Sliders (typed values may be larger).
+ */
+const MAX_SHEET_SIDE = 32;
+
+/**
+ * Largest Frame Count on the Sprite Sheet Slider.
+ */
+const MAX_SHEET_FRAMES = 256;
+
+/**
+ * Accepted Column and Row Counts (the library floors them and needs at least 1).
+ */
+const SHEET_SIDE: ValueDomain = { min: 1, floored: true };
+
+/**
+ * Accepted Frame Counts: 0 (every cell, not sent) or at least 1 after flooring.
+ */
+const SHEET_FRAME_COUNT: ValueDomain = { min: 1, floored: true, zeroAllowed: true };
 
 /**
  * Largest Size, Length or Size Factor the Editor Accepts, Either Sign.
@@ -514,26 +556,6 @@ function size(prefix: string, initial: readonly [number, number]): SpanControl {
 }
 
 /**
- * Create the Static Colors Override of a Shape Card (an empty list inherits `paper.colors`).
- *
- * @param prefix - Card Prefix (state key prefix)
- * @returns Palette Control
- */
-function colorsOverride(prefix: string): PaletteControl {
-  return palette(
-    `${prefix}.colors`,
-    "Colors Override",
-    "shapes[].colors",
-    [],
-    "Inherit Paper Colors",
-    {
-      hint: "Empty = inherit paper.colors.",
-      advanced: true,
-    },
-  );
-}
-
-/**
  * Shape Cards (one per `ShapeOptions` type, in the order the builder writes them).
  */
 const SHAPE_CARDS: readonly ControlCard[] = [
@@ -567,7 +589,6 @@ const SHAPE_CARDS: readonly ControlCard[] = [
         VECTOR_DEFAULTS.starInnerRatio,
         { advanced: true },
       ),
-      colorsOverride("star"),
     ],
   },
   {
@@ -599,7 +620,7 @@ const SHAPE_CARDS: readonly ControlCard[] = [
     param: '{ type: "heart" }',
     enableKey: "heart.enabled",
     initialEnabled: false,
-    controls: [weight("heart"), size("heart", VECTOR_DEFAULTS.heartSize), colorsOverride("heart")],
+    controls: [weight("heart"), size("heart", VECTOR_DEFAULTS.heartSize)],
   },
   {
     title: "Ribbon",
@@ -728,9 +749,17 @@ const SHAPE_CARDS: readonly ControlCard[] = [
         ["demo canvas", "demo url", "inline svg", "upload"],
         "demo canvas",
         {
-          hint: "Demo canvas passes the element itself; demo url a blob URL string; inline svg a <svg> markup string.",
+          hint: "Demo canvas passes the element itself, demo url a blob URL string, inline svg a <svg> markup string, url your own address or data: URL.",
+          advancedOptions: [URL_SOURCE],
         },
       ),
+      text("image.url", "Image URL", "shapes[].src", "", {
+        hint: IMAGE_URL_HINT,
+        when: ["image.src", URL_SOURCE],
+        placeholder: URL_PLACEHOLDER,
+        commitOn: "change",
+        advanced: true,
+      }),
       file("image.upload", "Upload Image", "shapes[].src", "image/*", {
         hint: "Pick any image; it is passed as an object URL.",
       }),
@@ -745,7 +774,40 @@ const SHAPE_CARDS: readonly ControlCard[] = [
       weight("sprite"),
       size("sprite", BITMAP_DEFAULTS.spriteSize),
       select("sprite.src", "Source", "shapes[].src", ["demo canvas", "demo url"], "demo canvas", {
-        hint: "Procedural 8-frame spinning coin (one row).",
+        hint: "Procedural 8-frame spinning coin (one row), or your own sheet by URL.",
+        advancedOptions: [URL_SOURCE],
+      }),
+      text("sprite.url", "Sheet URL", "shapes[].src", "", {
+        hint: "An http(s) or data: URL of a sprite sheet; set Columns and Rows to match it. Sheets on other sites load only if their server allows CORS.",
+        when: ["sprite.src", URL_SOURCE],
+        placeholder: URL_PLACEHOLDER,
+        commitOn: "change",
+        advanced: true,
+      }),
+      range(
+        "sprite.cols",
+        "Columns",
+        "shapes[].frames.cols",
+        [1, MAX_SHEET_SIDE, 1],
+        DEMO_SHEET_FRAMES,
+        { domain: SHEET_SIDE, advanced: true },
+      ),
+      range(
+        "sprite.rows",
+        "Rows",
+        "shapes[].frames.rows",
+        [1, MAX_SHEET_SIDE, 1],
+        DEMO_SHEET_ROWS,
+        {
+          domain: SHEET_SIDE,
+          advanced: true,
+        },
+      ),
+      range("sprite.count", "Frame Count", "shapes[].frames.count", [0, MAX_SHEET_FRAMES, 1], 0, {
+        hint: "0 = every cell of the grid.",
+        zeroLabel: "all",
+        domain: SHEET_FRAME_COUNT,
+        advanced: true,
       }),
       span(
         "sprite.fps",
@@ -901,6 +963,14 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
       }),
       select("formationImage", "Image", "formation.image", ["demo logo", "upload"], "demo logo", {
         when: ["formationSource", "image"],
+        advancedOptions: [URL_SOURCE],
+      }),
+      text("formationImageUrl", "Image URL", "formation.image", "", {
+        hint: IMAGE_URL_HINT,
+        when: ["formationImage", URL_SOURCE],
+        placeholder: URL_PLACEHOLDER,
+        commitOn: "change",
+        advanced: true,
       }),
       file("formationUpload", "Upload Image", "formation.image", "image/*", {
         hint: "Its opaque pixels become the shape.",
@@ -1430,7 +1500,7 @@ export const CONTROL_SECTIONS: readonly ControlSection[] = [
     title: "Shapes",
     icon: "★",
     description:
-      "Enable shape types to build a weighted mix. With none enabled only paper is fired. Every shape inherits the paper.* style keys.",
+      "Enable shape types to build a weighted mix. With none enabled only paper is fired. Every shape inherits the paper.* style keys; in Advanced, a card can set its own.",
     controls: [],
     cards: SHAPE_CARDS,
   },

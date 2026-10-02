@@ -1,4 +1,4 @@
-import type { ControlState } from "../controlTypes";
+import type { Control, ControlState } from "../controlTypes";
 import { cardOf } from "./controlIndex";
 import type { ControlIndex } from "./controlIndex";
 
@@ -10,14 +10,16 @@ import type { ControlIndex } from "./controlIndex";
  * @param state - Burst or Global State
  * @param key - Control Key
  * @param index - Control Index
+ * @param dynamic - Controls Outside the Index (per-card overrides), by Key
  * @returns Active Flag
  */
 export function isActiveIn(
   state: Readonly<ControlState>,
   key: string,
   index: ControlIndex,
+  dynamic?: ReadonlyMap<string, Control>,
 ): boolean {
-  return isActiveAt(state, key, index, 0);
+  return isActiveAt(state, key, index, dynamic, 0);
 }
 
 /**
@@ -26,6 +28,7 @@ export function isActiveIn(
  * @param state - Burst or Global State
  * @param key - Control Key
  * @param index - Control Index
+ * @param dynamic - Controls Outside the Index, by Key
  * @param depth - Chain Depth (guards against a condition loop)
  * @returns Active Flag
  */
@@ -33,6 +36,7 @@ function isActiveAt(
   state: Readonly<ControlState>,
   key: string,
   index: ControlIndex,
+  dynamic: ReadonlyMap<string, Control> | undefined,
   depth: number,
 ): boolean {
   if (depth > index.entries.size) {
@@ -47,7 +51,7 @@ function isActiveAt(
     return false;
   }
 
-  const when = entry?.control.when;
+  const when = (entry?.control ?? dynamic?.get(key))?.when;
 
   if (when === undefined) {
     return true;
@@ -55,5 +59,5 @@ function isActiveAt(
 
   const [parent, expected] = when;
 
-  return state[parent] === expected && isActiveAt(state, parent, index, depth + 1);
+  return state[parent] === expected && isActiveAt(state, parent, index, dynamic, depth + 1);
 }

@@ -6,6 +6,7 @@ import { buildBurst, buildInput } from "../src/buildOptions";
 import type { BuildMode } from "../src/buildOptions";
 import type { ControlState, ControlValue } from "../src/controlTypes";
 import { initialBurst } from "../src/editor/burstState";
+import { DEFAULT_PALETTE } from "../src/editor/libraryDefaults";
 import { createComparer, resolveBursts } from "./helpers/comparable";
 import { createFakeAssets } from "./helpers/fakeAssets";
 
@@ -353,10 +354,20 @@ describe("shape cards", () => {
     );
   });
 
-  it("send the star and heart palettes only when they hold colors", () => {
+  it("send a colors override only where it differs from what the shape inherits", () => {
     expect(
-      build({ "star.enabled": true, "heart.enabled": true, "heart.colors": ["#ff0000"] }).shapes,
+      build({
+        "star.enabled": true,
+        "heart.enabled": true,
+        "heart.styles": ["colors"],
+        "heart.colors": ["#ff0000"],
+      }).shapes,
     ).toStrictEqual([{ type: "star" }, { type: "heart", colors: ["#ff0000"] }]);
+    // listed but equal to the inherited palette: nothing to send
+    expect(
+      build({ "heart.enabled": true, "heart.styles": ["colors"], "heart.colors": DEFAULT_PALETTE })
+        .shapes,
+    ).toStrictEqual([{ type: "heart" }]);
   });
 
   it("follow the card order with their sources", () => {

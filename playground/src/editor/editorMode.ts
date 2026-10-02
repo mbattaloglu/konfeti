@@ -2,6 +2,7 @@ import type { ControlState } from "../controlTypes";
 import { isActiveIn } from "./conditions";
 import type { ControlIndex } from "./controlIndex";
 import { sameValue } from "./optionValues";
+import { canonicalStyles, stylesKey } from "./overrideGroups";
 
 /**
  * Editor Mode: Basic hides the advanced controls (their values stay active), Advanced shows everything.
@@ -73,8 +74,10 @@ function countChanged(
     const entry = index.entries.get(key);
     const value = state[key];
 
+    // a card's own style list is counted per group (countOwnStyles)
     return (
       entry?.advanced === true &&
+      !entry.isStyleList &&
       value !== undefined &&
       !sameValue(value, entry.initial) &&
       isActiveIn(state, key, index)
@@ -83,9 +86,25 @@ function countChanged(
 }
 
 /**
+ * Count the Own Style Groups of the Switched-On Cards.
+ *
+ * @param state - Burst State
+ * @param index - Control Index
+ * @returns Listed Group Count
+ */
+function countOwnStyles(state: Readonly<ControlState>, index: ControlIndex): number {
+  return index.cards
+    .filter((card) => state[card.enableKey] === true)
+    .reduce(
+      (count, card) => count + canonicalStyles(card.prefix, state[stylesKey(card.prefix)]).length,
+      0,
+    );
+}
+
+/**
  * Count the Settings Basic Mode Hides While They Change the Result (the Advanced badge).
- * Per burst: every advanced control that is active there and not at its initial; then one per extra burst, and
- * every changed advanced global control (the hooks).
+ * Per burst: every advanced control that is active there and not at its initial, and every own style group of a
+ * switched-on card; then one per extra burst, and every changed advanced global control (the hooks).
  *
  * @param bursts - Every Burst State
  * @param globals - Global State
@@ -98,7 +117,8 @@ export function countHiddenAdvanced(
   index: ControlIndex,
 ): number {
   const perBurst = bursts.reduce(
-    (count, burst) => count + countChanged(burst, index.burstKeys, index),
+    (count, burst) =>
+      count + countChanged(burst, index.burstKeys, index) + countOwnStyles(burst, index),
     0,
   );
 

@@ -80,6 +80,13 @@ export type RestoredSettings = {
 const PARAM = "s";
 
 /**
+ * Longest Share Link the Editor Hands Out.
+ * The site's host answers longer URLs (above about 14 KB) with an error, so a link with a large data: URL would
+ * never open.
+ */
+export const MAX_SHARE_URL_LENGTH = 12_000;
+
+/**
  * Current Share Link Format Version.
  */
 const SHARE_VERSION = 2;
@@ -173,6 +180,16 @@ export function createShareLink(settings: ShareV2 | null): string {
   }
 
   return url.href;
+}
+
+/**
+ * Check Whether a Share Link Is Short Enough to Open.
+ *
+ * @param link - Absolute URL
+ * @returns Shareable Flag
+ */
+export function isShareable(link: string): boolean {
+  return link.length <= MAX_SHARE_URL_LENGTH;
 }
 
 /**

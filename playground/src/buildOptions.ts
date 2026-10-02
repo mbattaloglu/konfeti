@@ -31,6 +31,7 @@ import {
   VECTOR_DEFAULTS,
 } from "./editor/libraryDefaults";
 import { rangeOf, sameDeep, toPair } from "./editor/optionValues";
+import { canonicalStyles, PAPER_PREFIX, stylesKey } from "./editor/overrideGroups";
 import {
   diffStyle,
   explicitStyle,
@@ -150,11 +151,6 @@ const CARD_SIZES: Readonly<Record<string, readonly [number, number]>> = {
   image: BITMAP_DEFAULTS.imageSize,
   sprite: BITMAP_DEFAULTS.spriteSize,
 };
-
-/**
- * Rows of the Demo Sprite Sheet (its frames sit in one row).
- */
-const DEMO_SHEET_ROWS = 1;
 
 /**
  * Formation Text Used When the Text Field Is Blank (the library throws on a blank text).
@@ -295,16 +291,45 @@ function buildPaper(state: Readonly<ControlState>, explicit: boolean): Draft<Pap
 }
 
 /**
+ * Build the Base Paper as Fire Sends It (only what differs from the library defaults).
+ * Per-card overrides are compared with what a shape inherits from it.
+ *
+ * @param state - Burst State
+ * @returns Minimal Paper Options
+ */
+export function buildMinimalPaper(
+  state: Readonly<ControlState>,
+): Readonly<Record<string, unknown>> {
+  return buildPaper(state, false);
+}
+
+/**
+ * Read a Typed Image Address, or Null When It Is Blank.
+ * Sent exactly as typed; a blank address means "not set".
+ *
+ * @param state - Burst State
+ * @param key - Text Control Key
+ * @returns Address, or Null
+ */
+function typedUrl(state: Readonly<ControlState>, key: string): string | null {
+  const url = raw(state, key);
+
+  return url.trim() === "" ? null : url;
+}
+
+/**
  * Pick the Image Card's Source.
  *
  * @param state - Burst State
  * @param assets - Demo Assets
- * @returns Image Source
+ * @returns Image Source, or Null for a Blank URL (the entry is then dropped)
  */
-function imageSource(state: Readonly<ControlState>, assets: DemoAssets): ImageInput {
+function imageSource(state: Readonly<ControlState>, assets: DemoAssets): ImageInput | null {
   const upload = raw(state, "image.upload");
 
   switch (str(state, "image.src")) {
+    case "url":
+      return typedUrl(state, "image.url");
     case "upload":
       // an upload card without a file shows the demo canvas
       return upload === "" ? assets.coinCanvas : upload;
@@ -318,16 +343,41 @@ function imageSource(state: Readonly<ControlState>, assets: DemoAssets): ImageIn
 }
 
 /**
+ * Pick the Sprite Card's Sheet.
+ *
+ * @param state - Burst State
+ * @param assets - Demo Assets
+ * @returns Sheet Source, or Null for a Blank URL (the entry is then dropped)
+ */
+function spriteSource(state: Readonly<ControlState>, assets: DemoAssets): ImageInput | null {
+  switch (str(state, "sprite.src")) {
+    case "url":
+      return typedUrl(state, "sprite.url");
+    case "demo url":
+      return assets.sheetUrl;
+    default:
+      return assets.sheetCanvas;
+  }
+}
+
+/**
  * Pick the Formation Image.
  *
  * @param state - Burst State
  * @param assets - Demo Assets
- * @returns Formation Image (the demo logo unless a file is uploaded)
+ * @returns Formation Image (the demo logo unless a file or a URL is given)
  */
 function formationImage(state: Readonly<ControlState>, assets: DemoAssets): ImageInput {
   const upload = raw(state, "formationUpload");
 
-  return str(state, "formationImage") === "upload" && upload !== "" ? upload : assets.logoCanvas;
+  switch (str(state, "formationImage")) {
+    case "upload":
+      return upload === "" ? assets.logoCanvas : upload;
+    case "url":
+      return typedUrl(state, "formationImageUrl") ?? assets.logoCanvas;
+    default:
+      return assets.logoCanvas;
+  }
 }
 
 /**
@@ -438,12 +488,31 @@ function buildContent(
       );
       return true;
     }
-    case "image":
-      entry.src = imageSource(state, assets);
+    case "image": {
+      const source = imageSource(state, assets);
+
+      if (source === null) {
+        return false;
+      }
+
+      entry.src = source;
       return true;
-    case "sprite":
-      entry.src = str(state, "sprite.src") === "demo url" ? assets.sheetUrl : assets.sheetCanvas;
-      entry.frames = { cols: assets.sheetFrames, rows: DEMO_SHEET_ROWS };
+    }
+    case "sprite": {
+      const source = spriteSource(state, assets);
+      const count = num(state, "sprite.count");
+
+      if (source === null) {
+        return false;
+      }
+
+      entry.src = source;
+      // the grid is required; 0 frames means every cell
+      entry.frames = {
+        cols: num(state, "sprite.cols"),
+        rows: num(state, "sprite.rows"),
+        ...(count > 0 ? { count } : {}),
+      };
       write.span("fps", pair(state, "sprite.fps"), toPair(BITMAP_DEFAULTS.spriteFps));
       write.value("loop", bool(state, "sprite.loop"), BITMAP_DEFAULTS.spriteLoop);
       write.value(
@@ -452,6 +521,7 @@ function buildContent(
         BITMAP_DEFAULTS.spriteRandomStartFrame,
       );
       return true;
+    }
   }
 }
 
@@ -473,24 +543,64 @@ function entryStyles(
   minimalPaper: Draft<PaperStyle>,
 ): ReadonlyMap<StyleKey, OptionValue> {
   const styles = new Map<StyleKey, OptionValue>();
-  // the star and heart cards' own palettes: an empty one inherits paper.colors
-  const colors = list(state, `${prefix}.colors`);
+  const listed = canonicalStyles(prefix, list(state, stylesKey(prefix)));
 
-  if (colors.length > 0) {
-    styles.set("colors", [...colors]);
+  // an own style group is sent as its difference from what the shape inherits, so it always wins
+  for (const group of STYLE_GROUPS) {
+    if (!listed.includes(group.key)) {
+      continue;
+    }
+
+    const full = group.read(state, `${prefix}.`);
+    const value = explicit
+      ? explicitStyle(full)
+      : diffStyle(group.key, full, inheritedStyle(group.key, type, minimalPaper));
+
+    if (value !== undefined) {
+      styles.set(group.key, value);
+    }
   }
 
   // the explicit base paper would replace the handler's own defaults (no flip for emoji …), so the entry writes
   // what the shape gets in minimal mode
   if (explicit) {
     for (const key of handlerStyleKeys(type)) {
-      if (!styles.has(key)) {
+      if (!listed.includes(key)) {
         styles.set(key, explicitStyle(inheritedStyle(key, type, minimalPaper)));
       }
     }
   }
 
   return styles;
+}
+
+/**
+ * Write the Paper Card's Own Geometry onto Its Entry.
+ * A group is sent when it differs from the base paper's geometry; the aspect ratio is always sent while listed,
+ * because an entry cannot unset an inherited one.
+ *
+ * @param entry - Paper Entry Being Built
+ * @param state - Burst State
+ * @param explicit - Explicit Mode
+ */
+function writeOwnGeometry(
+  entry: Draft<BuiltinShapeOptions>,
+  state: Readonly<ControlState>,
+  explicit: boolean,
+): void {
+  const listed = canonicalStyles(PAPER_PREFIX, list(state, stylesKey(PAPER_PREFIX)));
+
+  for (const group of GEOMETRY_GROUPS) {
+    if (!listed.includes(group.key)) {
+      continue;
+    }
+
+    const full = group.read(state, `${PAPER_PREFIX}.`);
+
+    if (explicit || group.key === "aspectRatio" || !group.same(full, group.read(state, ""))) {
+      entry[group.key] = group.emit(full, explicit);
+    }
+  }
 }
 
 /**
@@ -526,6 +636,10 @@ function buildShapes(
 
     if (!buildContent(prefix, entry, state, assets, explicit)) {
       continue;
+    }
+
+    if (prefix === PAPER_PREFIX) {
+      writeOwnGeometry(entry, state, explicit);
     }
 
     const styles = entryStyles(prefix, type, state, explicit, minimalPaper);

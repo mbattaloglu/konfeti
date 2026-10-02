@@ -393,6 +393,28 @@ test.describe("built site (editor)", () => {
     expect(site.errors).toEqual([]);
   });
 
+  test("a card sets its own style in Advanced mode", async ({ page, site }) => {
+    await openSite(page, "");
+    await page.locator('#editor-mode [data-mode="advanced"]').click();
+    await openSection(page, "shapes");
+    await page.locator('[data-key="star.enabled"] .card-header').click();
+    const area = page.locator('[data-key="star.styles"]');
+    await area.locator(".override-picker").selectOption("trail");
+    await area.locator(".override-add").click();
+    const shapes = async (): Promise<unknown> =>
+      (JSON.parse(await page.locator("#json").inputValue()) as { shapes?: unknown }).shapes;
+
+    // a new group starts at what the star already had, so the options do not change
+    await expect.poll(shapes).toEqual([{ type: "star" }]);
+    await area.locator('[data-key="star.trail"] .switch').click();
+    await expect.poll(shapes).toEqual([{ type: "star", trail: true }]);
+
+    await area.locator('[data-style="trail"] .override-remove').click();
+    await expect.poll(shapes).toEqual([{ type: "star" }]);
+    await expect(area.locator('[data-style="trail"]')).toHaveCount(0);
+    expect(site.errors).toEqual([]);
+  });
+
   test("an open value editor fits its row on a narrow phone", async ({ page, site }) => {
     await page.setViewportSize(SMALL_PHONE);
     await openSite(page, "");

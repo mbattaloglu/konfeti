@@ -19,19 +19,27 @@ import { createDemoAssets } from "./demoAssets";
 import { CONTROL_INDEX, deriveTheme, initialBurst } from "./editor/burstState";
 import type { BurstState } from "./editor/burstState";
 import { countHiddenAdvanced } from "./editor/editorMode";
+import { createOverrideSource } from "./editor/overrides";
 import { buildHooks, createCounters } from "./hooks";
 import { t } from "./i18n/messages";
 import { localizeSections } from "./i18n/localizeControls";
 import { applyStaticText, mountLanguageSwitch } from "./i18n/staticText";
 import { isBurstList, parseJson, toJson } from "./jsonIO";
-import { list, str } from "./stateReaders";
+import { list, raw, str } from "./stateReaders";
 import { byId, el } from "./ui/dom";
 import { renderControls } from "./ui/renderControls";
 import { renderModeSwitch } from "./ui/renderModeSwitch";
 import { renderPresets } from "./ui/renderPresets";
 import { toCode } from "./share/codeExport";
 import type { CodeMode } from "./share/codeExport";
-import { createShareLink, readShareLink, restoreShared, toShareSettings } from "./share/shareLink";
+import {
+  createShareLink,
+  isShareable,
+  MAX_SHARE_URL_LENGTH,
+  readShareLink,
+  restoreShared,
+  toShareSettings,
+} from "./share/shareLink";
 import type { ShareV2 } from "./share/shareLink";
 
 /**
@@ -48,6 +56,50 @@ const EVENT_LOG_SIZE = 50;
  * Toast Visibility Duration.
  */
 const TOAST_MS = 2600;
+
+/**
+ * Text Controls Holding a Typed Image Address (checked after each committed change).
+ */
+const URL_KEYS: readonly string[] = ["image.url", "sprite.url", "formationImageUrl"];
+
+/**
+ * How Long the Address Check Waits for an Image before It Reports a Failure.
+ */
+const URL_CHECK_TIMEOUT_MS = 10_000;
+
+/**
+ * Start of Inline SVG Markup, Which Is Not an Address.
+ */
+const SVG_MARKUP_START = "<svg";
+
+/**
+ * Check Whether a Typed Image Address Loads, Requested the Way the Library Requests It.
+ * A fresh image every time: the library caches a failed image, and a cached failure never reports again.
+ *
+ * @param url - Address as Typed
+ * @returns Resolves with the Loaded Flag (false after an error or the timeout)
+ */
+function imageLoads(url: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    const timer = window.setTimeout(() => {
+      resolve(false);
+    }, URL_CHECK_TIMEOUT_MS);
+    const finish = (loaded: boolean): void => {
+      window.clearTimeout(timer);
+      resolve(loaded);
+    };
+
+    image.crossOrigin = "anonymous";
+    image.addEventListener("load", () => {
+      finish(true);
+    });
+    image.addEventListener("error", () => {
+      finish(false);
+    });
+    image.src = url;
+  });
+}
 
 /**
  * Viewport Width below which the Hook Log Starts Collapsed.
@@ -258,9 +310,10 @@ async function init(): Promise<void> {
   // assigned once the export tab is wired up (below); settings changes call it to keep link and code live
   let refreshExport = (): void => undefined;
 
+  const sections = localizeSections(CONTROL_SECTIONS);
   const controls = renderControls(
     byId("controls", HTMLElement),
-    localizeSections(CONTROL_SECTIONS),
+    sections,
     state,
     (key) => {
       // picking a theme fills the palette with its colors (a normal, editable palette afterwards); that write
@@ -297,12 +350,26 @@ async function init(): Promise<void> {
         }
       }
 
+      if (URL_KEYS.includes(key)) {
+        const url = raw(state, key);
+
+        // a blank field means "not set"; markup is not an address (the library turns it into a data: URL)
+        if (url.trim() !== "" && !url.trimStart().startsWith(SVG_MARKUP_START)) {
+          void imageLoads(url).then((loaded) => {
+            // always this text: an error message would be English and could hold a data: URL of any length
+            if (!loaded) {
+              showToast(t("image.failed"), true);
+            }
+          });
+        }
+      }
+
       syncJson();
       restartStream();
       refreshExport();
       refreshBadge();
     },
-    { mode: modeSwitch.mode(), modeRoot },
+    { mode: modeSwitch.mode(), modeRoot, overrides: createOverrideSource(sections, state) },
   );
 
   /**
@@ -582,6 +649,18 @@ async function init(): Promise<void> {
     );
   };
   const shareLink = byId("share-link", HTMLInputElement);
+  const shareTooLong = byId("share-too-long", HTMLElement);
+  // the link, or null when it is too long to open (the note under the link field says why)
+  const shareableLink = (): string | null => {
+    const link = createShareLink(shareSettings());
+    const fits = isShareable(link);
+    shareTooLong.hidden = fits;
+    shareTooLong.textContent = fits
+      ? ""
+      : t("share.tooLong", { length: link.length, limit: MAX_SHARE_URL_LENGTH });
+
+    return fits ? link : null;
+  };
   const codePreview = byId("code-preview", HTMLElement);
   const exportTab = byId("tab-export", HTMLElement);
   let codeMode: CodeMode = "changed";
@@ -612,12 +691,19 @@ async function init(): Promise<void> {
       return;
     }
 
-    shareLink.value = createShareLink(shareSettings());
+    shareLink.value = shareableLink() ?? "";
     codePreview.textContent = currentCode();
   };
 
   byId("share", HTMLButtonElement).addEventListener("click", () => {
-    const link = createShareLink(shareSettings());
+    const link = shareableLink();
+
+    // a link that cannot open is not copied, and the address bar keeps what it has
+    if (link === null) {
+      showToast(shareTooLong.textContent, true);
+      return;
+    }
+
     // the address bar shows the link too, so a reload keeps the settings
     history.replaceState(history.state, "", link);
     copyText(link, t("share.copied"));
