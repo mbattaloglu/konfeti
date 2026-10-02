@@ -21,11 +21,13 @@ import {
   deriveTheme,
   initialBurst,
   MAX_BURSTS,
+  sameBurst,
   sameBursts,
 } from "./editor/burstState";
 import type { BurstState } from "./editor/burstState";
 import {
   addBurst,
+  appendBursts,
   createTabs,
   currentBursts as listBursts,
   duplicateBurst,
@@ -434,7 +436,6 @@ async function init(): Promise<void> {
   const burstAdd = byId("burst-add", HTMLButtonElement);
   const burstDuplicate = byId("burst-duplicate", HTMLButtonElement);
   const burstRemove = byId("burst-remove", HTMLButtonElement);
-  const burstNotice = byId("burst-notice", HTMLElement);
   const showTab = (next: BurstTabs): void => {
     burstTabs = next;
     // loading runs the change listener, which refreshes the JSON, the stream, the export and the badge
@@ -461,7 +462,7 @@ async function init(): Promise<void> {
   });
 
   /**
-   * Draw the Burst Tabs, Their Buttons and the Basic-Mode Notice for the Current Tabs.
+   * Draw the Burst Tabs and Their Buttons for the Current Tabs.
    */
   function renderTabs(): void {
     const count = burstTabs.bursts.length;
@@ -469,9 +470,6 @@ async function init(): Promise<void> {
     burstAdd.disabled = count >= MAX_BURSTS;
     burstDuplicate.disabled = count >= MAX_BURSTS;
     burstRemove.disabled = count <= 1;
-    burstNotice.hidden = count <= 1;
-    burstNotice.textContent =
-      count > 1 ? t("bursts.notice", { n: burstTabs.active + 1, count }) : "";
     refreshChip();
     refreshBadge();
   }
@@ -554,17 +552,54 @@ async function init(): Promise<void> {
   });
 
   // presets gallery
-  presetGallery = renderPresets(byId("presets", HTMLElement), (name) => {
-    const { bursts, issues } = presetToEditor(KonfetiPresets[name], assets);
-    loadedPreset = { name, bursts };
-    loadEditor(bursts);
-    // the editor's build, not the raw preset: the round-trip test proves they fire the same
-    fireMain(buildInput(currentBursts(), assets));
+  presetGallery = renderPresets(
+    byId("presets", HTMLElement),
+    (name) => {
+      const { bursts, issues } = presetToEditor(KonfetiPresets[name], assets);
+      loadedPreset = { name, bursts };
+      loadEditor(bursts);
+      // the editor's build, not the raw preset: the round-trip test proves they fire the same
+      fireMain(buildInput(currentBursts(), assets));
 
-    if (issues.length > 0) {
-      reportIssues(issues);
-    }
-  });
+      if (issues.length > 0) {
+        reportIssues(issues);
+      }
+    },
+    (name) => {
+      const { bursts, issues } = presetToEditor(KonfetiPresets[name], assets);
+      const live = controls.capture("burst");
+      // an untouched starting burst is replaced, not kept in front of the preset
+      const isFresh = burstTabs.bursts.length === 1 && sameBurst(live, initialBurst());
+
+      if (isFresh) {
+        loadedPreset = { name, bursts };
+        loadEditor(bursts);
+      } else {
+        const next = appendBursts(burstTabs, live, bursts);
+
+        if (next === burstTabs) {
+          showToast(t("bursts.full", { max: MAX_BURSTS }), true);
+          return;
+        }
+
+        const added = next.bursts.length - burstTabs.bursts.length;
+        // the editor now mixes bursts, so it no longer holds one preset
+        loadedPreset = null;
+        showTab(next);
+        syncJson(true);
+
+        if (added < bursts.length) {
+          showToast(t("bursts.trimmed", { count: added, max: MAX_BURSTS }), true);
+        }
+      }
+
+      fireMain(buildInput(currentBursts(), assets));
+
+      if (issues.length > 0) {
+        reportIssues(issues);
+      }
+    },
+  );
 
   // json panel
   jsonArea.addEventListener("input", () => {

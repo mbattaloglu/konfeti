@@ -299,6 +299,41 @@ body {
   color: var(--fg-mute);
 }
 
+/* a card with its "add as burst" button in the corner (a button cannot sit inside a button) */
+.preset-item {
+  position: relative;
+  display: grid;
+}
+
+/* the button sits on the code line, so the name keeps the card's full width */
+.preset-item .preset-code {
+  margin-right: 24px;
+}
+
+.preset-add {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border-2);
+  background: var(--panel);
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.preset-add:hover,
+.preset-add:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* ---------- sections ---------- */
 .sections {
   display: grid;
@@ -1173,7 +1208,7 @@ textarea:focus {
   border-color: var(--accent-dim);
 }
 
-/* burst tabs (Advanced): each tab is one entry of the fired list */
+/* burst tabs: each tab is one entry of the fired list */
 .burst-bar {
   display: flex;
   /* the buttons stay one row tall while the tabs wrap */
@@ -1230,18 +1265,6 @@ textarea:focus {
 .burst-action:disabled {
   opacity: 0.4;
   cursor: default;
-}
-
-/* Basic mode hides the tabs; this line says which burst the controls show */
-.burst-notice {
-  margin: 0 0 10px;
-  color: var(--warn);
-  font-size: 11px;
-  line-height: 1.5;
-}
-
-#tab-controls[data-mode="advanced"] .burst-notice {
-  display: none;
 }
 
 /* a card's own style (Advanced): groups that override the inherited paper.* style */
@@ -1398,19 +1421,17 @@ body.is-click-fire .stage-hit {
 }
 
 /* stacked switches of equal width; the code names line up on the right */
-.hud--tools {
-  top: 14px;
-  right: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+/* the stage switches (Stage tab): one full-width row each */
+.stage-options {
+  display: grid;
   gap: 6px;
-  padding: 0;
-  border: 0;
-  background: none;
 }
 
-.hud--tools .pill-toggle code {
+.stage-options .pill-toggle {
+  display: flex;
+}
+
+.stage-options .pill-toggle code {
   margin-left: auto;
 }
 
@@ -1708,12 +1729,6 @@ body.is-click-fire .stage-hit {
 
   .stats dt {
     letter-spacing: 0.08em;
-  }
-
-  .hud--tools {
-    top: auto;
-    right: 8px;
-    bottom: 8px;
   }
 
   .pill-toggle code,

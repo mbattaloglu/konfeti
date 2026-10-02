@@ -2,6 +2,7 @@ import type { KonfetiPresetName } from "konfeti";
 
 import { PRESETS_TR } from "../i18n/controlsTr";
 import { getLocale } from "../i18n/Locale";
+import { t } from "../i18n/messages";
 import { el } from "./dom";
 
 /**
@@ -63,33 +64,41 @@ export type PresetGallery = {
  * Render Preset Gallery Buttons.
  *
  * @param root - Container Element
- * @param onPick - Called with the Picked Preset
+ * @param onPick - Called with the Picked Preset (loads it into the editor)
+ * @param onAdd - Called with a Preset to Add as New Bursts (the card's corner button)
  * @returns Preset Gallery
  */
 export function renderPresets(
   root: HTMLElement,
   onPick: (name: KonfetiPresetName) => void,
+  onAdd: (name: KonfetiPresetName) => void,
 ): PresetGallery {
   const buttons = new Map<KonfetiPresetName, HTMLButtonElement>();
 
   for (const card of PRESET_CARDS) {
+    const item = el("div", "preset-item");
     const button = el("button", "preset");
+    const add = el("button", "preset-add", "+");
+    const label = (getLocale() === "tr" ? PRESETS_TR[card.name] : undefined) ?? card.label;
     button.type = "button";
     button.title = `KonfetiPresets.${card.name}`;
     button.append(
       el("span", "preset-icon", card.icon),
-      el(
-        "span",
-        "preset-label",
-        (getLocale() === "tr" ? PRESETS_TR[card.name] : undefined) ?? card.label,
-      ),
+      el("span", "preset-label", label),
       el("code", "preset-code", card.name),
     );
     button.addEventListener("click", () => {
       onPick(card.name);
     });
+    add.type = "button";
+    add.title = t("preset.add", { name: label });
+    add.setAttribute("aria-label", add.title);
+    add.addEventListener("click", () => {
+      onAdd(card.name);
+    });
+    item.append(button, add);
     buttons.set(card.name, button);
-    root.append(button);
+    root.append(item);
   }
 
   return {

@@ -58,7 +58,7 @@ describe("countHiddenAdvanced", () => {
     expect(hiddenIn({ particleCount: 5, gravity: [1, 2], "star.enabled": true })).toBe(0);
   });
 
-  it("counts changed hooks and every burst after the first", () => {
+  it("counts changed hooks and the hidden settings of every burst", () => {
     expect(hiddenIn({}, { hookUpdate: true })).toBe(1);
     expect(hiddenIn({}, { hookUpdate: true, rainbow: true })).toBe(2);
     // the rainbow recolor only runs inside On Particle Update
@@ -69,7 +69,7 @@ describe("countHiddenAdvanced", () => {
         initialGlobals(),
         CONTROL_INDEX,
       ),
-    ).toBe(2);
+    ).toBe(1);
   });
 });
 

@@ -104,7 +104,7 @@ function countOwnStyles(state: Readonly<ControlState>, index: ControlIndex): num
 /**
  * Count the Settings Basic Mode Hides While They Change the Result (the Advanced badge).
  * Per burst: every advanced control that is active there and not at its initial, and every own style group of a
- * switched-on card; then one per extra burst, and every changed advanced global control (the hooks).
+ * switched-on card; then every changed advanced global control (the hooks). Burst tabs show in both modes.
  *
  * @param bursts - Every Burst State
  * @param globals - Global State
@@ -122,6 +122,5 @@ export function countHiddenAdvanced(
     0,
   );
 
-  // every burst tab after the first is an advanced feature too
-  return perBurst + Math.max(0, bursts.length - 1) + countChanged(globals, index.globalKeys, index);
+  return perBurst + countChanged(globals, index.globalKeys, index);
 }

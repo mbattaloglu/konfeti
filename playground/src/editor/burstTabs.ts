@@ -59,6 +59,28 @@ export function addBurst(tabs: BurstTabs, live: BurstState, burst: BurstState): 
 }
 
 /**
+ * Append Several Bursts and Select the First of Them (only as many as fit under MAX_BURSTS).
+ *
+ * @param tabs - Current Tabs
+ * @param live - Live State of the Active Burst
+ * @param added - Bursts to Append
+ * @returns New Tabs (unchanged when none fit)
+ */
+export function appendBursts(
+  tabs: BurstTabs,
+  live: BurstState,
+  added: readonly BurstState[],
+): BurstTabs {
+  const fitting = added.slice(0, Math.max(0, MAX_BURSTS - tabs.bursts.length));
+
+  if (fitting.length === 0) {
+    return tabs;
+  }
+
+  return { bursts: [...stored(tabs, live), ...fitting], active: tabs.bursts.length };
+}
+
+/**
  * Insert a Copy of the Active Burst after It and Select the Copy (no change at MAX_BURSTS).
  *
  * @param tabs - Current Tabs

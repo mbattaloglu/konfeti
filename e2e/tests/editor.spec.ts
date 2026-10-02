@@ -466,6 +466,38 @@ test.describe("built site (editor)", () => {
     expect(site.errors).toEqual([]);
   });
 
+  test("a preset can be added as a new burst, in Basic mode too", async ({ page, site }) => {
+    await openSite(page, "");
+    const card = (name: string): Locator =>
+      page.locator(".preset-item", {
+        has: page.locator("code", { hasText: new RegExp(`^${name}$`) }),
+      });
+    const json = async (): Promise<unknown> =>
+      JSON.parse(await page.locator("#json").inputValue()) as unknown;
+
+    // the untouched starting burst is replaced by the first preset added
+    await card("SNOW").locator(".preset-add").click();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(1);
+    await expect(page.locator("#preset-chip-name")).toHaveText("SNOW");
+
+    await card("STARS").locator(".preset-add").click();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(2);
+    await expect(page.locator("#burst-tab-2")).toHaveAttribute("aria-selected", "true");
+    await expect(page.locator("#preset-chip")).toBeHidden();
+    await expect.poll(async () => (await json()) instanceof Array).toBe(true);
+    expect(site.errors).toEqual([]);
+  });
+
+  test("the stage switches sit in their own panel tab", async ({ page, site }) => {
+    await openSite(page, "");
+    await expect(page.locator("#click-fire")).toBeHidden();
+    await page.locator("#tab-btn-stage").click();
+    await expect(page.locator("#tab-stage")).toBeVisible();
+    await page.locator("label:has(#pointer-stream) .switch").click();
+    await expect(page.locator("#pointer-stream")).toBeChecked();
+    expect(site.errors).toEqual([]);
+  });
+
   test("several bursts fire as a list and travel in the share link", async ({ page, site }) => {
     await openSite(page, "");
     await page.locator('#editor-mode [data-mode="advanced"]').click();

@@ -4,6 +4,7 @@ import { initialBurst, MAX_BURSTS, normalizeBurst } from "../src/editor/burstSta
 import type { BurstState } from "../src/editor/burstState";
 import {
   addBurst,
+  appendBursts,
   createTabs,
   currentBursts,
   duplicateBurst,
@@ -59,6 +60,25 @@ describe("burst tabs", () => {
     expect(last.active).toBe(1);
     expect(counts(last.bursts)).toEqual([5, 5]);
     expect(removeBurst(createTabs([burst(1)], initialBurst())).bursts).toHaveLength(1);
+  });
+
+  it("append several bursts after the stored ones and select the first new one", () => {
+    const tabs = createTabs([burst(1), burst(2)], initialBurst());
+    const appended = appendBursts(tabs, burst(10), [burst(3), burst(4)]);
+
+    expect(counts(appended.bursts)).toEqual([10, 2, 3, 4]);
+    expect(appended.active).toBe(2);
+
+    // only as many as fit; none fit: unchanged
+    const nearlyFull = createTabs(
+      Array.from({ length: MAX_BURSTS - 1 }, () => burst(1)),
+      initialBurst(),
+    );
+    expect(appendBursts(nearlyFull, burst(1), [burst(5), burst(6)]).bursts).toHaveLength(
+      MAX_BURSTS,
+    );
+    const full = appendBursts(nearlyFull, burst(1), [burst(5)]);
+    expect(appendBursts(full, burst(1), [burst(7)])).toBe(full);
   });
 
   it("stop at the most bursts the editor keeps", () => {
