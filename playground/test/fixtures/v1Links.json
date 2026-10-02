@@ -1,0 +1,372 @@
+{
+  "hookOnly": {
+    "payload": {
+      "hookUpdate": true
+    },
+    "v1Options": {
+      "particleCount": 60,
+      "angle": 90,
+      "spread": 60,
+      "startVelocity": [1000, 1800],
+      "lifetime": [2720, 3680],
+      "origin": {
+        "x": 0.5,
+        "y": 0.6
+      },
+      "paper": {
+        "form": "rect",
+        "width": [6, 10],
+        "height": [10, 16],
+        "cornerRadius": 0,
+        "scale": 1,
+        "colors": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        "colorMode": "random",
+        "backColor": "auto",
+        "backShade": 0.3,
+        "gradient": false,
+        "colorOverLife": false,
+        "stroke": false,
+        "opacity": 1,
+        "fadeIn": 0,
+        "fadeOut": {
+          "start": 0.7,
+          "easing": "linear"
+        },
+        "scaleOverLife": false,
+        "rotation": [0, 360],
+        "rotationSpeed": [-240, 240],
+        "flip": {
+          "axis": "x",
+          "frequency": 1.2
+        },
+        "wobble": {
+          "amplitude": 8,
+          "frequency": 0.8
+        },
+        "shadow": false,
+        "shine": 0,
+        "blendMode": "source-over",
+        "trail": false
+      },
+      "physics": {
+        "gravity": 700,
+        "drag": 3.5,
+        "wind": 0,
+        "swirl": false,
+        "floor": false,
+        "attract": false
+      }
+    }
+  },
+  "reshapedBurst": {
+    "payload": {
+      "particleCount": 123,
+      "lifetime": 5000,
+      "originX": 0.3,
+      "originSpreadX": 0.2,
+      "velocityMin": 2000,
+      "velocityMax": 500,
+      "angle": 75
+    },
+    "v1Options": {
+      "particleCount": 123,
+      "angle": 75,
+      "spread": 60,
+      "startVelocity": [2000, 500],
+      "lifetime": [4250, 5750],
+      "origin": {
+        "x": [0.09999999999999998, 0.5],
+        "y": 0.6
+      },
+      "paper": {
+        "form": "rect",
+        "width": [6, 10],
+        "height": [10, 16],
+        "cornerRadius": 0,
+        "scale": 1,
+        "colors": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        "colorMode": "random",
+        "backColor": "auto",
+        "backShade": 0.3,
+        "gradient": false,
+        "colorOverLife": false,
+        "stroke": false,
+        "opacity": 1,
+        "fadeIn": 0,
+        "fadeOut": {
+          "start": 0.7,
+          "easing": "linear"
+        },
+        "scaleOverLife": false,
+        "rotation": [0, 360],
+        "rotationSpeed": [-240, 240],
+        "flip": {
+          "axis": "x",
+          "frequency": 1.2
+        },
+        "wobble": {
+          "amplitude": 8,
+          "frequency": 0.8
+        },
+        "shadow": false,
+        "shine": 0,
+        "blendMode": "source-over",
+        "trail": false
+      },
+      "physics": {
+        "gravity": 700,
+        "drag": 3.5,
+        "wind": 0,
+        "swirl": false,
+        "floor": false,
+        "attract": false
+      }
+    }
+  },
+  "paperAndPhysics": {
+    "payload": {
+      "skew": 15,
+      "rotationMax": 180,
+      "rotationSpeed": 0,
+      "tilt": 20,
+      "flipFrequency": 2,
+      "wobble": false,
+      "gradient": true,
+      "gradientA": "#000000",
+      "shadow": true,
+      "shadowColor": "#ff0000",
+      "trail": true,
+      "trailWidth": 5,
+      "attract": true,
+      "attractTarget": "top center",
+      "swirl": true,
+      "gravity": 300
+    },
+    "v1Options": {
+      "particleCount": 60,
+      "angle": 90,
+      "spread": 60,
+      "startVelocity": [1000, 1800],
+      "lifetime": [2720, 3680],
+      "origin": {
+        "x": 0.5,
+        "y": 0.6
+      },
+      "paper": {
+        "form": "rect",
+        "width": [6, 10],
+        "height": [10, 16],
+        "cornerRadius": 0,
+        "skew": [-15, 15],
+        "scale": 1,
+        "colors": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        "colorMode": "random",
+        "backColor": "auto",
+        "backShade": 0.3,
+        "gradient": {
+          "colors": ["#000000", "#26ccff"],
+          "angle": 45
+        },
+        "colorOverLife": false,
+        "stroke": false,
+        "opacity": 1,
+        "fadeIn": 0,
+        "fadeOut": {
+          "start": 0.7,
+          "easing": "linear"
+        },
+        "scaleOverLife": false,
+        "rotation": [0, 180],
+        "rotationSpeed": [0, 0],
+        "flip": {
+          "axis": "x",
+          "frequency": 2
+        },
+        "wobble": false,
+        "tilt": [-20, 20],
+        "shadow": {
+          "color": "#ff0000",
+          "blur": 6,
+          "offsetX": 0,
+          "offsetY": 3
+        },
+        "shine": 0,
+        "blendMode": "source-over",
+        "trail": {
+          "length": 10,
+          "width": 5,
+          "opacity": 0.5,
+          "color": "particle"
+        }
+      },
+      "physics": {
+        "gravity": 300,
+        "drag": 3.5,
+        "wind": 0,
+        "swirl": {
+          "strength": 200,
+          "frequency": 0.6
+        },
+        "floor": false,
+        "attract": {
+          "target": {
+            "x": 0.5,
+            "y": 0.15
+          },
+          "strength": 900,
+          "falloff": "constant"
+        }
+      }
+    }
+  },
+  "shadowOnly": {
+    "payload": {
+      "shadow": true
+    },
+    "v1Options": {
+      "particleCount": 60,
+      "angle": 90,
+      "spread": 60,
+      "startVelocity": [1000, 1800],
+      "lifetime": [2720, 3680],
+      "origin": {
+        "x": 0.5,
+        "y": 0.6
+      },
+      "paper": {
+        "form": "rect",
+        "width": [6, 10],
+        "height": [10, 16],
+        "cornerRadius": 0,
+        "scale": 1,
+        "colors": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        "colorMode": "random",
+        "backColor": "auto",
+        "backShade": 0.3,
+        "gradient": false,
+        "colorOverLife": false,
+        "stroke": false,
+        "opacity": 1,
+        "fadeIn": 0,
+        "fadeOut": {
+          "start": 0.7,
+          "easing": "linear"
+        },
+        "scaleOverLife": false,
+        "rotation": [0, 360],
+        "rotationSpeed": [-240, 240],
+        "flip": {
+          "axis": "x",
+          "frequency": 1.2
+        },
+        "wobble": {
+          "amplitude": 8,
+          "frequency": 0.8
+        },
+        "shadow": {
+          "color": "#000000",
+          "blur": 6,
+          "offsetX": 0,
+          "offsetY": 3
+        },
+        "shine": 0,
+        "blendMode": "source-over",
+        "trail": false
+      },
+      "physics": {
+        "gravity": 700,
+        "drag": 3.5,
+        "wind": 0,
+        "swirl": false,
+        "floor": false,
+        "attract": false
+      }
+    }
+  },
+  "vectorCards": {
+    "payload": {
+      "star.enabled": true,
+      "star.colors": ["#ff0000"],
+      "heart.enabled": true,
+      "polygon.enabled": true,
+      "polygon.sides": 8,
+      "star.size": 30
+    },
+    "v1Options": {
+      "particleCount": 60,
+      "angle": 90,
+      "spread": 60,
+      "startVelocity": [1000, 1800],
+      "lifetime": [2720, 3680],
+      "origin": {
+        "x": 0.5,
+        "y": 0.6
+      },
+      "paper": {
+        "form": "rect",
+        "width": [6, 10],
+        "height": [10, 16],
+        "cornerRadius": 0,
+        "scale": 1,
+        "colors": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"],
+        "colorMode": "random",
+        "backColor": "auto",
+        "backShade": 0.3,
+        "gradient": false,
+        "colorOverLife": false,
+        "stroke": false,
+        "opacity": 1,
+        "fadeIn": 0,
+        "fadeOut": {
+          "start": 0.7,
+          "easing": "linear"
+        },
+        "scaleOverLife": false,
+        "rotation": [0, 360],
+        "rotationSpeed": [-240, 240],
+        "flip": {
+          "axis": "x",
+          "frequency": 1.2
+        },
+        "wobble": {
+          "amplitude": 8,
+          "frequency": 0.8
+        },
+        "shadow": false,
+        "shine": 0,
+        "blendMode": "source-over",
+        "trail": false
+      },
+      "shapes": [
+        {
+          "type": "star",
+          "weight": 1,
+          "size": 30,
+          "points": 5,
+          "innerRatio": 0.5,
+          "colors": ["#ff0000"]
+        },
+        {
+          "type": "polygon",
+          "weight": 1,
+          "size": 12,
+          "sides": 8
+        },
+        {
+          "type": "heart",
+          "weight": 1,
+          "size": 16,
+          "colors": ["#ff3d7f", "#ff8fb1", "#e0115f"]
+        }
+      ],
+      "physics": {
+        "gravity": 700,
+        "drag": 3.5,
+        "wind": 0,
+        "swirl": false,
+        "floor": false,
+        "attract": false
+      }
+    }
+  }
+}

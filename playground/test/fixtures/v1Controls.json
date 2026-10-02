@@ -1,0 +1,654 @@
+{
+  "particleCount": {
+    "kind": "range",
+    "initial": 60
+  },
+  "angle": {
+    "kind": "range",
+    "initial": 90
+  },
+  "spread": {
+    "kind": "range",
+    "initial": 60
+  },
+  "velocityMin": {
+    "kind": "range",
+    "initial": 1000
+  },
+  "velocityMax": {
+    "kind": "range",
+    "initial": 1800
+  },
+  "lifetime": {
+    "kind": "range",
+    "initial": 3200
+  },
+  "lifetimeJitter": {
+    "kind": "range",
+    "initial": 0.15
+  },
+  "originX": {
+    "kind": "range",
+    "initial": 0.5
+  },
+  "originY": {
+    "kind": "range",
+    "initial": 0.6
+  },
+  "originSpreadX": {
+    "kind": "range",
+    "initial": 0
+  },
+  "useSeed": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "seed": {
+    "kind": "range",
+    "initial": 42
+  },
+  "emissionMode": {
+    "kind": "select",
+    "initial": "burst"
+  },
+  "streamDuration": {
+    "kind": "range",
+    "initial": 2000
+  },
+  "intervalEvery": {
+    "kind": "range",
+    "initial": 400
+  },
+  "intervalTimes": {
+    "kind": "range",
+    "initial": 5
+  },
+  "delay": {
+    "kind": "range",
+    "initial": 0
+  },
+  "formation": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "formationSource": {
+    "kind": "select",
+    "initial": "text"
+  },
+  "formationText": {
+    "kind": "text",
+    "initial": "TEBRİKLER"
+  },
+  "formationFont": {
+    "kind": "text",
+    "initial": "900 110px sans-serif"
+  },
+  "formationImage": {
+    "kind": "select",
+    "initial": "demo logo"
+  },
+  "formationUpload": {
+    "kind": "file",
+    "initial": ""
+  },
+  "formationWidth": {
+    "kind": "range",
+    "initial": 420
+  },
+  "formationImageColors": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "formationMode": {
+    "kind": "select",
+    "initial": "assemble"
+  },
+  "formationAssemble": {
+    "kind": "range",
+    "initial": 900
+  },
+  "formationEasing": {
+    "kind": "select",
+    "initial": "easeOutCubic"
+  },
+  "formationHold": {
+    "kind": "range",
+    "initial": 1000
+  },
+  "formationSpacing": {
+    "kind": "range",
+    "initial": 8
+  },
+  "formationFit": {
+    "kind": "range",
+    "initial": 0.9
+  },
+  "formationVelocityMin": {
+    "kind": "range",
+    "initial": 300
+  },
+  "formationVelocityMax": {
+    "kind": "range",
+    "initial": 700
+  },
+  "form": {
+    "kind": "chips",
+    "initial": ["rect"]
+  },
+  "widthMin": {
+    "kind": "range",
+    "initial": 6
+  },
+  "widthMax": {
+    "kind": "range",
+    "initial": 10
+  },
+  "heightMin": {
+    "kind": "range",
+    "initial": 10
+  },
+  "heightMax": {
+    "kind": "range",
+    "initial": 16
+  },
+  "useAspect": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "aspectRatio": {
+    "kind": "range",
+    "initial": 1.6
+  },
+  "cornerRadius": {
+    "kind": "range",
+    "initial": 0
+  },
+  "skew": {
+    "kind": "range",
+    "initial": 0
+  },
+  "colorTheme": {
+    "kind": "select",
+    "initial": "custom"
+  },
+  "colors": {
+    "kind": "palette",
+    "initial": ["#26ccff", "#a25afd", "#ff5e7e", "#88ff5a", "#fcff42", "#ffa62d", "#ff36ff"]
+  },
+  "colorMode": {
+    "kind": "select",
+    "initial": "random"
+  },
+  "backColor": {
+    "kind": "palette",
+    "initial": []
+  },
+  "backShade": {
+    "kind": "range",
+    "initial": 0.3
+  },
+  "gradient": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "gradientA": {
+    "kind": "color",
+    "initial": "#ff5e7e"
+  },
+  "gradientB": {
+    "kind": "color",
+    "initial": "#26ccff"
+  },
+  "gradientAngle": {
+    "kind": "range",
+    "initial": 45
+  },
+  "colorOverLife": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "colorOverLifeTo": {
+    "kind": "color",
+    "initial": "#ffffff"
+  },
+  "colorOverLifeEasing": {
+    "kind": "select",
+    "initial": "linear"
+  },
+  "stroke": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "strokeColor": {
+    "kind": "color",
+    "initial": "#1c1c22"
+  },
+  "strokeWidth": {
+    "kind": "range",
+    "initial": 1
+  },
+  "opacity": {
+    "kind": "range",
+    "initial": 1
+  },
+  "blendMode": {
+    "kind": "select",
+    "initial": "source-over"
+  },
+  "scale": {
+    "kind": "range",
+    "initial": 1
+  },
+  "rotationMax": {
+    "kind": "range",
+    "initial": 360
+  },
+  "rotationSpeed": {
+    "kind": "range",
+    "initial": 240
+  },
+  "flip": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "flipAxis": {
+    "kind": "select",
+    "initial": "x"
+  },
+  "flipFrequency": {
+    "kind": "range",
+    "initial": 1.2
+  },
+  "wobble": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "wobbleAmplitude": {
+    "kind": "range",
+    "initial": 8
+  },
+  "wobbleFrequency": {
+    "kind": "range",
+    "initial": 0.8
+  },
+  "tilt": {
+    "kind": "range",
+    "initial": 0
+  },
+  "fadeIn": {
+    "kind": "range",
+    "initial": 0
+  },
+  "fadeOut": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "fadeStart": {
+    "kind": "range",
+    "initial": 0.7
+  },
+  "fadeEasing": {
+    "kind": "select",
+    "initial": "linear"
+  },
+  "scaleOverLife": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "scaleTo": {
+    "kind": "range",
+    "initial": 0
+  },
+  "scaleEasing": {
+    "kind": "select",
+    "initial": "easeInQuad"
+  },
+  "shadow": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "shadowColor": {
+    "kind": "color",
+    "initial": "#000000"
+  },
+  "shadowBlur": {
+    "kind": "range",
+    "initial": 6
+  },
+  "shadowX": {
+    "kind": "range",
+    "initial": 0
+  },
+  "shadowY": {
+    "kind": "range",
+    "initial": 3
+  },
+  "shine": {
+    "kind": "range",
+    "initial": 0
+  },
+  "trail": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "trailLength": {
+    "kind": "range",
+    "initial": 10
+  },
+  "trailWidth": {
+    "kind": "range",
+    "initial": 3
+  },
+  "trailOpacity": {
+    "kind": "range",
+    "initial": 0.5
+  },
+  "trailCustomColor": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "trailColor": {
+    "kind": "color",
+    "initial": "#ffd000"
+  },
+  "paper.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "paper.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "star.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "star.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "star.size": {
+    "kind": "range",
+    "initial": 16
+  },
+  "star.points": {
+    "kind": "range",
+    "initial": 5
+  },
+  "star.innerRatio": {
+    "kind": "range",
+    "initial": 0.5
+  },
+  "star.colors": {
+    "kind": "palette",
+    "initial": []
+  },
+  "triangle.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "triangle.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "triangle.size": {
+    "kind": "range",
+    "initial": 12
+  },
+  "polygon.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "polygon.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "polygon.size": {
+    "kind": "range",
+    "initial": 12
+  },
+  "polygon.sides": {
+    "kind": "range",
+    "initial": 6
+  },
+  "heart.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "heart.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "heart.size": {
+    "kind": "range",
+    "initial": 16
+  },
+  "heart.colors": {
+    "kind": "palette",
+    "initial": ["#ff3d7f", "#ff8fb1", "#e0115f"]
+  },
+  "ribbon.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "ribbon.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "ribbon.length": {
+    "kind": "range",
+    "initial": 30
+  },
+  "ribbon.thickness": {
+    "kind": "range",
+    "initial": 0.14
+  },
+  "ribbon.waves": {
+    "kind": "range",
+    "initial": 2
+  },
+  "path.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "path.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "path.size": {
+    "kind": "range",
+    "initial": 18
+  },
+  "path.d": {
+    "kind": "text",
+    "initial": "M13 2 3 14h9l-1 8 10-12h-9l1-8z"
+  },
+  "path.viewBox": {
+    "kind": "range",
+    "initial": 24
+  },
+  "emoji.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "emoji.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "emoji.size": {
+    "kind": "range",
+    "initial": 24
+  },
+  "emoji.list": {
+    "kind": "text",
+    "initial": "🎉, ✨, 🥳, 🎊"
+  },
+  "text.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "text.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "text.size": {
+    "kind": "range",
+    "initial": 18
+  },
+  "text.list": {
+    "kind": "text",
+    "initial": "YAY, WOW, +1"
+  },
+  "text.fontFamily": {
+    "kind": "text",
+    "initial": "Inter, system-ui, sans-serif"
+  },
+  "text.fontWeight": {
+    "kind": "select",
+    "initial": "700"
+  },
+  "image.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "image.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "image.size": {
+    "kind": "range",
+    "initial": 24
+  },
+  "image.src": {
+    "kind": "select",
+    "initial": "demo canvas"
+  },
+  "image.upload": {
+    "kind": "file",
+    "initial": ""
+  },
+  "sprite.enabled": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "sprite.weight": {
+    "kind": "range",
+    "initial": 1
+  },
+  "sprite.size": {
+    "kind": "range",
+    "initial": 26
+  },
+  "sprite.src": {
+    "kind": "select",
+    "initial": "demo canvas"
+  },
+  "sprite.fps": {
+    "kind": "range",
+    "initial": 12
+  },
+  "sprite.loop": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "sprite.randomStart": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "gravity": {
+    "kind": "range",
+    "initial": 700
+  },
+  "drag": {
+    "kind": "range",
+    "initial": 3.5
+  },
+  "wind": {
+    "kind": "range",
+    "initial": 0
+  },
+  "useTerminal": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "terminalVelocity": {
+    "kind": "range",
+    "initial": 600
+  },
+  "swirl": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "swirlStrength": {
+    "kind": "range",
+    "initial": 200
+  },
+  "swirlFrequency": {
+    "kind": "range",
+    "initial": 0.6
+  },
+  "floor": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "floorY": {
+    "kind": "range",
+    "initial": 1
+  },
+  "floorBounce": {
+    "kind": "range",
+    "initial": 0.35
+  },
+  "floorFriction": {
+    "kind": "range",
+    "initial": 0.4
+  },
+  "attract": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "attractTarget": {
+    "kind": "select",
+    "initial": "pointer"
+  },
+  "attractStrength": {
+    "kind": "range",
+    "initial": 900
+  },
+  "attractRadius": {
+    "kind": "range",
+    "initial": 0
+  },
+  "attractFalloff": {
+    "kind": "select",
+    "initial": "constant"
+  },
+  "hookStart": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "hookSpawn": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "hookUpdate": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "rainbow": {
+    "kind": "toggle",
+    "initial": false
+  },
+  "hookDeath": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "hookComplete": {
+    "kind": "toggle",
+    "initial": true
+  },
+  "logEvents": {
+    "kind": "toggle",
+    "initial": false
+  }
+}

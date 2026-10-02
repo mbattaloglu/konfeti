@@ -14,6 +14,10 @@ export type ControlText = {
    * Empty-List Text (palette controls).
    */
   readonly empty?: string;
+  /**
+   * Readout Text for 0 (range controls with a zero label).
+   */
+  readonly zero?: string;
 };
 
 /**
@@ -48,21 +52,27 @@ export const SHAPE_CONTROLS_TR: Readonly<Record<string, ControlText>> = {
  */
 export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   // burst
-  particleCount: { label: "Parçacık Sayısı" },
-  angle: { label: "Açı", hint: "Fırlatma yönü. 90 = dümdüz yukarı." },
+  particleCount: {
+    label: "Parçacık Sayısı",
+    hint: "Patlama başına parçacık (aralıklı modda atış başına). Şekil oluşturulurken sayıyı Aralık belirler; Parçacık Sayısını Sınırla açıksa bu bir üst sınırdır.",
+  },
+  angle: {
+    label: "Açı",
+    hint: "Fırlatma yönü: 90 = dümdüz yukarı, 0 = sağ. İki değer = aradaki rastgele bir yön.",
+  },
   spread: { label: "Yayılma", hint: "Açının etrafındaki koninin genişliği." },
-  velocityMin: { label: "Başlangıç Hızı Min" },
-  velocityMax: { label: "Başlangıç Hızı Maks" },
+  velocity: { label: "Başlangıç Hızı" },
   lifetime: {
     label: "Ömür",
-    hint: "[değer × (1 − sapma), değer × (1 + sapma)] olarak gönderilir.",
+    hint: "Her parçacığın ömrü; iki değer = aradaki rastgele bir süre.",
   },
-  lifetimeJitter: { label: "Ömür Sapması" },
-  originX: { label: "Çıkış Noktası X" },
-  originY: { label: "Çıkış Noktası Y" },
-  originSpreadX: {
-    label: "Çıkış X Yayılımı",
-    hint: "0'dan büyükse origin.x, [x − v, x + v] aralığına dönüşür.",
+  originX: {
+    label: "Çıkış Noktası X",
+    hint: "0 = sol kenar, 1 = sağ kenar. İki değer verilirse parçacıklar bir çizgi boyunca çıkar.",
+  },
+  originY: {
+    label: "Çıkış Noktası Y",
+    hint: "0 = üst kenar, 1 = alt kenar; 0'ın altı ya da 1'in üstü ekranın dışından başlar.",
   },
   useSeed: { label: "Seed Kullan", hint: "Aynı seed = her seferinde aynı patlama." },
   seed: { label: "Seed" },
@@ -90,6 +100,7 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   formationFont: { label: "Font", hint: "CSS font kısaltması: kalınlık, boyut, aile." },
   formationImage: { label: "Görsel" },
   formationUpload: { label: "Görsel Yükle", hint: "Görselin opak pikselleri şekli oluşturur." },
+  useFormationWidth: { label: "Sabit Genişlik", hint: "Kapalı: görsel kendi genişliğini korur." },
   formationWidth: { label: "Görsel Genişliği" },
   formationImageColors: {
     label: "Görselin Renkleri",
@@ -100,7 +111,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
     hint: "Toplanarak = kenarların ötesinden uçup gelir, Bir Anda = yerinde belirir.",
   },
   formationAssemble: { label: "Toplanma Süresi" },
-  formationEasing: { label: "Toplanma Easing'i" },
+  formationEasing: {
+    label: "Toplanma Easing'i",
+    hint: "Toplanmanın hız eğrisi. Bir Anda modunda toplanma olmadığından orada etkisi yoktur.",
+  },
   formationHold: { label: "Bekleme", hint: "Şeklin dağılmadan önce ekranda kalma süresi." },
   formationSpacing: {
     label: "Aralık",
@@ -110,22 +124,34 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
     label: "Sığdırma",
     hint: "Tuvalin en fazla ne kadarını kaplayacağı; daha büyük bir şekil bütün olarak küçültülür.",
   },
-  formationVelocityMin: { label: "Dağılma Hızı Min" },
-  formationVelocityMax: { label: "Dağılma Hızı Maks" },
+  formationVelocity: { label: "Dağılma Hızı" },
+  useFormationCap: {
+    label: "Parçacık Sayısını Sınırla",
+    hint: "Parçacık Sayısı'nı üst sınır olarak kullan; kapalıyken sayıyı yalnızca Aralık belirler.",
+  },
 
   // paper geometry
   form: { label: "Form", hint: "Bir ya da birden çok seç; seçilen formlar eşit oranda karışır." },
-  widthMin: { label: "Genişlik Min" },
-  widthMax: { label: "Genişlik Maks" },
-  heightMin: { label: "Yükseklik Min" },
-  heightMax: { label: "Yükseklik Maks" },
+  width: { label: "Genişlik" },
+  height: { label: "Yükseklik" },
   useAspect: {
     label: "En-Boy Oranı Kullan",
     hint: "Yüksekliği paper.height yerine genişlik × oran ile hesapla.",
   },
   aspectRatio: { label: "En-Boy Oranı" },
   cornerRadius: { label: "Köşe Yarıçapı" },
-  skew: { label: "Eğme", hint: "[-değer, değer] olarak gönderilir." },
+  cornerPerCorner: {
+    label: "Her Köşe Ayrı",
+    hint: "Her köşeyi ayrı ayarla (yalnızca dikdörtgen ve kare).",
+  },
+  cornerTL: { label: "Sol Üst" },
+  cornerTR: { label: "Sağ Üst" },
+  cornerBR: { label: "Sağ Alt" },
+  cornerBL: { label: "Sol Alt" },
+  skew: {
+    label: "Eğme",
+    hint: "Her parçanın sabit eğimi; iki değer = aradaki rastgele bir eğim (en çok ±60°).",
+  },
 
   // colors
   colorTheme: {
@@ -145,8 +171,11 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   },
   backShade: { label: "Arka Yüz Gölgesi" },
   gradient: { label: "Gradyan" },
-  gradientA: { label: "Gradyan Başlangıcı" },
-  gradientB: { label: "Gradyan Bitişi" },
+  gradientColors: {
+    label: "Gradyan Renkleri",
+    hint: "Baştan sona eşit aralıklı, iki ya da daha fazla durak.",
+    empty: "En Az İki Renk Ekle",
+  },
   gradientAngle: { label: "Gradyan Açısı" },
   colorOverLife: { label: "Ömür Boyunca Renk" },
   colorOverLifeTo: { label: "Hedef Renk" },
@@ -159,15 +188,18 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
 
   // motion
   scale: { label: "Ölçek" },
-  rotationMax: { label: "Başlangıç Dönüşü Maks", hint: "[0, değer] olarak gönderilir." },
-  rotationSpeed: { label: "Dönüş Hızı", hint: "[-değer, değer] olarak gönderilir." },
+  rotation: { label: "Başlangıç Dönüşü" },
+  rotationSpeed: {
+    label: "Dönüş Hızı",
+    hint: "Saniyedeki derece cinsinden dönüş; negatif değerler ters yöne döndürür.",
+  },
   flip: { label: "Takla" },
   flipAxis: { label: "Takla Ekseni" },
   flipFrequency: { label: "Takla Frekansı" },
   wobble: { label: "Salınım" },
   wobbleAmplitude: { label: "Salınım Genliği" },
   wobbleFrequency: { label: "Salınım Frekansı" },
-  tilt: { label: "Yatma", hint: "[-değer, değer] olarak gönderilir." },
+  tilt: { label: "Yatma", hint: "Sallanan bir yatmanın genliği; işaret yok sayılır." },
 
   // life & effects
   fadeIn: { label: "Belirme", hint: "Ömrün belirerek geçen kısmı (oran)." },
@@ -179,6 +211,7 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   scaleEasing: { label: "Ölçek Yumuşatması" },
   shadow: { label: "Gölge" },
   shadowColor: { label: "Gölge Rengi" },
+  shadowAlpha: { label: "Gölge Opaklığı" },
   shadowBlur: { label: "Gölge Bulanıklığı" },
   shadowX: { label: "Gölge Kayması X" },
   shadowY: { label: "Gölge Kayması Y" },
@@ -201,8 +234,13 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   "ribbon.thickness": { label: "Kalınlık", hint: "Genişliğin uzunluğa oranı." },
   "ribbon.waves": { label: "Dalga" },
   "path.d": { label: "Path Verisi", hint: "viewBox içine çizilen SVG path `d` metni." },
-  "path.viewBox": { label: "View Box", hint: "[değer, değer] olarak gönderilir." },
+  "path.viewBox": {
+    label: "View Box Genişliği",
+    hint: "Path'in çizim alanı; uzun kenarı Boyut'a ölçeklenir.",
+  },
+  "path.viewBoxHeight": { label: "View Box Yüksekliği" },
   "emoji.list": { label: "Emoji", hint: "Virgülle ayrılmış liste." },
+  "emoji.fontFamily": { label: "Yazı Tipi" },
   "text.list": { label: "Metin", hint: "Virgülle ayrılmış liste." },
   "text.fontFamily": { label: "Yazı Tipi" },
   "text.fontWeight": { label: "Yazı Kalınlığı" },
@@ -223,8 +261,8 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   gravity: { label: "Yerçekimi" },
   drag: { label: "Sürtünme" },
   wind: { label: "Rüzgar" },
-  useTerminal: { label: "Limit Hız", hint: "Düşüş hızını sınırlar." },
-  terminalVelocity: { label: "Maks Düşüş Hızı" },
+  useTerminal: { label: "Limit Hız", hint: "Toplam hızı her yönde sınırlar." },
+  terminalVelocity: { label: "Maks Hız" },
   swirl: { label: "Girdap" },
   swirlStrength: { label: "Girdap Gücü" },
   swirlFrequency: { label: "Girdap Frekansı" },
@@ -237,6 +275,8 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
     hint: "Parçacıkları bir hedefe çeker; negatif güç onları iter.",
   },
   attractTarget: { label: "Hedef" },
+  attractX: { label: "Hedef X", hint: "Aralık verilebilir; çekim ortasına yönelir." },
+  attractY: { label: "Hedef Y" },
   attractStrength: { label: "Güç", hint: "Negatif değerler parçacıkları iter (itici)." },
   attractRadius: { label: "Erişim", hint: "Çekimin ne kadar uzağa ulaştığı. 0 = tüm tuval." },
   attractFalloff: {
@@ -318,9 +358,17 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   x: "Yatay Eksen",
   y: "Dikey Eksen",
   both: "İki Eksen",
-  "400": "Normal",
-  "700": "Kalın",
-  "900": "Çok Kalın",
+  "100": "İnce 100",
+  "200": "Ekstra Hafif 200",
+  "300": "Hafif 300",
+  "400": "Normal 400",
+  "500": "Orta 500",
+  "600": "Yarı Kalın 600",
+  "700": "Kalın 700",
+  "800": "Ekstra Kalın 800",
+  "900": "Çok Kalın 900",
+  normal: "normal (CSS anahtar sözcüğü)",
+  bold: "bold (CSS anahtar sözcüğü)",
   "demo canvas": "Demo Canvas",
   "demo url": "Demo URL",
   "inline svg": "Satır İçi SVG",
@@ -344,17 +392,26 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   appear: "Bir Anda",
   linear: "Doğrusal",
   pointer: "İmleç",
-  center: "Merkez",
-  "top center": "Üst Orta",
+  point: "Nokta",
   constant: "Sabit",
   "source-over": "Normal",
   lighter: "Toplamalı",
   multiply: "Çoğalt",
   screen: "Ekran",
   overlay: "Bindirme",
+  darken: "Koyulaştır",
+  lighten: "Açıklaştır",
+  "color-dodge": "Renk Soldurma",
+  "color-burn": "Renk Yakma",
+  "hard-light": "Sert Işık",
+  "soft-light": "Yumuşak Işık",
   difference: "Fark",
   exclusion: "Hariç Tutma",
-  "color-dodge": "Renk Soldurma",
+  hue: "Ton",
+  saturation: "Doygunluk",
+  color: "Renk",
+  luminosity: "Parlaklık",
+  xor: "XOR",
 };
 
 /**

@@ -39,9 +39,15 @@ const COIN_SIZE = 96;
 const FRAME_SIZE = 64;
 
 /**
- * Sprite Sheet Frame Count.
+ * Frame Count of the Demo Sprite Sheet (one row; the editor's sprite column count starts here).
  */
-const FRAME_COUNT = 8;
+export const DEMO_SHEET_FRAMES = 8;
+
+/**
+ * Inline SVG Offered as an Image Source (a string starting with `<svg` is used as markup).
+ */
+export const DEMO_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="#d6ff3f" stroke="#0b0d10" stroke-width="1" d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg>';
 
 /**
  * Demo Logo Size (three overlapping rings of color).
@@ -167,11 +173,11 @@ export async function createDemoAssets(): Promise<DemoAssets> {
   const coin = createCanvas(COIN_SIZE, COIN_SIZE);
   drawCoin(coin.ctx, COIN_SIZE / 2, COIN_SIZE / 2, COIN_SIZE * 0.46, 1);
 
-  const sheet = createCanvas(FRAME_SIZE * FRAME_COUNT, FRAME_SIZE);
+  const sheet = createCanvas(FRAME_SIZE * DEMO_SHEET_FRAMES, FRAME_SIZE);
 
-  for (let frame = 0; frame < FRAME_COUNT; frame++) {
+  for (let frame = 0; frame < DEMO_SHEET_FRAMES; frame++) {
     // half a turn across the sheet; |cos| keeps the face readable on both halves
-    const squash = Math.abs(Math.cos((frame / FRAME_COUNT) * Math.PI));
+    const squash = Math.abs(Math.cos((frame / DEMO_SHEET_FRAMES) * Math.PI));
     drawCoin(
       sheet.ctx,
       frame * FRAME_SIZE + FRAME_SIZE / 2,
@@ -191,7 +197,7 @@ export async function createDemoAssets(): Promise<DemoAssets> {
     coinUrl,
     sheetCanvas: sheet.canvas,
     sheetUrl,
-    sheetFrames: FRAME_COUNT,
+    sheetFrames: DEMO_SHEET_FRAMES,
     logoCanvas: drawLogo(),
   };
 }

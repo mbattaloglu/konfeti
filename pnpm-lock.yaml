@@ -90,9 +90,18 @@ importers:
       '@types/node':
         specifier: ^24.0.0
         version: 24.19.0
+      happy-dom:
+        specifier: ^20.14.5
+        version: 20.14.5
       vite:
         specifier: ^8.3.1
         version: 8.3.1(@types/node@24.19.0)(yaml@2.9.1)
+      vitest:
+        specifier: ^5.0.2
+        version: 5.0.2(@types/node@24.19.0)(happy-dom@20.14.5)(vite@8.3.1(@types/node@24.19.0)(yaml@2.9.1))
+      vitest-canvas-mock:
+        specifier: ^1.2.0
+        version: 1.2.0(vitest@5.0.2(@types/node@24.19.0)(happy-dom@20.14.5)(vite@8.3.1(@types/node@24.19.0)(yaml@2.9.1)))
 
 packages:
 

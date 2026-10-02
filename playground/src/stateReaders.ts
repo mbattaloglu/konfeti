@@ -1,6 +1,5 @@
-import type { ColorInput } from "konfeti";
-
-import type { ControlState } from "./controlTypes";
+import type { ControlState, NumberPair } from "./controlTypes";
+import { asList, isNumberPair } from "./editor/optionValues";
 
 /**
  * Read Numeric Control.
@@ -9,23 +8,36 @@ import type { ControlState } from "./controlTypes";
  * @param key - Control Key
  * @returns Number (`0` when missing)
  */
-export function num(state: ControlState, key: string): number {
+export function num(state: Readonly<ControlState>, key: string): number {
   const value = state[key];
 
   return typeof value === "number" ? value : Number(value ?? 0);
 }
 
 /**
- * Read String Control.
+ * Read String Control (select values).
  *
  * @param state - Control State
  * @param key - Control Key
  * @returns Trimmed String
  */
-export function str(state: ControlState, key: string): string {
+export function str(state: Readonly<ControlState>, key: string): string {
   const value = state[key];
 
   return typeof value === "string" ? value.trim() : "";
+}
+
+/**
+ * Read String Control Exactly (every string sent to the library).
+ *
+ * @param state - Control State
+ * @param key - Control Key
+ * @returns Stored String, Untrimmed (`""` when missing)
+ */
+export function raw(state: Readonly<ControlState>, key: string): string {
+  const value = state[key];
+
+  return typeof value === "string" ? value : "";
 }
 
 /**
@@ -35,21 +47,38 @@ export function str(state: ControlState, key: string): string {
  * @param key - Control Key
  * @returns Whether the Toggle Is On
  */
-export function bool(state: ControlState, key: string): boolean {
+export function bool(state: Readonly<ControlState>, key: string): boolean {
   return state[key] === true;
 }
 
 /**
- * Read Multi-Select Control.
+ * Read Multi-Select or Color List Control.
  *
  * @param state - Control State
  * @param key - Control Key
- * @returns Selected Options
+ * @returns Stored List, or Empty when the Value Is Not a List of Strings
  */
-export function list(state: ControlState, key: string): readonly string[] {
+export function list(state: Readonly<ControlState>, key: string): readonly string[] {
+  const items = asList(state[key]) ?? [];
+
+  return items.every((item): item is string => typeof item === "string") ? items : [];
+}
+
+/**
+ * Read Span Control.
+ *
+ * @param state - Control State
+ * @param key - Control Key
+ * @returns Stored Pair, `[n, n]` for a Stray Number, `[0, 0]` when Missing
+ */
+export function pair(state: Readonly<ControlState>, key: string): NumberPair {
   const value = state[key];
 
-  return Array.isArray(value) ? (value as readonly string[]) : [];
+  if (isNumberPair(value)) {
+    return value;
+  }
+
+  return typeof value === "number" && Number.isFinite(value) ? [value, value] : [0, 0];
 }
 
 /**
@@ -63,14 +92,4 @@ export function splitList(value: string): string[] {
     .split(",")
     .map((entry) => entry.trim())
     .filter((entry) => entry !== "");
-}
-
-/**
- * Treat a User String as a CSS Color (validated by the library).
- *
- * @param value - Raw Color String
- * @returns Color Input
- */
-export function asColor(value: string): ColorInput {
-  return value as ColorInput;
 }

@@ -1,7 +1,15 @@
-import type { FireOptions } from "konfeti";
+import type { FireInput } from "konfeti";
 
 import type { DemoAssets } from "../demoAssets";
 import { t } from "../i18n/messages";
+import { isBurstList } from "../jsonIO";
+
+/**
+ * Copy Code Mode.
+ * "changed" writes the minimal build (only what differs from the library defaults), "all" the explicit build
+ * (every setting written out).
+ */
+export type CodeMode = "changed" | "all";
 
 /**
  * Indent Unit of the Generated Code.
@@ -114,50 +122,22 @@ function write(
 }
 
 /**
- * Keep Only What Differs from the Baseline (objects compared key by key, everything else as a whole).
- *
- * @param value - Current Value
- * @param baseline - Value with Default Settings
- * @returns The Differing Part, or Undefined when Equal
- */
-function difference(value: unknown, baseline: unknown): unknown {
-  const isObject = (item: unknown): item is Record<string, unknown> =>
-    typeof item === "object" && item !== null && !Array.isArray(item) && !(item instanceof Element);
-
-  if (isObject(value) && isObject(baseline)) {
-    const changed = Object.entries(value)
-      .map(([key, item]) => [key, difference(item, baseline[key])] as const)
-      .filter(([, item]) => item !== undefined);
-
-    return changed.length === 0 ? undefined : Object.fromEntries(changed);
-  }
-
-  return value === baseline || JSON.stringify(value) === JSON.stringify(baseline)
-    ? undefined
-    : value;
-}
-
-/**
  * Generate a Ready-to-Paste `Konfeti.fire()` Snippet for the Current Settings.
- * With `defaults`, only settings that differ from them are written (what was actually tuned); with `null`,
- * every setting is written out.
+ * The input is written as built: one object for one burst, a list for several (a burst at its defaults is `{}`).
  *
- * @param options - Current Fire Options (without hooks)
- * @param defaults - Fire Options Built from the Default Settings, or Null for Every Setting
+ * @param input - Built Fire Input (without hooks): the minimal build for "changed", the explicit one for "all"
  * @param assets - Demo Images (replaced by placeholder paths)
+ * @param mode - Code Mode (picks the trailing comment)
  * @returns TypeScript Source
  */
-export function toCode(
-  options: FireOptions,
-  defaults: FireOptions | null,
-  assets: DemoAssets,
-): string {
-  const shown = defaults === null ? options : difference(options, defaults);
-  const body = shown === undefined ? "" : (write(shown, 0, placeholderFor(assets)) ?? "");
+export function toCode(input: FireInput, assets: DemoAssets, mode: CodeMode): string {
+  // a single burst with nothing changed is the plain `Konfeti.fire()` call
+  const allDefaults = mode === "changed" && !isBurstList(input) && Object.keys(input).length === 0;
+  const body = allDefaults ? "" : (write(input, 0, placeholderFor(assets)) ?? "");
   const comment =
-    defaults === null
+    mode === "all"
       ? "code.commentAll"
-      : body === ""
+      : allDefaults
         ? "code.commentDefaults"
         : "code.commentChanged";
   const usesImages = Object.values(PLACEHOLDERS).some((path) =>

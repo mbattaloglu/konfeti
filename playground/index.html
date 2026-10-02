@@ -237,7 +237,55 @@
         </div>
       </header>
 
-      <div id="tab-controls" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-controls">
+      <div
+        id="tab-controls"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-btn-controls"
+        data-mode="basic"
+      >
+        <div class="mode-row">
+          <div
+            id="editor-mode"
+            class="mode-switch"
+            role="group"
+            aria-label="Editor mode"
+            data-i18n-aria-label="mode.label"
+          >
+            <button
+              type="button"
+              class="mode-option"
+              data-mode="basic"
+              aria-pressed="true"
+              data-i18n="mode.basic"
+            >
+              Basic
+            </button>
+            <button type="button" class="mode-option" data-mode="advanced" aria-pressed="false">
+              <span data-i18n="mode.advanced">Advanced</span>
+              <span id="mode-badge" class="mode-badge" hidden></span>
+            </button>
+          </div>
+        </div>
+        <script>
+          // applies the remembered editor mode before the first paint; main.ts wires the switch later
+          // (the key and the values mirror MODE_STORAGE_KEY and EditorMode in src/editor/editorMode.ts)
+          (() => {
+            let mode = "basic";
+            try {
+              if (localStorage.getItem("konfeti-playground:mode") === "advanced") {
+                mode = "advanced";
+              }
+            } catch {
+              // storage may be blocked (private mode); basic is the default
+            }
+            document.getElementById("tab-controls").dataset.mode = mode;
+            for (const button of document.querySelectorAll("#editor-mode .mode-option")) {
+              button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
+            }
+          })();
+        </script>
+
         <section class="block">
           <h2 class="block-title">
             <span data-i18n="block.presets">Presets</span> <code>KonfetiPresets.*</code>

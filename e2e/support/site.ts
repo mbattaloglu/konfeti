@@ -38,12 +38,15 @@ const PAGES_DIR = fileURLToPath(new URL("../pages/", import.meta.url));
 
 /**
  * Content Types by File Extension.
+ * A same-origin stylesheet only applies when served as `text/css`, so the site's CSS needs its type here.
  */
 const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".html": "text/html",
   ".js": "text/javascript",
   ".cjs": "text/javascript",
   ".map": "application/json",
+  ".css": "text/css",
+  ".svg": "image/svg+xml",
 };
 
 /**

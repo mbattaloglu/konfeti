@@ -1,6 +1,8 @@
 import type { FireInput, FireOptions } from "konfeti";
 
 import type { DemoAssets } from "./demoAssets";
+import { isRecord } from "./editor/optionValues";
+import { HOOK_KEYS } from "./hooks";
 
 /**
  * Prefix of JSON Placeholders that Stand for Runtime Objects.
@@ -17,6 +19,8 @@ function assetTokens(assets: DemoAssets): ReadonlyMap<object, string> {
   return new Map<object, string>([
     [assets.coinCanvas, `${ASSET_PREFIX}coinCanvas`],
     [assets.sheetCanvas, `${ASSET_PREFIX}sheetCanvas`],
+    // the demo logo of image formations; without a token the JSON panel would drop `formation.image`
+    [assets.logoCanvas, `${ASSET_PREFIX}logoCanvas`],
   ]);
 }
 
@@ -64,7 +68,20 @@ export function toJson(input: FireInput, assets: DemoAssets): string {
 }
 
 /**
+ * Drop the Hook Keys of One Parsed Burst.
+ *
+ * @param burst - Parsed Burst (anything else is returned as is)
+ * @returns Burst without Hook Keys
+ */
+function withoutHooks(burst: unknown): unknown {
+  return isRecord(burst)
+    ? Object.fromEntries(Object.entries(burst).filter(([key]) => !HOOK_KEYS.includes(key)))
+    : burst;
+}
+
+/**
  * Parse JSON Text Back into Fire Input, Restoring Asset Placeholders.
+ * Hook keys are dropped: JSON cannot hold a function, and the library would call any other value.
  *
  * @param text - JSON Text
  * @param assets - Demo Images
@@ -77,10 +94,12 @@ export function parseJson(text: string, assets: DemoAssets): FireInput {
     objects.set(token, object);
   }
 
-  // json is a user boundary: the library validates the shape at fire time
-  return JSON.parse(text, (_key, value: unknown) =>
+  const parsed: unknown = JSON.parse(text, (_key, value: unknown) =>
     typeof value === "string" && value.startsWith(ASSET_PREFIX)
       ? (objects.get(value) ?? value)
       : value,
-  ) as FireInput;
+  );
+
+  // json is a user boundary: the library validates the shape at fire time
+  return (Array.isArray(parsed) ? parsed.map(withoutHooks) : withoutHooks(parsed)) as FireInput;
 }

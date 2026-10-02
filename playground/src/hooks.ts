@@ -12,6 +12,17 @@ export type HookSet = Pick<
 >;
 
 /**
+ * Option Key of Every Hook (`satisfies` keeps the list complete and free of other keys).
+ */
+export const HOOK_KEYS: readonly string[] = Object.keys({
+  onStart: true,
+  onParticleSpawn: true,
+  onParticleUpdate: true,
+  onParticleDeath: true,
+  onComplete: true,
+} satisfies Record<keyof HookSet, true>);
+
+/**
  * Live Hook Event Counters.
  */
 export type HookCounters = {

@@ -93,12 +93,14 @@ body {
   color: var(--fg-dim);
 }
 
-.code-mode {
+.code-mode,
+.mode-switch {
   display: flex;
   margin-bottom: 8px;
 }
 
-.code-mode-option {
+.code-mode-option,
+.mode-option {
   flex: 1 1 0;
   padding: 6px 8px;
   border: 1px solid var(--border-2);
@@ -111,21 +113,75 @@ body {
   cursor: pointer;
 }
 
-.code-mode-option + .code-mode-option {
+.code-mode-option + .code-mode-option,
+.mode-option + .mode-option {
   margin-left: -1px;
 }
 
-.code-mode-option:hover {
+.code-mode-option:hover,
+.mode-option:hover {
   position: relative;
   border-color: var(--accent);
   color: var(--accent);
 }
 
-.code-mode-option[aria-pressed="true"] {
+.code-mode-option[aria-pressed="true"],
+.mode-option[aria-pressed="true"] {
   position: relative;
   border-color: var(--accent);
   background: var(--accent-soft-2);
   color: var(--accent);
+}
+
+/* ---------- basic / advanced ---------- */
+.mode-row {
+  padding: 16px 22px 0;
+}
+
+.mode-switch {
+  margin-bottom: 0;
+}
+
+/* the badge is placed against its button */
+.mode-option {
+  position: relative;
+}
+
+/* the pressed or hovered button keeps its accent border on top of the shared 1 px edge */
+.mode-option:hover,
+.mode-option[aria-pressed="true"] {
+  z-index: 1;
+}
+
+/* how many active settings Basic hides: a corner pill outside the label's line, so it never wraps the label or
+   resizes the switch */
+.mode-badge {
+  position: absolute;
+  top: -7px; /* half the pill's height */
+  right: -7px;
+  min-width: 14px;
+  padding: 0 4px;
+  border-radius: 7px;
+  background: var(--warn);
+  color: var(--on-accent);
+  font-size: 9px;
+  line-height: 14px;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.mode-badge[hidden] {
+  display: none;
+}
+
+/* advanced rows, sections and features stay in the state (and keep being built); Basic only hides them */
+#tab-controls[data-mode="basic"] [data-advanced] {
+  display: none;
+}
+
+/* the last row Basic still shows ends its section without a divider, like a real last row */
+#tab-controls[data-mode="basic"] .control:not(:has(~ .control:not([data-advanced]))) {
+  border-bottom: none;
 }
 
 .code-preview {
@@ -518,6 +574,143 @@ body {
 
 .slider:disabled::-webkit-slider-thumb {
   background: var(--fg-mute);
+}
+
+/* ---------- span slider (two native range inputs stacked on one track) ---------- */
+/* the thumbs' z-index stays inside the track */
+.span-slider {
+  position: relative;
+  height: 14px;
+  isolation: isolate;
+}
+
+.span-slider::before,
+.span-slider::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  height: 2px;
+}
+
+.span-slider::before {
+  left: 0;
+  right: 0;
+  background: var(--border-2);
+}
+
+.span-slider::after {
+  left: var(--from);
+  right: calc(100% - var(--to));
+  background: var(--accent);
+}
+
+/* only the thumbs take the pointer, so each input's empty track never covers the other thumb; both thumbs
+   paint and hit-test above the ::after fill, which would otherwise cover their centre line */
+.span-thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.span-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+}
+
+.span-thumb::-moz-range-track,
+.span-thumb::-moz-range-progress {
+  background: transparent;
+}
+
+.span-thumb::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.span-thumb::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+.span-thumb.is-top {
+  z-index: 2;
+}
+
+.span-thumb:focus-visible::-webkit-slider-thumb {
+  outline: 1px solid var(--fg);
+  outline-offset: 2px;
+}
+
+.span-thumb:focus-visible::-moz-range-thumb {
+  outline: 1px solid var(--fg);
+  outline-offset: 2px;
+}
+
+/* ---------- exact value entry (the readout is a button that opens a text field) ---------- */
+.control-value-edit {
+  margin-left: auto;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: text;
+}
+
+.control-value-edit:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.control-value-edit:hover:not(:disabled) .control-value {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+.control-value-edit:disabled {
+  cursor: not-allowed;
+}
+
+.control-head.is-editing {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.value-editor {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  margin-left: auto;
+}
+
+/* the fields shrink in narrow phone panels, so the open editor never overflows its row */
+.value-input {
+  flex: 1 1 72px;
+  width: auto;
+  min-width: 0;
+  max-width: 72px;
+  padding: 1px 6px;
+  border: 1px solid var(--border-2);
+  border-radius: 0;
+  background: var(--panel-2);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.value-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.value-input[aria-invalid="true"] {
+  outline: 1px solid var(--err);
+}
+
+.value-separator {
+  color: var(--fg-mute);
 }
 
 /* ---------- inputs ---------- */
@@ -1233,7 +1426,8 @@ body.is-click-fire .stage-hit {
     min-width: 0;
   }
 
-  .block {
+  .block,
+  .mode-row {
     padding-inline: 10px;
   }
 
@@ -1253,6 +1447,13 @@ body.is-click-fire .stage-hit {
   .control-head {
     flex-wrap: wrap;
     row-gap: 2px;
+  }
+
+  /* long (TR) labels wrap inside their head instead of running under a switch or past the panel edge */
+  .control-label {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .card-titles {

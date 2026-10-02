@@ -12,21 +12,27 @@ import { createWorker, WorkerKonfetiInstance } from "konfeti/worker";
 import type { WorkerEmitOptions, WorkerFireInput, WorkerStats } from "konfeti/worker";
 
 import { startAnalytics } from "./analytics";
-import { buildOptions } from "./buildOptions";
+import { buildBurst, buildInput } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
 import type { ControlState } from "./controlTypes";
 import { createDemoAssets } from "./demoAssets";
+import { CONTROL_INDEX, deriveTheme, initialBurst } from "./editor/burstState";
+import type { BurstState } from "./editor/burstState";
+import { countHiddenAdvanced } from "./editor/editorMode";
 import { buildHooks, createCounters } from "./hooks";
 import { t } from "./i18n/messages";
 import { localizeSections } from "./i18n/localizeControls";
 import { applyStaticText, mountLanguageSwitch } from "./i18n/staticText";
 import { isBurstList, parseJson, toJson } from "./jsonIO";
-import { str } from "./stateReaders";
+import { list, str } from "./stateReaders";
 import { byId, el } from "./ui/dom";
 import { renderControls } from "./ui/renderControls";
+import { renderModeSwitch } from "./ui/renderModeSwitch";
 import { renderPresets } from "./ui/renderPresets";
 import { toCode } from "./share/codeExport";
-import { createShareLink, readShareLink } from "./share/shareLink";
+import type { CodeMode } from "./share/codeExport";
+import { createShareLink, readShareLink, restoreShared, toShareSettings } from "./share/shareLink";
+import type { ShareV2 } from "./share/shareLink";
 
 /**
  * Stats Refresh Interval.
@@ -151,6 +157,13 @@ async function init(): Promise<void> {
   // translate the static markup first, before the demo assets load
   applyStaticText(document, "playground.title");
   mountLanguageSwitch(byId("lang-switch", HTMLElement));
+  // the remembered editor mode is applied before the demo assets load, so the panel never shows the other mode
+  const modeRoot = byId("tab-controls", HTMLElement);
+  const modeSwitch = renderModeSwitch(
+    byId("editor-mode", HTMLElement),
+    byId("mode-badge", HTMLElement),
+  );
+  modeRoot.dataset["mode"] = modeSwitch.mode();
   const assets = await createDemoAssets();
   const state: ControlState = {};
   const counters = createCounters();
@@ -234,7 +247,8 @@ async function init(): Promise<void> {
       return;
     }
 
-    jsonArea.value = toJson(buildOptions(state, assets), assets);
+    // the minimal build: exactly what Fire sends
+    jsonArea.value = toJson(buildInput(currentBursts(), assets), assets);
     jsonDirty = false;
     jsonState.textContent = t("json.synced");
     jsonState.classList.remove("is-dirty");
@@ -249,13 +263,20 @@ async function init(): Promise<void> {
     localizeSections(CONTROL_SECTIONS),
     state,
     (key) => {
-      // picking a theme fills the palette with its colors (a normal, editable palette afterwards)
+      // picking a theme fills the palette with its colors (a normal, editable palette afterwards); that write
+      // runs this listener for "colors", which already refreshed everything
       if (key === "colorTheme") {
         const theme = str(state, "colorTheme").toUpperCase().replace(/ /g, "_");
 
         if (theme in KonfetiPalettes) {
           controls.setValue("colors", [...KonfetiPalettes[theme as KonfetiPaletteName]]);
+          return;
         }
+      }
+
+      // the theme only names the palette the colors match ("custom" for any other list)
+      if (key === "colors") {
+        controls.setValue("colorTheme", deriveTheme(list(state, "colors")), { silent: true });
       }
 
       if (key === "image.upload") {
@@ -279,9 +300,35 @@ async function init(): Promise<void> {
       syncJson();
       restartStream();
       refreshExport();
+      refreshBadge();
     },
+    { mode: modeSwitch.mode(), modeRoot },
   );
 
+  /**
+   * List Every Burst of the Editor (one burst, the live controls).
+   *
+   * @returns Burst States in Tab Order
+   */
+  function currentBursts(): readonly BurstState[] {
+    return [controls.capture("burst")];
+  }
+
+  /**
+   * Count the Active Settings Basic Mode Hides, for the Badge on the Advanced Button.
+   */
+  function refreshBadge(): void {
+    modeSwitch.setHiddenCount(
+      countHiddenAdvanced(currentBursts(), controls.capture("global"), CONTROL_INDEX),
+    );
+  }
+
+  modeSwitch.onChange((mode) => {
+    controls.setMode(mode);
+    refreshBadge();
+  });
+
+  // every binding of both scopes goes back to its initial value (the library defaults)
   byId("reset-controls", HTMLButtonElement).addEventListener("click", () => {
     controls.reset();
     syncJson(true);
@@ -289,7 +336,7 @@ async function init(): Promise<void> {
 
   // top bar
   byId("fire", HTMLButtonElement).addEventListener("click", () => {
-    fireMain(buildOptions(state, assets));
+    fireMain(buildInput(currentBursts(), assets));
   });
   byId("pause", HTMLButtonElement).addEventListener("click", () => lastHandle?.pause());
   byId("resume", HTMLButtonElement).addEventListener("click", () => lastHandle?.resume());
@@ -348,7 +395,7 @@ async function init(): Promise<void> {
     document.body.classList.toggle("is-click-fire", clickToggle.checked);
 
     if (clickToggle.checked) {
-      const clickOptions = (): FireOptions => buildOptions(state, assets, { includeOrigin: false });
+      const clickOptions = (): FireOptions => buildBurst(state, assets, { includeOrigin: false });
       // click bursts become the "last burst" too, so pause / resume / stop / replay and the status chip follow
       // them; the replay fires at the same spot
       const track = (handle: KonfetiHandle, event: MouseEvent): void => {
@@ -371,7 +418,7 @@ async function init(): Promise<void> {
   const startStream = (): void => {
     // emit() replaces particleCount / emission / origin itself, so the fire options pass through as they are;
     // a stream cannot form a shape
-    const options = buildOptions(state, assets, { includeOrigin: false, includeFormation: false });
+    const options = buildBurst(state, assets, { includeOrigin: false, includeFormation: false });
     const settings = {
       ...options,
       rate: Math.max(1, options.particleCount ?? 60),
@@ -448,7 +495,7 @@ async function init(): Promise<void> {
   // keyboard: F fires
   window.addEventListener("keydown", (event) => {
     if (event.key.toLowerCase() === "f" && !isTyping(event) && !event.metaKey && !event.ctrlKey) {
-      fireMain(buildOptions(state, assets));
+      fireMain(buildInput(currentBursts(), assets));
     }
   });
 
@@ -507,14 +554,20 @@ async function init(): Promise<void> {
     requestAnimationFrame(tick);
   };
 
-  // defaults before a shared link is applied: Copy Code writes only what differs from these
-  const defaultOptions = buildOptions({ ...state }, assets);
-
-  // share link: only settings that differ from the defaults travel in the URL
+  // share link: only settings that differ from the defaults travel in the URL (upload URLs never do)
+  const shareSettings = (): ShareV2 | null =>
+    toShareSettings(currentBursts(), controls.capture("global"));
   const shared = readShareLink();
 
   if (shared !== null) {
-    controls.restore(shared);
+    // a link is outside input: every value is checked against its control before it is shown, and a v1 link is
+    // migrated to the v2 controls first
+    const restored = restoreShared(shared);
+    // one burst until the burst tabs arrive; a longer list can only come from a later deploy
+    const [burst = initialBurst()] = restored.bursts;
+    controls.load("burst", burst);
+    controls.load("global", restored.globals);
+    syncJson(true);
     showToast(t("share.loaded"));
   }
 
@@ -531,9 +584,14 @@ async function init(): Promise<void> {
   const shareLink = byId("share-link", HTMLInputElement);
   const codePreview = byId("code-preview", HTMLElement);
   const exportTab = byId("tab-export", HTMLElement);
-  let codeMode: "changed" | "all" = "changed";
+  let codeMode: CodeMode = "changed";
+  // "Changed only" is the minimal build (what differs from the library defaults), "All settings" the explicit one
   const currentCode = (): string =>
-    toCode(buildOptions(state, assets), codeMode === "all" ? null : defaultOptions, assets);
+    toCode(
+      buildInput(currentBursts(), assets, { mode: codeMode === "all" ? "explicit" : "minimal" }),
+      assets,
+      codeMode,
+    );
   const modeButtons = [...document.querySelectorAll<HTMLButtonElement>(".code-mode-option")];
 
   for (const button of modeButtons) {
@@ -554,12 +612,12 @@ async function init(): Promise<void> {
       return;
     }
 
-    shareLink.value = createShareLink(controls.snapshot());
+    shareLink.value = createShareLink(shareSettings());
     codePreview.textContent = currentCode();
   };
 
   byId("share", HTMLButtonElement).addEventListener("click", () => {
-    const link = createShareLink(controls.snapshot());
+    const link = createShareLink(shareSettings());
     // the address bar shows the link too, so a reload keeps the settings
     history.replaceState(history.state, "", link);
     copyText(link, t("share.copied"));

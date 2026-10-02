@@ -39,8 +39,12 @@ function localizeControl(control: Control): Control {
     ...(text.hint === undefined || control.hint === undefined ? {} : { hint: text.hint }),
   };
 
-  return translated.kind === "palette" && text.empty !== undefined
-    ? { ...translated, emptyLabel: text.empty }
+  if (translated.kind === "palette" && text.empty !== undefined) {
+    return { ...translated, emptyLabel: text.empty };
+  }
+
+  return translated.kind === "range" && text.zero !== undefined
+    ? { ...translated, zeroLabel: text.zero }
     : translated;
 }
 
