@@ -1310,6 +1310,8 @@ function renderFile(control: FileControl, write: ValueWriter): Binding {
   const input = el("input");
   const preview = el("img", "file-preview");
   const name = el("span", "file-name", t("file.none"));
+  // names of the files picked here, by object URL, so a burst switch shows its own file
+  const names = new Map<string, string>();
   input.type = "file";
   input.accept = control.accept;
   picker.append(input, el("span", undefined, t("file.choose")));
@@ -1321,9 +1323,9 @@ function renderFile(control: FileControl, write: ValueWriter): Binding {
     const url = typeof value === "string" ? value : "";
     preview.hidden = url === "";
     preview.src = url;
+    name.textContent = url === "" ? t("file.none") : (names.get(url) ?? t("file.none"));
 
     if (url === "") {
-      name.textContent = t("file.none");
       input.value = "";
     }
   };
@@ -1336,8 +1338,8 @@ function renderFile(control: FileControl, write: ValueWriter): Binding {
     }
 
     const url = URL.createObjectURL(chosen);
+    names.set(url, chosen.name);
     apply(url);
-    name.textContent = chosen.name;
     write(url);
   });
 

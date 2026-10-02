@@ -306,7 +306,52 @@
               Reset Controls
             </button>
           </div>
-          <div id="controls" class="sections"></div>
+          <div id="burst-bar" class="burst-bar" data-advanced>
+            <div
+              id="burst-tabs"
+              class="burst-tabs"
+              role="tablist"
+              aria-label="Bursts"
+              data-i18n-aria-label="bursts.label"
+            ></div>
+            <div class="burst-actions">
+              <button
+                id="burst-add"
+                class="burst-action"
+                type="button"
+                aria-label="Add burst"
+                title="Add burst"
+                data-i18n-aria-label="bursts.add"
+                data-i18n-title="bursts.add"
+              >
+                +
+              </button>
+              <button
+                id="burst-duplicate"
+                class="burst-action"
+                type="button"
+                aria-label="Duplicate burst"
+                title="Duplicate burst"
+                data-i18n-aria-label="bursts.duplicate"
+                data-i18n-title="bursts.duplicate"
+              >
+                ⧉
+              </button>
+              <button
+                id="burst-remove"
+                class="burst-action"
+                type="button"
+                aria-label="Remove burst"
+                title="Remove burst"
+                data-i18n-aria-label="bursts.remove"
+                data-i18n-title="bursts.remove"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+          <p id="burst-notice" class="burst-notice" hidden></p>
+          <div id="controls" class="sections" role="tabpanel"></div>
         </section>
       </div>
 

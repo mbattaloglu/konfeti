@@ -545,3 +545,17 @@ describe("link length", () => {
     expect(isShareable("x".repeat(MAX_SHARE_URL_LENGTH + 1))).toBe(false);
   });
 });
+
+describe("several bursts in a link", () => {
+  it("carry every burst and restore them in order", () => {
+    const bursts = [
+      normalizeBurst({ particleCount: 10 }),
+      normalizeBurst({ particleCount: 20, delay: 300 }),
+      normalizeBurst({ "star.enabled": true }),
+    ];
+    const settings = toShareSettings(bursts, initialGlobals());
+
+    expect(settings?.b).toHaveLength(3);
+    expect(restoreShared({ version: 2, settings: settings! }).bursts).toEqual(bursts);
+  });
+});

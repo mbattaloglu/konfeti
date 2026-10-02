@@ -1119,6 +1119,76 @@ textarea:focus {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* burst tabs (Advanced): each tab is one entry of the fired list */
+.burst-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.burst-tabs {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+
+.burst-tab,
+.burst-action {
+  padding: 6px 9px;
+  border: 1px solid var(--border-2);
+  background: var(--panel);
+  color: var(--fg-dim);
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.burst-tab[aria-selected="true"] {
+  border-color: var(--accent-dim);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.burst-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.burst-action {
+  min-width: 28px;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+.burst-tab:hover,
+.burst-action:hover:not(:disabled) {
+  border-color: var(--accent-dim);
+  color: var(--fg);
+}
+
+.burst-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Basic mode hides the tabs; this line says which burst the controls show */
+.burst-notice {
+  margin: 0 0 10px;
+  color: var(--warn);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+#tab-controls[data-mode="advanced"] .burst-notice {
+  display: none;
+}
+
 /* a card's own style (Advanced): groups that override the inherited paper.* style */
 .card-overrides {
   display: grid;

@@ -393,6 +393,33 @@ test.describe("built site (editor)", () => {
     expect(site.errors).toEqual([]);
   });
 
+  test("several bursts fire as a list and travel in the share link", async ({ page, site }) => {
+    await openSite(page, "");
+    await page.locator('#editor-mode [data-mode="advanced"]').click();
+    await page.locator("#burst-add").click();
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(2);
+    await expect(page.locator("#burst-tab-2")).toHaveAttribute("aria-selected", "true");
+
+    const count = page.locator('[data-key="particleCount"]');
+    await count.locator(".control-value-edit").click();
+    await page.keyboard.type("123");
+    await page.keyboard.press("Enter");
+    const json = async (): Promise<unknown> =>
+      JSON.parse(await page.locator("#json").inputValue()) as unknown;
+    await expect.poll(json).toEqual([{}, { particleCount: 123 }]);
+
+    // the first tab still holds its own burst
+    await page.locator("#burst-tab-1").click();
+    await expect(count.locator("output.control-value")).toHaveText("60");
+
+    await page.locator('.panel-tab[data-tab="export"]').click();
+    const link = await page.locator("#share-link").inputValue();
+    await page.goto(link);
+    await expect(page.locator('#burst-tabs [role="tab"]')).toHaveCount(2);
+    await expect.poll(json).toEqual([{}, { particleCount: 123 }]);
+    expect(site.errors).toEqual([]);
+  });
+
   test("a card sets its own style in Advanced mode", async ({ page, site }) => {
     await openSite(page, "");
     await page.locator('#editor-mode [data-mode="advanced"]').click();

@@ -2,7 +2,6 @@ import { KonfetiFactory, KonfetiPalettes, KonfetiPresets, loadImage, VERSION } f
 import type {
   CreateOptions,
   FireInput,
-  FireOptions,
   KonfetiEmitter,
   KonfetiHandle,
   KonfetiInstance,
@@ -16,9 +15,20 @@ import { buildBurst, buildInput } from "./buildOptions";
 import { CONTROL_SECTIONS } from "./controls";
 import type { ControlState } from "./controlTypes";
 import { createDemoAssets } from "./demoAssets";
-import { CONTROL_INDEX, deriveTheme, initialBurst } from "./editor/burstState";
+import { CONTROL_INDEX, deriveTheme, initialBurst, MAX_BURSTS } from "./editor/burstState";
 import type { BurstState } from "./editor/burstState";
+import {
+  addBurst,
+  createTabs,
+  currentBursts as listBursts,
+  duplicateBurst,
+  patchBursts,
+  removeBurst,
+  selectBurst,
+} from "./editor/burstTabs";
+import type { BurstTabs } from "./editor/burstTabs";
 import { countHiddenAdvanced } from "./editor/editorMode";
+import { seedList, withClickOrigin } from "./editor/fireInput";
 import { createOverrideSource } from "./editor/overrides";
 import { buildHooks, createCounters } from "./hooks";
 import { t } from "./i18n/messages";
@@ -27,6 +37,7 @@ import { applyStaticText, mountLanguageSwitch } from "./i18n/staticText";
 import { isBurstList, parseJson, toJson } from "./jsonIO";
 import { list, raw, str } from "./stateReaders";
 import { byId, el } from "./ui/dom";
+import { renderBurstTabs } from "./ui/renderBurstTabs";
 import { renderControls } from "./ui/renderControls";
 import { renderModeSwitch } from "./ui/renderModeSwitch";
 import { renderPresets } from "./ui/renderPresets";
@@ -167,21 +178,6 @@ function createStage(useWorker: boolean, options: StageOptions): Stage {
 }
 
 /**
- * Give Every Entry of a Burst List Its Own Seed, so the List Can Be Replayed Exactly.
- * A single burst keeps its options: its handle reports the seed it picked.
- *
- * @param input - Fire Input
- * @returns Fire Input with Seeded List Entries
- */
-function seedList(input: FireInput): FireInput {
-  return isBurstList(input)
-    ? input.map((entry) =>
-        entry.seed === undefined ? { ...entry, seed: Math.floor(Math.random() * 2 ** 32) } : entry,
-      )
-    : input;
-}
-
-/**
  * Fire on a Stage.
  * Worker stages cannot run hooks (functions do not cross the thread boundary), so they get the plain options;
  * anything else that is not cloneable (e.g. a canvas image source) throws a readable TypeError.
@@ -218,6 +214,8 @@ async function init(): Promise<void> {
   modeRoot.dataset["mode"] = modeSwitch.mode();
   const assets = await createDemoAssets();
   const state: ControlState = {};
+  // every burst of the editor; the shown one lives in the controls (the burst tabs, Advanced)
+  let burstTabs: BurstTabs = createTabs([], initialBurst());
   const counters = createCounters();
   // the stage is a regular canvas element, so the whole playground is a KonfetiFactory.create(canvas) demo
   let main: Stage = createStage(false, {});
@@ -338,8 +336,15 @@ async function init(): Promise<void> {
         if (url !== "") {
           loadImage(url)
             .then((image: HTMLImageElement) => {
-              controls.setValue("image.src", "upload");
-              controls.setValue("image.enabled", true);
+              const picked = { "image.src": "upload", "image.enabled": true } as const;
+
+              // the shown burst may have changed while the image decoded: only bursts holding this file change
+              if (str(state, "image.upload") === url) {
+                controls.setValue("image.src", picked["image.src"]);
+                controls.setValue("image.enabled", picked["image.enabled"]);
+              }
+
+              burstTabs = patchBursts(burstTabs, (burst) => burst["image.upload"] === url, picked);
               showToast(
                 t("image.loaded", { width: image.naturalWidth, height: image.naturalHeight }),
               );
@@ -373,12 +378,12 @@ async function init(): Promise<void> {
   );
 
   /**
-   * List Every Burst of the Editor (one burst, the live controls).
+   * List Every Burst of the Editor (the live controls in the shown tab's slot).
    *
    * @returns Burst States in Tab Order
    */
   function currentBursts(): readonly BurstState[] {
-    return [controls.capture("burst")];
+    return listBursts(burstTabs, controls.capture("burst"));
   }
 
   /**
@@ -395,9 +400,58 @@ async function init(): Promise<void> {
     refreshBadge();
   });
 
+  // burst tabs (Advanced): each tab is one entry of the fired list
+  const burstAdd = byId("burst-add", HTMLButtonElement);
+  const burstDuplicate = byId("burst-duplicate", HTMLButtonElement);
+  const burstRemove = byId("burst-remove", HTMLButtonElement);
+  const burstNotice = byId("burst-notice", HTMLElement);
+  const showTab = (next: BurstTabs): void => {
+    burstTabs = next;
+    // loading runs the change listener, which refreshes the JSON, the stream, the export and the badge
+    controls.load("burst", burstTabs.bursts[burstTabs.active] ?? initialBurst());
+    renderTabs();
+  };
+  const burstView = renderBurstTabs(
+    byId("burst-tabs", HTMLElement),
+    byId("controls", HTMLElement),
+    (index) => {
+      if (index !== burstTabs.active) {
+        showTab(selectBurst(burstTabs, controls.capture("burst"), index));
+      }
+    },
+  );
+  burstAdd.addEventListener("click", () => {
+    showTab(addBurst(burstTabs, controls.capture("burst"), initialBurst()));
+  });
+  burstDuplicate.addEventListener("click", () => {
+    showTab(duplicateBurst(burstTabs, controls.capture("burst")));
+  });
+  burstRemove.addEventListener("click", () => {
+    showTab(removeBurst(burstTabs));
+  });
+
+  /**
+   * Draw the Burst Tabs, Their Buttons and the Basic-Mode Notice for the Current Tabs.
+   */
+  function renderTabs(): void {
+    const count = burstTabs.bursts.length;
+    burstView.render(count, burstTabs.active);
+    burstAdd.disabled = count >= MAX_BURSTS;
+    burstDuplicate.disabled = count >= MAX_BURSTS;
+    burstRemove.disabled = count <= 1;
+    burstNotice.hidden = count <= 1;
+    burstNotice.textContent =
+      count > 1 ? t("bursts.notice", { n: burstTabs.active + 1, count }) : "";
+    refreshBadge();
+  }
+
+  renderTabs();
+
   // every binding of both scopes goes back to its initial value (the library defaults)
   byId("reset-controls", HTMLButtonElement).addEventListener("click", () => {
+    burstTabs = createTabs([], initialBurst());
     controls.reset();
+    renderTabs();
     syncJson(true);
   });
 
@@ -462,18 +516,26 @@ async function init(): Promise<void> {
     document.body.classList.toggle("is-click-fire", clickToggle.checked);
 
     if (clickToggle.checked) {
-      const clickOptions = (): FireOptions => buildBurst(state, assets, { includeOrigin: false });
+      // built once per click: every burst fires at the click point, and the replay gets the same seeded input
+      let lastClick: FireInput = {};
+      const clickInput = (): FireInput => {
+        lastClick = seedList(buildInput(currentBursts(), assets, { includeOrigin: false }));
+
+        return lastClick;
+      };
       // click bursts become the "last burst" too, so pause / resume / stop / replay and the status chip follow
       // them; the replay fires at the same spot
       const track = (handle: KonfetiHandle, event: MouseEvent): void => {
-        const origin = { clientX: event.clientX, clientY: event.clientY };
-        remember({ ...clickOptions(), origin }, handle);
+        remember(
+          withClickOrigin(lastClick, { clientX: event.clientX, clientY: event.clientY }),
+          handle,
+        );
       };
       // worker stages get plain options (see fireOn); main-thread stages also run the hooks
       unsubscribeClick =
         main instanceof WorkerKonfetiInstance
-          ? main.onClick(stageHit, () => clickOptions() as WorkerFireInput, { onFire: track })
-          : main.onClick(stageHit, () => withHooks(clickOptions()), { onFire: track });
+          ? main.onClick(stageHit, () => clickInput() as WorkerFireInput, { onFire: track })
+          : main.onClick(stageHit, () => withHooks(clickInput()), { onFire: track });
     }
   };
   clickToggle.addEventListener("change", applyClickToggle);
@@ -630,10 +692,10 @@ async function init(): Promise<void> {
     // a link is outside input: every value is checked against its control before it is shown, and a v1 link is
     // migrated to the v2 controls first
     const restored = restoreShared(shared);
-    // one burst until the burst tabs arrive; a longer list can only come from a later deploy
-    const [burst = initialBurst()] = restored.bursts;
-    controls.load("burst", burst);
+    burstTabs = createTabs(restored.bursts, initialBurst());
+    controls.load("burst", burstTabs.bursts[0] ?? initialBurst());
     controls.load("global", restored.globals);
+    renderTabs();
     syncJson(true);
     showToast(t("share.loaded"));
   }
