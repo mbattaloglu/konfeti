@@ -70,7 +70,16 @@ export class Canvas2DRenderer {
         }
 
         if (effects && particle.trailCount > 1) {
+          // a shadow would blur every trail segment again on every frame (a shadowed sparkler fell to 1 fps)
+          if (shadowColor !== null) {
+            context.shadowColor = Canvas2DRenderer.NO_SHADOW;
+          }
+
           TrailPainter.draw(context, particle, pixelRatio);
+
+          if (shadowColor !== null) {
+            context.shadowColor = shadowColor;
+          }
         }
 
         particle.shape?.draw(context, particle, pixelRatio, effects);

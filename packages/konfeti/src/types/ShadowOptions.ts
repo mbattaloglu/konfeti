@@ -11,7 +11,7 @@ import type { Pixels } from "./Units";
  * @remarks Expensive: the browser blurs every shadowed particle again on every frame, and a larger `blur` costs
  * more (measured in Chrome: about 30 particles with `blur: 14` dropped the frame rate to about 40 fps). For
  * glowing particles prefer `blendMode: "lighter"` or an `image` shape with the glow drawn in, like the
- * `FIREFLIES` preset. `adaptiveQuality` turns shadows off on slow devices.
+ * `FIREFLIES` preset. `adaptiveQuality` turns shadows off on slow devices. Trails are drawn without the shadow.
  */
 export type ShadowOptions = {
   /**
