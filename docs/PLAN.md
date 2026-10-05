@@ -132,8 +132,10 @@ Notes
 ### 3.8 Advanced (post-MVP)
 
 - `OffscreenCanvas` + Web Worker renderer (`createWorker()` from `konfeti/worker`, shipped in 0.2.0)
-- SSR-safe import (no `window` access at import time)
-- Playground: live option editor + "copy config" button
+- ✅ SSR-safe import (no `window` access at import time): the built CJS and ESM entries, `konfeti/worker` included,
+  import in Node without a DOM (checked 2026-10-05)
+- ✅ Playground: live option editor + "copy config" button (editor v2: Basic/Advanced, min–max ranges, per-shape
+  styles, burst tabs, lossless preset loading)
 
 ---
 
@@ -225,15 +227,35 @@ fire(options)
 | M3 ✅ | Physics + visual  | composable physics, flip/wobble/tilt, opacity/scale curves, colour utilities                                                                                                     |
 | M4 ✅ | Presets + helpers | `KonfetiPresets` + `extendPreset`, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                             |
 | M5 ✅ | Advanced          | ✅ `defineShape` / `definePhysics` (typed registries) · ✅ tree-shakeable shape handlers + `konfeti/lite` · ✅ Worker/OffscreenCanvas (`konfeti/worker` → `createWorker`, 0.2.0) |
-| M6    | Docs & playground | playground with live option editor, TypeDoc site, README examples · ✅ package README                                                                                            |
-| M7    | 1.0               | API freeze, benchmarks (1k/5k/10k particles), visual regression tests, release                                                                                                   |
+| M6 ✅ | Docs & playground | playground with live option editor (v2, 0.4.0), TypeDoc site, README examples, package README                                                                                    |
+| M7    | 1.0               | API freeze, ✅ benchmarks (1k/5k/10k particles, §6.1), visual regression tests, release                                                                                          |
+
+### 6.1 Benchmarks (2026-10-05)
+
+Built dist in Chrome, 1280×800 at DPR 2, particles spread over the canvas and kept alive. "Engine JS" is one
+`update` + `draw` stepped by hand (no readbacks); "fps" is the real frame rate under the normal 60 Hz cap.
+
+| Variant        | 1k             | 5k             | 10k             |
+| -------------- | -------------- | -------------- | --------------- |
+| paper          | 0.3 ms, 60 fps | 1.4 ms, 60 fps | 3.6 ms, 60 fps  |
+| star           | 0.3 ms, 60 fps | 1.5 ms, 60 fps | 3.0 ms, 60 fps  |
+| emoji          | 0.5 ms, 60 fps | 2.9 ms, 60 fps | 11.4 ms, 60 fps |
+| paper + trail  | 1.3 ms, 60 fps | 6.7 ms, 60 fps | 16.4 ms, 55 fps |
+| paper + shadow | 0.3 ms, 4 fps  | 1.5 ms, 2 fps  | 3.6 ms, 1 fps   |
+
+- The object pool is not a bottleneck: the SoA typed-array pool is not needed.
+- Canvas `shadowBlur` is the one real cost (the canvas blurs every shadowed particle on every frame). Trails are
+  drawn without the shadow since 0.4.1 (a shadowed sparkler with trails went from 1 to 31 fps).
+- Pitfall when measuring: reading pixels back every frame (`getImageData`) makes Chrome move the canvas to the CPU;
+  drawing GPU-held glyph bitmaps into it then costs seconds per frame. Measure without per-frame readbacks.
 
 ---
 
 ## 7. Open Questions
 
-- **Bundle size** (measured 2026-09-28, min+brotli): `konfeti` fire 13.77 kB, everything 15.24 kB, `konfeti/lite` fire 10.9 kB. The original 6 kB goal was dropped; the core engine alone is ~10.4 kB. Further candidates: canvas-only color parsing (~0.8 kB), lazy physics modules (~0.5 kB).
-- Canvas `shadow` and `shine` costs should be benchmarked with 1500 particles.
+- **Bundle size** (measured 2026-10-05, min+brotli): `konfeti` fire 19.33 kB, everything 23.1 kB, `konfeti/lite` fire 13.91 kB (0.4.0 added formations, replays, adaptive quality and 11 presets). The original 6 kB goal was dropped. Further candidates: canvas-only color parsing (~0.8 kB), lazy physics modules (~0.5 kB).
+- Canvas `shadow` is benchmarked (§6.1): unusable beyond a few hundred particles. Open: draw shadows from a cached
+  blurred sprite instead of `shadowBlur`, or keep them as an effect for small counts (documented on `ShadowOptions`).
 
 - Default palette: canvas-confetti's classic 7 colours, or our own signature palette? (decide while tuning in M1)
-- SoA typed-array pool: only if M7 benchmarks show the object pool as a bottleneck at 5k–10k particles.
+- ~~SoA typed-array pool~~: not needed, the M7 benchmarks show no pool bottleneck at 10k particles (§6.1).

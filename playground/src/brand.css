@@ -352,6 +352,7 @@ kbd {
 
 @media (max-width: 720px) {
   .app-header {
+    gap: 10px;
     padding: 10px 12px;
   }
 
@@ -364,14 +365,29 @@ kbd {
     display: none;
   }
 
+  /* the wordmark keeps its width (it used to shrink and run under the links) */
+  .app-brand {
+    flex-shrink: 0;
+  }
+
+  /* one line of links; on the narrowest phones they scroll sideways instead of overlapping */
   .app-nav {
-    gap: 10px;
-    margin-right: 10px;
+    gap: 8px;
+    min-width: 0;
+    margin-right: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .app-nav a {
     font-size: 10px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  /* the colored dot alone tells the state */
+  .app-status > :not(.dot) {
+    display: none;
   }
 
   .app-nav .app-nav-extra {
@@ -379,10 +395,25 @@ kbd {
   }
 
   .lang-switch {
-    margin-right: 8px;
+    margin-right: 0;
   }
 
   .lang-option {
     padding: 3px 5px;
+  }
+}
+
+/* the narrowest phones (360 px wide): a smaller wordmark keeps every link visible */
+@media (max-width: 380px) {
+  .app-brand h1 {
+    font-size: 19px;
+  }
+
+  .app-nav {
+    gap: 6px;
+  }
+
+  .lang-option {
+    padding: 3px 4px;
   }
 }
