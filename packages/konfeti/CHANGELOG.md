@@ -1,5 +1,36 @@
 # konfeti
 
+## 0.4.0
+
+### Minor Changes
+
+- e1c72c4: Adaptive quality: `adaptiveQuality: true` (instance option) watches the frame rate while particles animate. When
+  frames stay slow and konfeti's own drawing is a real part of the cost, it renders at CSS resolution first, then
+  drops shadows, shine and trails, then spawns 60% of the particles, and steps back up once frames are smooth;
+  `getQualityLevel()` reports the level. A busy page or a 30 Hz screen does not lower it, and with `fixedTimestep`
+  the particle step is skipped so replays stay exact.
+- cb8bd15: `delay` starts a burst later (milliseconds, paused time does not count), so the entries of a `fire([...])` list can
+  be choreographed: a cannon shot, then a message, then a finale.
+- 2968d0c: Replays: every burst handle has `getSeed()` (worker handles too, the seed is picked on the main thread), so
+  `fire({ seed })` fires the same burst again. The new `fixedTimestep: true` instance option simulates in fixed
+  1/60 s steps, which makes such replays exact, motion included, on any display and at any frame rate.
+- d6e04dd: New presets that show off the newer options: `SHOOTING_STARS` (trails), `MAGNET` (attractor that follows the
+  pointer), `FORCE_FIELD` (the pointer pushes a falling rain away), `GOLDEN` (gold palette with glints), `SPARKLER`
+  and `FIREFLIES` (additive glow), `JACKPOT` (coins bounce and settle on the floor), `CONGRATS`, `SUCCESS` and
+  `LEVEL_UP` (text formations, `LEVEL_UP` choreographed with `delay`) and `LOGO_REVEAL` (image formation; its badge is
+  a PNG data URL, so it works in worker instances too). `SNOW` flakes are round now (they were stretched into ovals)
+  and fall together with six-armed snow crystals.
+- 060f50f: Formations: `formation: { text }` or `formation: { image }` makes the particles form a text or an image, hold
+  it, then burst apart. `mode: "assemble"` flies them in from beyond the canvas edges, `"appear"` shows the shape
+  at once; every shape type can take part, image formations paint the particles in the image's colors, and `fit`
+  scales the whole formation down on small screens. Works in worker instances; with `konfeti/lite`, call
+  `enableFormations()` once.
+
+### Patch Changes
+
+- 53fc413: Export the `TrailOptions` type, so the settings of `paper.trail` (and a shape's own `trail`) can be typed without
+  reaching into the package's internals; the API reference now links it too.
+
 ## 0.3.0
 
 ### Minor Changes
