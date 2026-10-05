@@ -257,8 +257,10 @@ Built dist in Chrome, 1280×800 at DPR 2, particles spread over the canvas and k
 ## 7. Open Questions
 
 - **Bundle size** (measured 2026-10-05, min+brotli): `konfeti` fire 19.79 kB, everything 23.54 kB, `konfeti/lite` fire 13.91 kB (0.4.0 added formations, replays, adaptive quality and 11 presets; then image tint). The original 6 kB goal was dropped. Further candidates: canvas-only color parsing (~0.8 kB), lazy physics modules (~0.5 kB).
-- Canvas `shadow` is benchmarked (§6.1): unusable beyond a few hundred particles. Open: draw shadows from a cached
-  blurred sprite instead of `shadowBlur`, or keep them as an effect for small counts (documented on `ShadowOptions`).
+- Canvas `shadow` is benchmarked (§6.1): unusable beyond a few hundred particles. **Decided 2026-10-05: postponed.**
+  Shadows stay a small-count effect (documented on `ShadowOptions`, dropped by `adaptiveQuality` on slow devices).
+  If a real need appears: bake the shadow into the cached bitmap of emoji/text/image/sprite particles (exact, no extra
+  draw), then a runtime-made blurred sprite for vector shapes; paper would be approximate because of the flip.
 
 - Default palette: canvas-confetti's classic 7 colours, or our own signature palette? (decide while tuning in M1)
 - ~~SoA typed-array pool~~: not needed, the M7 benchmarks show no pool bottleneck at 10k particles (§6.1).
