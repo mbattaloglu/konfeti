@@ -91,15 +91,18 @@ Notes
 - `angle`, `spread`, `startVelocity`, `particleCount`
 - **Ranges** everywhere: `number | [min, max] | { min, max }`
 - Emission modes: `burst` (one shot), `stream` (rate/duration), `interval`
-- Helpers: `fromElement(el)`, `onClick(el, options)`, `fromPointer(event)`
+- Helpers: ✅ `onClick(el, options)`. No `fromElement` / `fromPointer`: `origin` takes the element or the pointer
+  event itself (`origin: button`, `origin: event`), which covers both (decided 2026-10-05)
 
 ### 3.3 Shapes
 
 - Built-in: `paper` (default, §3.0), `square`, `circle`, `star`, `triangle`, `heart`, `ribbon` (streamer), `line`
+  (square, circle and line are paper forms: `form: "square" | "circle" | "strip"`; plus `polygon`)
 - `path` — SVG path string / `Path2D`
 - **`emoji`** — `"🎉"`, or an array for random picks; font, size, pre-rendered bitmap cache
 - **`text`** — any string, custom font, colour
-- **`image`** — `HTMLImageElement | ImageBitmap | url`, optional tint
+- **`image`** — `HTMLImageElement | ImageBitmap | url`, ✅ optional `tint` (`true`/`"multiply"` or `"fill"`, spritesheets
+  too, 2026-10-05)
 - **`spritesheet`** — frame grid or atlas JSON, `fps`, `loop`, `randomStartFrame`
 - Weighted shape mix: `shapes: [{ type: "star", weight: 3 }, { type: "emoji", emoji: "🎊", weight: 1 }]`
 - **`defineShape<TOptions>()`** — custom shapes with type-safe options via module augmentation
@@ -228,7 +231,7 @@ fire(options)
 | M4 ✅ | Presets + helpers | `KonfetiPresets` + `extendPreset`, `fromElement`, `onClick`, emission modes (stream/interval), hooks                                                                             |
 | M5 ✅ | Advanced          | ✅ `defineShape` / `definePhysics` (typed registries) · ✅ tree-shakeable shape handlers + `konfeti/lite` · ✅ Worker/OffscreenCanvas (`konfeti/worker` → `createWorker`, 0.2.0) |
 | M6 ✅ | Docs & playground | playground with live option editor (v2, 0.4.0), TypeDoc site, README examples, package README                                                                                    |
-| M7    | 1.0               | API freeze, ✅ benchmarks (1k/5k/10k particles, §6.1), visual regression tests, release                                                                                          |
+| M7    | 1.0               | API freeze (reviewed 2026-10-05: no changes), ✅ benchmarks (1k/5k/10k particles, §6.1), release (visual regression tests dropped)                                               |
 
 ### 6.1 Benchmarks (2026-10-05)
 
@@ -253,7 +256,7 @@ Built dist in Chrome, 1280×800 at DPR 2, particles spread over the canvas and k
 
 ## 7. Open Questions
 
-- **Bundle size** (measured 2026-10-05, min+brotli): `konfeti` fire 19.33 kB, everything 23.1 kB, `konfeti/lite` fire 13.91 kB (0.4.0 added formations, replays, adaptive quality and 11 presets). The original 6 kB goal was dropped. Further candidates: canvas-only color parsing (~0.8 kB), lazy physics modules (~0.5 kB).
+- **Bundle size** (measured 2026-10-05, min+brotli): `konfeti` fire 19.79 kB, everything 23.54 kB, `konfeti/lite` fire 13.91 kB (0.4.0 added formations, replays, adaptive quality and 11 presets; then image tint). The original 6 kB goal was dropped. Further candidates: canvas-only color parsing (~0.8 kB), lazy physics modules (~0.5 kB).
 - Canvas `shadow` is benchmarked (§6.1): unusable beyond a few hundred particles. Open: draw shadows from a cached
   blurred sprite instead of `shadowBlur`, or keep them as an effect for small counts (documented on `ShadowOptions`).
 
