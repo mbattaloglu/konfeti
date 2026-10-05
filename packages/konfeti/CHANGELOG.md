@@ -1,5 +1,24 @@
 # konfeti
 
+## 0.5.0
+
+### Minor Changes
+
+- d38420c: `framesFromAtlas(atlas, prefix?)` turns the atlas JSON of a packed sprite sheet (TexturePacker, Aseprite, Free
+  Texture Packer, Phaser; "JSON Hash" or "JSON Array") into the `frames` of a `spritesheet` shape, in atlas order. A name
+  prefix picks one animation out of an atlas that holds several; a rotated frame or a malformed atlas throws a readable
+  error. New types: `SpriteAtlas`, `SpriteAtlasFrame`.
+- 4bf466e: `tint` for `image` and `spritesheet` shapes: paints the artwork in the particle colors (`colors`, or the `paper`
+  colors), so one white logo or coin gives a whole palette. `true` (or `"multiply"`) keeps the shading, `"fill"` draws
+  flat silhouettes. Each color is painted once when the image has loaded (images at the size they are drawn, sheets at
+  their own size so frames stay in place), so drawing costs the same as without a tint; it works in worker instances
+  too.
+
+### Patch Changes
+
+- ab15fc3: Draw trails without the particle's shadow. The shadow was blurred again for every trail segment on every frame: a
+  sparkler with `shadow` and `trail` together ran at 1 fps, and now runs as fast as with the shadow alone.
+
 ## 0.4.0
 
 ### Minor Changes
