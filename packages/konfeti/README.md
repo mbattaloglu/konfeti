@@ -217,6 +217,18 @@ Konfeti.fire({
 });
 ```
 
+A sheet packed by TexturePacker, Aseprite or Free Texture Packer comes with an atlas JSON: `framesFromAtlas`
+turns it into `frames`, in atlas order, optionally only the frames whose name starts with a prefix.
+
+```ts
+import { Konfeti, framesFromAtlas } from "konfeti";
+import atlas from "./coins.json";
+
+Konfeti.fire({
+  shapes: [{ type: "spritesheet", src: "/coins.png", frames: framesFromAtlas(atlas, "coin_spin") }],
+});
+```
+
 ## Physics
 
 ```ts run

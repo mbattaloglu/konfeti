@@ -11,9 +11,10 @@ import type {
   KonfetiInstance,
   KonfetiPresetName,
   SharedKonfeti,
+  SpriteAtlas,
 } from "../../src/index";
 import type { KonfetiFactory } from "../../src/index";
-import { Konfeti, KonfetiPresets, extendPreset } from "../../src/index";
+import { Konfeti, KonfetiPresets, extendPreset, framesFromAtlas } from "../../src/index";
 import type { KonfetiPalettes } from "../../src/index";
 
 describe("public API shape", () => {
@@ -148,5 +149,12 @@ describe("delay", () => {
   it("is a burst option in milliseconds", () => {
     expectTypeOf<{ delay: 250 }>().toExtend<FireOptions>();
     expectTypeOf<{ delay: "soon" }>().not.toExtend<FireOptions>();
+  });
+
+  it("reads atlas JSON into spritesheet frames", () => {
+    expectTypeOf(framesFromAtlas).parameter(0).toEqualTypeOf<SpriteAtlas>();
+    expectTypeOf<ReturnType<typeof framesFromAtlas>>().toExtend<
+      Extract<NonNullable<FireOptions["shapes"]>[number], { type: "spritesheet" }>["frames"]
+    >();
   });
 });

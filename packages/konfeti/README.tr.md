@@ -218,6 +218,19 @@ Konfeti.fire({
 });
 ```
 
+TexturePacker, Aseprite ya da Free Texture Packer ile paketlenmiş bir sayfa bir atlas JSON'uyla gelir:
+`framesFromAtlas` bunu atlastaki sırayla `frames`'e çevirir; istersen yalnızca adı belli bir önekle başlayan kareleri
+alır.
+
+```ts
+import { Konfeti, framesFromAtlas } from "konfeti";
+import atlas from "./coins.json";
+
+Konfeti.fire({
+  shapes: [{ type: "spritesheet", src: "/coins.png", frames: framesFromAtlas(atlas, "coin_spin") }],
+});
+```
+
 ## Fizik
 
 ```ts run

@@ -7,6 +7,7 @@ export { definePhysics } from "./api/definePhysics";
 export { defineShape } from "./api/defineShape";
 export { disableBanner } from "./api/disableBanner";
 export { enableFormations } from "./api/enableFormations";
+export { framesFromAtlas } from "./api/framesFromAtlas";
 export { loadImage } from "./api/loadImage";
 export { KonfetiPalettes } from "./palettes/KonfetiPalettes";
 export type { KonfetiPaletteName } from "./palettes/KonfetiPalettes";
@@ -113,6 +114,8 @@ export type { SpriteSheetShapeOptions } from "./types/shapes/SpriteSheetShapeOpt
 export type { StarShapeOptions } from "./types/shapes/StarShapeOptions";
 export type { TextShapeOptions } from "./types/shapes/TextShapeOptions";
 export type { TriangleShapeOptions } from "./types/shapes/TriangleShapeOptions";
+export type { SpriteAtlas } from "./types/SpriteAtlas";
+export type { SpriteAtlasFrame } from "./types/SpriteAtlasFrame";
 export type { SpriteFrames } from "./types/SpriteFrames";
 export type { StrokeOptions } from "./types/StrokeOptions";
 export type { SwirlOptions } from "./types/SwirlOptions";

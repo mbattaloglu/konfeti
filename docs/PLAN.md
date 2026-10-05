@@ -103,7 +103,7 @@ Notes
 - **`text`** — any string, custom font, colour
 - **`image`** — `HTMLImageElement | ImageBitmap | url`, ✅ optional `tint` (`true`/`"multiply"` or `"fill"`, spritesheets
   too, 2026-10-05)
-- **`spritesheet`** — frame grid or atlas JSON, `fps`, `loop`, `randomStartFrame`
+- **`spritesheet`** — frame grid or atlas JSON, `fps`, `loop`, `randomStartFrame` (✅ atlas JSON via `framesFromAtlas`, 2026-10-05)
 - Weighted shape mix: `shapes: [{ type: "star", weight: 3 }, { type: "emoji", emoji: "🎊", weight: 1 }]`
 - **`defineShape<TOptions>()`** — custom shapes with type-safe options via module augmentation
 
