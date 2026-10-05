@@ -38,6 +38,18 @@ describe("public types", () => {
     expectTypeOf<{ length: "long" }>().not.toExtend<TrailOptions>();
   });
 
+  it("takes a tint on images and spritesheets", () => {
+    expectTypeOf<{
+      shapes: [{ type: "image"; src: "/a.png"; tint: true }];
+    }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      shapes: [{ type: "image"; src: "/a.png"; tint: "fill" }];
+    }>().toExtend<FireOptions>();
+    expectTypeOf<{
+      shapes: [{ type: "image"; src: "/a.png"; tint: "screen" }];
+    }>().not.toExtend<FireOptions>();
+  });
+
   it("returns an awaitable handle", () => {
     expectTypeOf(Konfeti.fire).returns.toEqualTypeOf<KonfetiHandle>();
     expectTypeOf<KonfetiHandle>().toExtend<PromiseLike<void>>();

@@ -247,6 +247,20 @@ describe("image addresses", () => {
   });
 });
 
+describe("image tint", () => {
+  it("sends multiply as true and fill as itself, and nothing while off", () => {
+    const image = { "image.enabled": true };
+
+    expect(buildBurst(burstWith(image), assets).shapes?.[0]).not.toHaveProperty("tint");
+    expect(
+      buildBurst(burstWith({ ...image, "image.tint": "multiply" }), assets).shapes?.[0],
+    ).toEqual(expect.objectContaining({ tint: true }));
+    expect(
+      buildBurst(burstWith({ "sprite.enabled": true, "sprite.tint": "fill" }), assets).shapes?.[0],
+    ).toEqual(expect.objectContaining({ tint: "fill" }));
+  });
+});
+
 describe("own style groups in the burst state", () => {
   it("hold every key of a listed group and none of an unlisted one", () => {
     const burst = normalizeBurst({

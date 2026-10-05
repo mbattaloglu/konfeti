@@ -192,6 +192,17 @@ const SPRITE_FPS: ValueDomain = { min: 0, max: MAX_SPRITE_FPS };
 const URL_SOURCE = "url";
 
 /**
+ * Tint Choices of the Image and Sprite Cards: off, then the library's two modes.
+ */
+const TINT_OPTIONS = ["off", "multiply", "fill"] as const;
+
+/**
+ * Hint of the Tint Controls.
+ */
+const TINT_HINT =
+  "Paints the image in the particle colors: multiply keeps its shading (white and grey art takes the colors best), fill draws a flat silhouette.";
+
+/**
  * Placeholder of the Image Address Fields (language-neutral, so not translated).
  */
 const URL_PLACEHOLDER = "https://… / data:…";
@@ -763,6 +774,7 @@ const SHAPE_CARDS: readonly ControlCard[] = [
       file("image.upload", "Upload Image", "shapes[].src", "image/*", {
         hint: "Pick any image; it is passed as an object URL.",
       }),
+      select("image.tint", "Tint", "shapes[].tint", TINT_OPTIONS, "off", { hint: TINT_HINT }),
     ],
   },
   {
@@ -809,6 +821,7 @@ const SHAPE_CARDS: readonly ControlCard[] = [
         domain: SHEET_FRAME_COUNT,
         advanced: true,
       }),
+      select("sprite.tint", "Tint", "shapes[].tint", TINT_OPTIONS, "off", { hint: TINT_HINT }),
       span(
         "sprite.fps",
         "Frames Per Second",

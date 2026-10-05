@@ -181,23 +181,41 @@ Konfeti.fire({
 });
 ```
 
-| Type          | Specific options                                           |
-| ------------- | ---------------------------------------------------------- |
-| `paper`       | paper geometry (see above)                                 |
-| `star`        | `size`, `points`, `innerRatio`                             |
-| `triangle`    | `size`                                                     |
-| `polygon`     | `size`, `sides`                                            |
-| `heart`       | `size`                                                     |
-| `ribbon`      | `length`, `thickness`, `waves`                             |
-| `path`        | `path` (SVG `d` or `Path2D`), `viewBox`, `size`            |
-| `emoji`       | `emoji`, `size` (font size), `fontFamily`                  |
-| `text`        | `text`, `size` (font size), `fontFamily`, `fontWeight`     |
-| `image`       | `src` (URL or any canvas image source), `size` (width)     |
-| `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size` |
+| Type          | Specific options                                                   |
+| ------------- | ------------------------------------------------------------------ |
+| `paper`       | paper geometry (see above)                                         |
+| `star`        | `size`, `points`, `innerRatio`                                     |
+| `triangle`    | `size`                                                             |
+| `polygon`     | `size`, `sides`                                                    |
+| `heart`       | `size`                                                             |
+| `ribbon`      | `length`, `thickness`, `waves`                                     |
+| `path`        | `path` (SVG `d` or `Path2D`), `viewBox`, `size`                    |
+| `emoji`       | `emoji`, `size` (font size), `fontFamily`                          |
+| `text`        | `text`, `size` (font size), `fontFamily`, `fontWeight`             |
+| `image`       | `src` (URL or any canvas image source), `size` (width), `tint`     |
+| `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size`, `tint` |
 
 Emoji and text are rasterized once and cached. Preload URL images with `loadImage(url)`. An `image` or `spritesheet`
 `src` that starts with `<svg` is used as inline SVG markup (give it a `width` and `height`; not supported in worker
 mode).
+
+`tint` paints images and spritesheets in the particle colors (`colors`, or the `paper` colors), so one white
+artwork gives a whole palette. `true` multiplies the color in and keeps the shading; `"fill"` draws flat
+silhouettes. Each color is painted once, so drawing costs the same as without a tint.
+
+```ts run
+Konfeti.fire({
+  shapes: [
+    {
+      type: "image",
+      src: "/coin.png",
+      size: [20, 30],
+      tint: "fill",
+      colors: ["#26ccff", "#ff5e7e"],
+    },
+  ],
+});
+```
 
 ## Physics
 

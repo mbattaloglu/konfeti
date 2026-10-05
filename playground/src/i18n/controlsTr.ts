@@ -251,6 +251,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
     label: "Görsel URL'si",
     hint: "Bir http(s) URL'si, data: URL'si ya da <svg> metni; yüklenen dosyanın aksine paylaşım bağlantısında taşınır. Başka sitelerdeki görseller yalnızca sunucuları CORS'a izin veriyorsa yüklenir.",
   },
+  "image.tint": {
+    label: "Renklendirme",
+    hint: "Görseli parçacık renkleriyle boyar: Çoğalt gölgelendirmeyi korur (beyaz ve gri görseller renkleri en iyi alır), Doldur düz bir siluet çizer.",
+  },
   "image.upload": {
     label: "Görsel Yükle",
     hint: "Herhangi bir görsel seç; object URL olarak gönderilir.",
@@ -265,6 +269,10 @@ export const CONTROLS_TR: Readonly<Record<string, ControlText>> = {
   },
   "sprite.cols": { label: "Sütun" },
   "sprite.rows": { label: "Satır" },
+  "sprite.tint": {
+    label: "Renklendirme",
+    hint: "Sayfayı parçacık renkleriyle boyar: Çoğalt gölgelendirmeyi korur (beyaz ve gri görseller renkleri en iyi alır), Doldur düz bir siluet çizer.",
+  },
   "sprite.count": { label: "Kare Sayısı", hint: "0 = ızgaradaki tüm hücreler.", zero: "tümü" },
   "sprite.fps": { label: "Saniyedeki Kare" },
   "sprite.loop": { label: "Döngü" },
@@ -411,6 +419,8 @@ export const OPTION_LABELS_TR: Readonly<Record<string, string>> = {
   "source-over": "Normal",
   lighter: "Toplamalı",
   multiply: "Çoğalt",
+  off: "Kapalı",
+  fill: "Doldur",
   screen: "Ekran",
   overlay: "Bindirme",
   darken: "Koyulaştır",

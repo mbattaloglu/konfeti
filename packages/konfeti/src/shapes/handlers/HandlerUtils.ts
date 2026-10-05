@@ -1,6 +1,7 @@
 import { BITMAP_DEFAULTS } from "../../config/ShapeDefaults";
 import type { RangeTuple } from "../../types/Range";
 import type { ResolvedStyle } from "../../types/resolved/ResolvedStyle";
+import type { TintMode } from "../../types/TintMode";
 import { MathUtils } from "../../utils/MathUtils";
 
 /**
@@ -24,6 +25,32 @@ export class HandlerUtils {
       pixelRatio *
       BITMAP_DEFAULTS.rasterOversample;
     return MathUtils.clamp(largest, 1, BITMAP_DEFAULTS.maxRasterSize);
+  }
+
+  /**
+   * Read an Image or Spritesheet Tint Option.
+   *
+   * @param tint - Option Value
+   * @param name - Option Path for Error Messages
+   * @returns Tint Mode, or Null When the Tint Is Off
+   * @throws TypeError for anything but a boolean, `"multiply"` or `"fill"`
+   */
+  public static tintMode(tint: unknown, name: string): TintMode | null {
+    const value = tint ?? BITMAP_DEFAULTS.tint;
+
+    if (value === false) {
+      return null;
+    }
+
+    if (value === true) {
+      return BITMAP_DEFAULTS.tintMode;
+    }
+
+    if (value === "multiply" || value === "fill") {
+      return value;
+    }
+
+    throw new TypeError(`konfeti: "${name}" must be true, false, "multiply" or "fill"`);
   }
 
   /**

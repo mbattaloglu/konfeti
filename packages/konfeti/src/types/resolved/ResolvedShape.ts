@@ -179,6 +179,10 @@ export type ResolvedSpriteShape = {
    */
   readonly source: ImageSource;
   /**
+   * Tinted Copies of the Sheet, One per Palette Color (empty without a tint).
+   */
+  readonly tinted: readonly ImageSource[];
+  /**
    * Frame Layout.
    */
   readonly frames: ResolvedFrames;

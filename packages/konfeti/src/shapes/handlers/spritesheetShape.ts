@@ -5,8 +5,10 @@ import type { ShapeHandler } from "../../types/shapes/ShapeHandler";
 import type { SpriteSheetShapeOptions } from "../../types/shapes/SpriteSheetShapeOptions";
 import type { SpriteFrames } from "../../types/SpriteFrames";
 import { ImageSource } from "../../utils/ImageSource";
+import { TintedImageSource } from "../../utils/TintedImageSource";
 import { RangeUtils } from "../../utils/RangeUtils";
 import { SpriteSpawner } from "../spawn/SpriteSpawner";
+import { HandlerUtils } from "./HandlerUtils";
 
 /**
  * Resolve Spritesheet Frame Layout.
@@ -43,12 +45,19 @@ export const spritesheetShape: ShapeHandler<SpriteSheetShapeOptions> = {
   styleDefaults: { flip: false, wobble: false, rotation: 0, rotationSpeed: 0 },
   resolve: (entry, { style, name }) => {
     const fps = RangeUtils.toTuple(entry.fps ?? BITMAP_DEFAULTS.spriteFps, `${name}.fps`);
+    const source = ImageSource.from(entry.src);
+    const tint = HandlerUtils.tintMode(entry.tint, `${name}.tint`);
 
     return SpriteSpawner.create({
       kind: "sprite",
       style,
       size: RangeUtils.toTuple(entry.size ?? BITMAP_DEFAULTS.spriteSize, `${name}.size`),
-      source: ImageSource.from(entry.src),
+      source,
+      // the sheet is painted at its own size, so the frame rectangles stay in place
+      tinted:
+        tint === null
+          ? []
+          : style.palette.colors.map((color) => new TintedImageSource(source, color, tint)),
       frames: resolveFrames(entry.frames, name),
       fps: [Math.max(0, fps[0]), Math.max(0, fps[1])],
       loop: entry.loop ?? BITMAP_DEFAULTS.spriteLoop,

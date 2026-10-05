@@ -182,23 +182,41 @@ Konfeti.fire({
 });
 ```
 
-| Tür           | Türe özel seçenekler                                              |
-| ------------- | ----------------------------------------------------------------- |
-| `paper`       | kağıt geometrisi (yukarıya bak)                                   |
-| `star`        | `size`, `points`, `innerRatio`                                    |
-| `triangle`    | `size`                                                            |
-| `polygon`     | `size`, `sides`                                                   |
-| `heart`       | `size`                                                            |
-| `ribbon`      | `length`, `thickness`, `waves`                                    |
-| `path`        | `path` (SVG `d` ya da `Path2D`), `viewBox`, `size`                |
-| `emoji`       | `emoji`, `size` (yazı boyutu), `fontFamily`                       |
-| `text`        | `text`, `size` (yazı boyutu), `fontFamily`, `fontWeight`          |
-| `image`       | `src` (URL ya da herhangi bir canvas görsel kaynağı), `size` (en) |
-| `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size`        |
+| Tür           | Türe özel seçenekler                                                      |
+| ------------- | ------------------------------------------------------------------------- |
+| `paper`       | kağıt geometrisi (yukarıya bak)                                           |
+| `star`        | `size`, `points`, `innerRatio`                                            |
+| `triangle`    | `size`                                                                    |
+| `polygon`     | `size`, `sides`                                                           |
+| `heart`       | `size`                                                                    |
+| `ribbon`      | `length`, `thickness`, `waves`                                            |
+| `path`        | `path` (SVG `d` ya da `Path2D`), `viewBox`, `size`                        |
+| `emoji`       | `emoji`, `size` (yazı boyutu), `fontFamily`                               |
+| `text`        | `text`, `size` (yazı boyutu), `fontFamily`, `fontWeight`                  |
+| `image`       | `src` (URL ya da herhangi bir canvas görsel kaynağı), `size` (en), `tint` |
+| `spritesheet` | `src`, `frames`, `fps`, `loop`, `randomStartFrame`, `size`, `tint`        |
 
 Emoji ve metin bir kez rasterize edilip önbelleğe alınır. URL görsellerini `loadImage(url)` ile önceden
 yükleyebilirsin. `image` ya da `spritesheet` için `<svg` ile başlayan bir `src` satır içi SVG olarak kullanılır
 (`width` ve `height` ver; worker modunda desteklenmez).
+
+`tint`, görselleri ve sprite sheet'leri parçacık renkleriyle boyar (`colors` ya da `paper` renkleri); böylece tek
+bir beyaz görselden bütün bir palet çıkar. `true` rengi çarparak gölgelendirmeyi korur, `"fill"` düz siluetler
+çizer. Her renk bir kez boyanır, bu yüzden çizim tint olmadan ne kadar sürüyorsa o kadar sürer.
+
+```ts run
+Konfeti.fire({
+  shapes: [
+    {
+      type: "image",
+      src: "/coin.png",
+      size: [20, 30],
+      tint: "fill",
+      colors: ["#26ccff", "#ff5e7e"],
+    },
+  ],
+});
+```
 
 ## Fizik
 

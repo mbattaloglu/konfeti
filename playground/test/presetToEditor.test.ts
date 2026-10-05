@@ -158,6 +158,18 @@ describe("presetToEditor round trips", () => {
     ["a per-corner radius", { paper: { cornerRadius: { tl: 6, br: [2, 4] } } }],
     ["a text weight keyword", { shapes: [{ type: "text", text: ["A", "B"], fontWeight: "bold" }] }],
     [
+      "a tinted image",
+      { shapes: [{ type: "image", src: "/a.png", tint: true, colors: ["#ff0000"] }] },
+    ],
+    [
+      "a filled spritesheet",
+      {
+        shapes: [
+          { type: "spritesheet", src: "/s.png", frames: { cols: 4, rows: 1 }, tint: "fill" },
+        ],
+      },
+    ],
+    [
       "a ribbon under a paper flip at its default axis",
       {
         paper: { flip: { axis: "x", frequency: [0.8, 1.6] } },

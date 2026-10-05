@@ -33,6 +33,9 @@ export const BITMAP_DEFAULTS = {
   spriteFps: 12,
   spriteLoop: true,
   spriteRandomStartFrame: true,
+  // image and spritesheet tint: off; `true` means this mode
+  tint: false,
+  tintMode: "multiply",
   // bitmaps are rasterized once at this multiple of the largest drawn size for crisp downscaling
   rasterOversample: 1.25,
   maxRasterSize: 256,

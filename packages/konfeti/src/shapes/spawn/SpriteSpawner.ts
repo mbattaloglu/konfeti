@@ -20,13 +20,17 @@ export class SpriteSpawner {
   public static create(data: Omit<ResolvedSpriteShape, "spawn">): ResolvedSpriteShape {
     const shape: ResolvedSpriteShape = {
       ...data,
-      spawn: (particle, random, scale) => {
+      spawn: (particle, random, scale, colorIndex) => {
         const frameCount =
           shape.frames.kind === "grid" ? shape.frames.count : shape.frames.rects.length;
         const fps = RangeUtils.sample(shape.fps, random);
 
         particle.shape = SpriteShape.getInstance();
-        particle.image = shape.source;
+        // a tinted sheet draws the copy in the particle's color
+        particle.image =
+          shape.tinted.length > 0
+            ? (shape.tinted[colorIndex % shape.tinted.length] ?? shape.source)
+            : shape.source;
         particle.frames = shape.frames;
         particle.frameCount = frameCount;
         particle.frameIndex = shape.randomStartFrame ? Math.floor(random.next() * frameCount) : 0;

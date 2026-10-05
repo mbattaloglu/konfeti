@@ -343,6 +343,16 @@ function imageSource(state: Readonly<ControlState>, assets: DemoAssets): ImageIn
 }
 
 /**
+ * Turn a Tint Choice into the Option Value (`"off"` is the library default).
+ *
+ * @param option - Selected Choice (`"off"`, `"multiply"`, `"fill"`)
+ * @returns `false`, `true` (multiply) or `"fill"`
+ */
+function tintOf(option: string): boolean | "fill" {
+  return option === "fill" ? "fill" : option === "multiply";
+}
+
+/**
  * Pick the Sprite Card's Sheet.
  *
  * @param state - Burst State
@@ -496,6 +506,7 @@ function buildContent(
       }
 
       entry.src = source;
+      write.value("tint", tintOf(str(state, "image.tint")), BITMAP_DEFAULTS.tint);
       return true;
     }
     case "sprite": {
@@ -520,6 +531,7 @@ function buildContent(
         bool(state, "sprite.randomStart"),
         BITMAP_DEFAULTS.spriteRandomStartFrame,
       );
+      write.value("tint", tintOf(str(state, "sprite.tint")), BITMAP_DEFAULTS.tint);
       return true;
     }
   }

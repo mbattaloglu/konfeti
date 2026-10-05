@@ -1,13 +1,14 @@
 import type { ImageInput } from "../ImageInput";
 import type { OneOrMany } from "../OneOrMany";
 import type { Range } from "../Range";
+import type { TintMode } from "../TintMode";
 import type { Pixels } from "../Units";
 import type { ShapeEntryBase } from "./ShapeEntryBase";
 
 /**
  * Image Shape Entry.
- * Draws images (logos, coins, stickers). Aspect ratio is preserved; `size` is the width. Color and stroke
- * keys are ignored.
+ * Draws images (logos, coins, stickers). Aspect ratio is preserved; `size` is the width. Colors only apply with
+ * `tint`; stroke keys are ignored.
  *
  * @example
  * ```ts
@@ -37,4 +38,20 @@ export type ImageShapeOptions = ShapeEntryBase & {
    * @defaultValue `[16, 28]`
    */
   readonly size?: Range<Pixels>;
+  /**
+   * Tint.
+   * Recolors the image with the particle colors (`colors`, inherited from `paper.colors` when the entry sets none):
+   * every particle picks a color the way a paper piece does and draws a copy of the image in that color. `true` is
+   * `"multiply"` (keeps the shading, so white or grey artwork takes the colors best); `"fill"` gives flat silhouettes.
+   *
+   * @defaultValue `false` (the image keeps its own colors)
+   * @example
+   * ```ts
+   * shapes: [{ type: "image", src: "/coin-white.png", tint: true, colors: ["#ffd700", "#ff5e7e"] }]
+   * shapes: [{ type: "image", src: "/logo.png", tint: "fill" }] // silhouettes in the paper colors
+   * ```
+   * @remarks Each color is painted once per image when it has loaded (at the largest size it is drawn, 256 px at most); drawing costs the same as without a tint.
+   * @see {@link TintMode}
+   */
+  readonly tint?: boolean | TintMode;
 };

@@ -179,8 +179,8 @@ const CONTENT_KEYS: Readonly<Record<string, readonly string[]>> = {
   path: ["type", "weight", "size", "path", "viewBox"],
   emoji: ["type", "weight", "size", "emoji", "fontFamily"],
   text: ["type", "weight", "size", "text", "fontFamily", "fontWeight"],
-  image: ["type", "weight", "size", "src"],
-  sprite: ["type", "weight", "size", "src", "frames", "fps", "loop", "randomStartFrame"],
+  image: ["type", "weight", "size", "src", "tint"],
+  sprite: ["type", "weight", "size", "src", "frames", "fps", "loop", "randomStartFrame", "tint"],
 };
 
 /**
@@ -700,6 +700,25 @@ function loadBurst(
     for (const key of ["innerRatio", "thickness", "waves"]) {
       if (given(key) && CONTENT_KEYS[prefix]?.includes(key) === true) {
         put(`${prefix}.${key}`, entry[key], at(key));
+      }
+    }
+
+    if (entry["tint"] !== undefined && CONTENT_KEYS[prefix]?.includes("tint") === true) {
+      const tint = entry["tint"];
+      // true is the library's multiply
+      const option =
+        tint === false
+          ? "off"
+          : tint === true || tint === "multiply"
+            ? "multiply"
+            : tint === "fill"
+              ? "fill"
+              : null;
+
+      if (option === null) {
+        issue(at("tint"), "value");
+      } else {
+        put(`${prefix}.tint`, option, at("tint"));
       }
     }
 
