@@ -1,6 +1,12 @@
 import { describe, expectTypeOf, it } from "vitest";
 
-import type { ColorInput, FireOptions, KonfetiHandle, PaperStyle } from "../../src/index";
+import type {
+  ColorInput,
+  FireOptions,
+  KonfetiHandle,
+  PaperStyle,
+  TrailOptions,
+} from "../../src/index";
 import { Konfeti } from "../../src/index";
 
 describe("public types", () => {
@@ -24,6 +30,12 @@ describe("public types", () => {
     expectTypeOf<{ width: readonly [1, 2, 3] }>().not.toExtend<PaperStyle>();
     expectTypeOf<{ flip: { axis: "z" } }>().not.toExtend<PaperStyle>();
     expectTypeOf<{ particleCount: "10" }>().not.toExtend<FireOptions>();
+  });
+
+  it("exports the trail options a style's trail takes", () => {
+    expectTypeOf<TrailOptions>().toExtend<NonNullable<PaperStyle["trail"]>>();
+    expectTypeOf<{ length: 14; color: "particle" }>().toExtend<TrailOptions>();
+    expectTypeOf<{ length: "long" }>().not.toExtend<TrailOptions>();
   });
 
   it("returns an awaitable handle", () => {

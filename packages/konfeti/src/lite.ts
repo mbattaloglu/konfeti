@@ -116,6 +116,7 @@ export type { TriangleShapeOptions } from "./types/shapes/TriangleShapeOptions";
 export type { SpriteFrames } from "./types/SpriteFrames";
 export type { StrokeOptions } from "./types/StrokeOptions";
 export type { SwirlOptions } from "./types/SwirlOptions";
+export type { TrailOptions } from "./types/TrailOptions";
 export type {
   Degrees,
   DegreesPerSecond,
