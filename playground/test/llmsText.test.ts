@@ -2,7 +2,8 @@ import { URL as NodeUrl, fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-import { guideSections, llmsFullTxt, llmsTxt, siteMarkdown } from "../plugins/llmsText";
+import { guideSections, llmsFullTxt, llmsTxt } from "../plugins/llmsText";
+import { siteMarkdown } from "../src/site/siteMarkdown";
 import type { ApiPage } from "../plugins/llmsText";
 import { readPackageInfo } from "../plugins/siteInfo";
 

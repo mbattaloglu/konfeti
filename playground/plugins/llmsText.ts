@@ -1,4 +1,13 @@
-import { REPO_URL, SITE_URL, SKILL_PATH } from "./siteInfo.ts";
+import { siteMarkdown } from "../src/site/siteMarkdown.ts";
+import {
+  GUIDE_MD,
+  GUIDE_TR_MD,
+  LLMS_FULL,
+  LLMS_TXT,
+  REPO_URL,
+  SITE_URL,
+  SKILL_PATH,
+} from "../src/site/siteUrls.ts";
 import type { PackageInfo } from "./siteInfo.ts";
 
 /**
@@ -20,64 +29,9 @@ export type ApiPage = {
 };
 
 /**
- * Site Path of the English Guide in Markdown.
- */
-export const GUIDE_MD = "docs/index.md";
-
-/**
- * Site Path of the Turkish Guide in Markdown.
- */
-export const GUIDE_TR_MD = "docs/tr.md";
-
-/**
- * Site Path of the Whole Documentation in One File.
- */
-export const LLMS_FULL = "llms-full.txt";
-
-/**
  * README Sections Left Out of the Guide Summary (navigation and legal, not features).
  */
 const SUMMARY_SKIPPED = new Set(["Contents", "License"]);
-
-/**
- * README Links that Point to a README, Mapped to Its Markdown Page on the Site.
- */
-const README_PAGES: Readonly<Record<string, string>> = {
-  "./README.md": GUIDE_MD,
-  "./README.tr.md": GUIDE_TR_MD,
-};
-
-/**
- * Resolve README Link Relative to the Package Folder to an Absolute URL.
- *
- * @param href - Relative Link (`./…` or `../../…`)
- * @returns Absolute URL
- */
-function absoluteHref(href: string): string {
-  const page = README_PAGES[href];
-
-  if (page !== undefined) {
-    return SITE_URL + page;
-  }
-
-  return href.startsWith("../../")
-    ? `${REPO_URL}/blob/main/${href.slice("../../".length)}`
-    : `${REPO_URL}/blob/main/packages/konfeti/${href.replace(/^\.\//, "")}`;
-}
-
-/**
- * Turn README into the Guide's Markdown Page.
- * Relative links become absolute (the page is read away from the repository) and the site-only `run` flag
- * leaves the code fences.
- *
- * @param markdown - README Source
- * @returns Page Markdown
- */
-export function siteMarkdown(markdown: string): string {
-  return markdown
-    .replace(/\]\((\.{1,2}\/[^)\s]*)\)/g, (_match, href: string) => `](${absoluteHref(href)})`)
-    .replace(/^(```\w+) run$/gm, "$1");
-}
 
 /**
  * List README Feature Sections (H2 headings without backticks).
@@ -160,7 +114,7 @@ export function llmsFullTxt(info: PackageInfo, api: readonly ApiPage[]): string 
     [
       ...header(info, `konfeti ${info.version}: full documentation`),
       "",
-      `The guide comes first, then the API reference. Index of the separate pages: ${SITE_URL}llms.txt`,
+      `The guide comes first, then the API reference. Index of the separate pages: ${SITE_URL}${LLMS_TXT}`,
     ].join("\n"),
     siteMarkdown(info.readme).trim(),
     // each page opens with "# <module>"; name it as the API reference so the parts stay apart, and links to

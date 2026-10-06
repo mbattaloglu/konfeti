@@ -136,6 +136,16 @@ const EN = {
     "demo images are shown as placeholder paths: use your own URL, data: URI or image element",
   "code.title": "Copy the current settings as a Konfeti.fire() TypeScript snippet",
   "code.copied": "Code copied to clipboard",
+  "ai.heading": "Ask an AI",
+  "ai.description":
+    "Copies a prompt with konfeti's docs link and these settings as JSON. Paste it into ChatGPT, Claude or any assistant and say what to change; paste the JSON it returns into Options JSON and press Load into Controls.",
+  "ai.copy": "Copy Prompt",
+  "ai.title": "Copy a prompt with the docs link and the current settings",
+  "ai.copied": "Prompt copied: paste it into your AI assistant",
+  "ai.prompt":
+    "I'm using konfeti, a canvas confetti library for the browser. Its docs for LLMs: {llms} (everything in one file: {full}).\n\nThese are my current Konfeti.fire() options as JSON:\n\n```json\n{json}\n```\n{note}\nWhat I want: <describe the change>\n\nReply with the complete options as JSON (no functions, no comments) so I can paste them into the konfeti playground.",
+  "ai.assetsNote":
+    'Keep "$asset:…" values as they are: they stand for the playground\'s demo images.',
 
   // docs
   "docs.title": "konfeti — docs",
@@ -148,6 +158,13 @@ const EN = {
   "docs.run": "▶ Run",
   "docs.copy": "Copy",
   "docs.copied": "Copied",
+  "docs.ai": "AI",
+  "docs.copyMarkdown": "Copy page as Markdown",
+  "docs.markdownCopied": "Page copied as Markdown",
+  "docs.askChatGpt": "Ask ChatGPT ↗",
+  "docs.askClaude": "Ask Claude ↗",
+  "docs.aiPrompt":
+    "Read {url} and the pages it links to, then help me use konfeti, the canvas confetti library for the browser.",
 } as const satisfies Readonly<Record<string, string>>;
 
 /**
@@ -288,6 +305,16 @@ const TR: Readonly<Record<MessageKey, string>> = {
     "demo görseller yer tutucu yollarla gösterilir: kendi URL'ni, data: URI'ni ya da görsel elementini kullan",
   "code.title": "Geçerli ayarları Konfeti.fire() TypeScript kodu olarak kopyala",
   "code.copied": "Kod panoya kopyalandı",
+  "ai.heading": "Yapay zekâya sor",
+  "ai.description":
+    "konfeti dokümanlarının linkini ve bu ayarları JSON olarak içeren bir prompt kopyalar. ChatGPT, Claude ya da başka bir asistana yapıştırıp neyi değiştirmek istediğini yaz; döndürdüğü JSON'u Seçenekler JSON kutusuna yapıştırıp Kontrollere Yükle'ye bas.",
+  "ai.copy": "Prompt'u Kopyala",
+  "ai.title": "Doküman linki ve mevcut ayarlarla bir prompt kopyala",
+  "ai.copied": "Prompt kopyalandı: yapay zekâ asistanına yapıştır",
+  "ai.prompt":
+    "konfeti kullanıyorum: tarayıcı için bir canvas konfeti kütüphanesi. LLM'ler için dokümanları: {llms} (hepsi tek dosyada: {full}).\n\nŞu anki Konfeti.fire() seçeneklerim JSON olarak:\n\n```json\n{json}\n```\n{note}\nİstediğim: <değişikliği anlat>\n\nSeçeneklerin tamamını JSON olarak ver (fonksiyon ve yorum olmadan), konfeti deneme alanına yapıştırabileyim. Türkçe yanıt ver.",
+  "ai.assetsNote":
+    '"$asset:…" değerlerini olduğu gibi bırak: deneme alanının örnek görsellerini temsil ediyorlar.',
 
   "docs.title": "konfeti — dokümanlar",
   "docs.tag": "dokümanlar",
@@ -299,6 +326,13 @@ const TR: Readonly<Record<MessageKey, string>> = {
   "docs.run": "▶ Çalıştır",
   "docs.copy": "Kopyala",
   "docs.copied": "Kopyalandı",
+  "docs.ai": "Yapay zekâ",
+  "docs.copyMarkdown": "Sayfayı Markdown olarak kopyala",
+  "docs.markdownCopied": "Sayfa Markdown olarak kopyalandı",
+  "docs.askChatGpt": "ChatGPT'ye sor ↗",
+  "docs.askClaude": "Claude'a sor ↗",
+  "docs.aiPrompt":
+    "{url} dosyasını ve bağlantı verdiği sayfaları oku, sonra tarayıcı için canvas konfeti kütüphanesi konfeti'yi kullanmamda bana yardım et. Türkçe yanıt ver.",
 };
 
 /**

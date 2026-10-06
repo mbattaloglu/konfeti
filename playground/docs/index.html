@@ -55,6 +55,30 @@
           <a href="%BASE_URL%docs/api/" data-i18n="docs.apiReference">API reference ↗</a>
           <a href="%BASE_URL%" data-i18n="docs.playgroundLink">Playground ↗</a>
         </nav>
+        <p class="docs-sidebar-title" data-i18n="docs.ai">AI</p>
+        <nav class="docs-toc" aria-label="AI" data-i18n-aria-label="docs.ai">
+          <button id="copy-markdown" type="button" data-i18n="docs.copyMarkdown">
+            Copy page as Markdown
+          </button>
+          <!-- the script adds a prompt in the reader's language -->
+          <a
+            id="ask-chatgpt"
+            href="https://chatgpt.com/"
+            target="_blank"
+            rel="noopener"
+            data-i18n="docs.askChatGpt"
+            >Ask ChatGPT ↗</a
+          >
+          <a
+            id="ask-claude"
+            href="https://claude.ai/new"
+            target="_blank"
+            rel="noopener"
+            data-i18n="docs.askClaude"
+            >Ask Claude ↗</a
+          >
+          <a href="%BASE_URL%llms.txt" target="_blank" rel="noopener">llms.txt ↗</a>
+        </nav>
       </aside>
 
       <main id="docs-content" class="docs-content"><!--prerender:guide--></main>

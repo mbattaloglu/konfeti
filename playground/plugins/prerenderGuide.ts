@@ -2,8 +2,8 @@ import type { Plugin } from "vite";
 
 import { PRERENDERED_LOCALE, renderGuide } from "../src/docs/guideRenderer.ts";
 import { translate } from "../src/i18n/messages.ts";
-import { GUIDE_MD } from "./llmsText.ts";
-import { readPackageInfo, REPO_URL, SITE_URL } from "./siteInfo.ts";
+import { GUIDE_MD, REPO_URL, SITE_URL } from "../src/site/siteUrls.ts";
+import { readPackageInfo } from "./siteInfo.ts";
 import type { PackageInfo } from "./siteInfo.ts";
 
 /**

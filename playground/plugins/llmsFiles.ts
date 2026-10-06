@@ -3,16 +3,11 @@ import { join } from "node:path";
 
 import type { Plugin } from "vite";
 
-import {
-  GUIDE_MD,
-  GUIDE_TR_MD,
-  LLMS_FULL,
-  llmsFullTxt,
-  llmsTxt,
-  siteMarkdown,
-} from "./llmsText.ts";
+import { siteMarkdown } from "../src/site/siteMarkdown.ts";
+import { GUIDE_MD, GUIDE_TR_MD, LLMS_FULL, LLMS_TXT, SKILL_PATH } from "../src/site/siteUrls.ts";
+import { llmsFullTxt, llmsTxt } from "./llmsText.ts";
 import type { ApiPage } from "./llmsText.ts";
-import { readPackageInfo, SKILL_PATH } from "./siteInfo.ts";
+import { readPackageInfo } from "./siteInfo.ts";
 
 /**
  * API Reference Pages that TypeDoc Writes in Markdown (`typedoc.markdown.json`), by Module.
@@ -61,7 +56,7 @@ export function llmsFiles(packageDir: string, apiDir: string): Plugin {
       const info = readPackageInfo(packageDir);
       const api = readApiPages(apiDir);
       const files: Readonly<Record<string, string>> = {
-        "llms.txt": llmsTxt(info, api),
+        [LLMS_TXT]: llmsTxt(info, api),
         [LLMS_FULL]: llmsFullTxt(info, api),
         [GUIDE_MD]: siteMarkdown(info.readme),
         [GUIDE_TR_MD]: siteMarkdown(info.readmeTr),

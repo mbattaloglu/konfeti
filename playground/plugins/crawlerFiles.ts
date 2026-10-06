@@ -1,6 +1,6 @@
 import type { Plugin } from "vite";
 
-import { SITE_URL } from "./siteInfo.ts";
+import { SITE_URL } from "../src/site/siteUrls.ts";
 
 /**
  * Site Pages Listed in the Sitemap, Relative to the Site URL (TypeDoc writes its own for the API reference).

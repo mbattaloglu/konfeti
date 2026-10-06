@@ -317,3 +317,54 @@ test.describe("built site (LLM docs)", () => {
     );
   });
 });
+
+test.describe("built site (AI helpers)", () => {
+  test("the guide opens assistants with the llms.txt prompt in the reader's language", async ({
+    page,
+  }) => {
+    const promptOf = async (id: string): Promise<string> => {
+      const href = (await page.locator(id).getAttribute("href")) ?? "";
+      return new URL(href).searchParams.get("q") ?? "";
+    };
+
+    await openSite(page, "docs/");
+    expect(await promptOf("#ask-chatgpt")).toContain(
+      "Read https://konfeti.mbattaloglu.com/llms.txt",
+    );
+    expect(await promptOf("#ask-claude")).toContain(
+      "Read https://konfeti.mbattaloglu.com/llms.txt",
+    );
+    expect(await page.locator("#ask-claude").getAttribute("href")).toMatch(
+      /^https:\/\/claude\.ai\/new\?q=/,
+    );
+
+    await page.goto(`${ORIGIN}/tools/konfeti/docs/?lang=tr`);
+    expect(await promptOf("#ask-chatgpt")).toContain("Türkçe yanıt ver");
+  });
+
+  test("the guide copies itself as Markdown", async ({ page, site }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await openSite(page, "docs/");
+    await page.locator("#copy-markdown").click();
+    const markdown = await lastCopied(page);
+
+    expect(markdown).toContain("## API at a glance");
+    expect(markdown).not.toMatch(/^```ts run$/m);
+    expect(site.errors).toEqual([]);
+  });
+
+  test("the playground copies a prompt with the docs link and the current settings", async ({
+    page,
+  }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await page.goto(`${ORIGIN}/tools/konfeti/?lang=en`);
+    await page.locator('[data-key="particleCount"] input[type="range"]').fill("88");
+    await page.locator("#tab-btn-export").click();
+    await page.locator("#copy-ai").click();
+    const prompt = await lastCopied(page);
+
+    expect(prompt).toContain("https://konfeti.mbattaloglu.com/llms.txt");
+    expect(prompt).toContain('"particleCount": 88');
+    expect(prompt).not.toContain("{note}");
+  });
+});

@@ -7,7 +7,7 @@ import { HOOK_KEYS } from "./hooks";
 /**
  * Prefix of JSON Placeholders that Stand for Runtime Objects.
  */
-const ASSET_PREFIX = "$asset:";
+export const ASSET_PREFIX = "$asset:";
 
 /**
  * Map Demo Assets to Their JSON Placeholder Names.

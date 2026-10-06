@@ -45,7 +45,8 @@ import { buildHooks, createCounters } from "./hooks";
 import { t } from "./i18n/messages";
 import { localizeSections } from "./i18n/localizeControls";
 import { applyStaticText, mountLanguageSwitch } from "./i18n/staticText";
-import { isBurstList, parseJson, toJson } from "./jsonIO";
+import { ASSET_PREFIX, isBurstList, parseJson, toJson } from "./jsonIO";
+import { LLMS_FULL, LLMS_TXT, SITE_URL } from "./site/siteUrls";
 import { list, raw, str } from "./stateReaders";
 import { byId, el } from "./ui/dom";
 import { renderBurstTabs } from "./ui/renderBurstTabs";
@@ -918,6 +919,15 @@ async function init(): Promise<void> {
   });
   byId("copy-code", HTMLButtonElement).addEventListener("click", () => {
     copyText(currentCode(), t("code.copied"));
+  });
+  byId("copy-ai", HTMLButtonElement).addEventListener("click", () => {
+    // the same JSON that Fire sends; the assistant's answer goes back in through Load into Controls
+    const json = toJson(buildInput(currentBursts(), assets), assets);
+    const note = json.includes(`"${ASSET_PREFIX}`) ? `\n${t("ai.assetsNote")}\n` : "";
+    copyText(
+      t("ai.prompt", { llms: SITE_URL + LLMS_TXT, full: SITE_URL + LLMS_FULL, json, note }),
+      t("ai.copied"),
+    );
   });
 
   // panel tabs: controls / share & export

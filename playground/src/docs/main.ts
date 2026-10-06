@@ -7,6 +7,8 @@ import { getLocale } from "../i18n/Locale";
 import type { Locale } from "../i18n/Locale";
 import { t } from "../i18n/messages";
 import { applyStaticText, mountLanguageSwitch } from "../i18n/staticText";
+import { siteMarkdown } from "../site/siteMarkdown";
+import { LLMS_TXT, SITE_URL } from "../site/siteUrls";
 import { byId } from "../ui/dom";
 import { PRERENDERED_LOCALE, renderGuide } from "./guideRenderer";
 import { runExample } from "./runExample";
@@ -15,6 +17,16 @@ import { runExample } from "./runExample";
  * Guide Source by Language (the package README and its Turkish translation).
  */
 const READMES: Readonly<Record<Locale, string>> = { en: readmeEn, tr: readmeTr };
+
+/**
+ * ChatGPT Address that Takes a Prompt in `?q=`.
+ */
+const CHATGPT_URL = "https://chatgpt.com/";
+
+/**
+ * Claude Address that Takes a Prompt in `?q=`.
+ */
+const CLAUDE_URL = "https://claude.ai/new";
 
 /**
  * Toast Visibility Duration.
@@ -58,6 +70,25 @@ function init(): void {
 
   document.documentElement.classList.remove(PENDING_CLASS);
 
+  const copyText = (text: string, message: string): void => {
+    navigator.clipboard.writeText(text).then(
+      () => {
+        showToast(message);
+      },
+      () => {
+        showToast(t("clipboard.unavailable"), true);
+      },
+    );
+  };
+
+  // AI helpers: the page as Markdown, and assistants that start from the llms.txt index
+  const prompt = encodeURIComponent(t("docs.aiPrompt", { url: SITE_URL + LLMS_TXT }));
+  byId("ask-chatgpt", HTMLAnchorElement).href = `${CHATGPT_URL}?q=${prompt}`;
+  byId("ask-claude", HTMLAnchorElement).href = `${CLAUDE_URL}?q=${prompt}`;
+  byId("copy-markdown", HTMLButtonElement).addEventListener("click", () => {
+    copyText(siteMarkdown(READMES[getLocale()]), t("docs.markdownCopied"));
+  });
+
   // copy / run buttons on every code block
   content.addEventListener("click", (event) => {
     const button =
@@ -71,14 +102,7 @@ function init(): void {
     const source = figure.dataset["source"] ?? "";
 
     if (button.dataset["action"] === "copy") {
-      navigator.clipboard.writeText(source).then(
-        () => {
-          showToast(t("docs.copied"));
-        },
-        () => {
-          showToast(t("clipboard.unavailable"), true);
-        },
-      );
+      copyText(source, t("docs.copied"));
       return;
     }
 

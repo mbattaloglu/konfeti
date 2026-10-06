@@ -3,10 +3,7 @@ import typescript from "highlight.js/lib/languages/typescript";
 import { Marked } from "marked";
 import type { Token, Tokens } from "marked";
 
-/**
- * Repository URL for Links that Point Outside the Package README.
- */
-const REPO_URL = "https://github.com/mbattaloglu/konfeti/blob/main/";
+import { REPO_URL } from "../site/siteUrls.ts";
 
 /**
  * README Language Links, Mapped to the Language of the Same Page.
@@ -141,7 +138,7 @@ function siteHref(href: string): string {
     return `?lang=${language}`;
   }
 
-  return href.startsWith("../../") ? REPO_URL + href.slice("../../".length) : href;
+  return href.startsWith("../../") ? `${REPO_URL}/blob/main/${href.slice("../../".length)}` : href;
 }
 
 /**

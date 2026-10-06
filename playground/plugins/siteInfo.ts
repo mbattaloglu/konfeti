@@ -1,20 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-/**
- * Canonical Site URL (mbattaloglu.com/tools/konfeti serves the same build).
- */
-export const SITE_URL = "https://konfeti.mbattaloglu.com/";
-
-/**
- * Source Repository URL.
- */
-export const REPO_URL = "https://github.com/mbattaloglu/konfeti";
-
-/**
- * Agent Skill Path, the Same in the Package and on the Site.
- */
-export const SKILL_PATH = "skills/konfeti/SKILL.md";
+import { SKILL_PATH } from "../src/site/siteUrls.ts";
 
 /**
  * Library Facts the Site Build Writes into Pages and Crawler Files.
