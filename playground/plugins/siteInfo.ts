@@ -12,6 +12,11 @@ export const SITE_URL = "https://konfeti.mbattaloglu.com/";
 export const REPO_URL = "https://github.com/mbattaloglu/konfeti";
 
 /**
+ * Agent Skill Path, the Same in the Package and on the Site.
+ */
+export const SKILL_PATH = "skills/konfeti/SKILL.md";
+
+/**
  * Library Facts the Site Build Writes into Pages and Crawler Files.
  */
 export type PackageInfo = {
@@ -31,6 +36,10 @@ export type PackageInfo = {
    * Turkish README.
    */
   readonly readmeTr: string;
+  /**
+   * Agent Skill (`skills/konfeti/SKILL.md`, shipped in the npm package too).
+   */
+  readonly skill: string;
 };
 
 /**
@@ -65,5 +74,6 @@ export function readPackageInfo(packageDir: string): PackageInfo {
     description: stringField(json, "description"),
     readme: readFileSync(join(packageDir, "README.md"), "utf8"),
     readmeTr: readFileSync(join(packageDir, "README.tr.md"), "utf8"),
+    skill: readFileSync(join(packageDir, SKILL_PATH), "utf8"),
   };
 }

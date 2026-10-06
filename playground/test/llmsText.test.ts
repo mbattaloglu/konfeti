@@ -56,6 +56,9 @@ describe("llmsTxt", () => {
     expect(text).toContain(
       "- [API reference: konfeti/worker](https://konfeti.mbattaloglu.com/docs/api/konfeti/worker.md)",
     );
+    expect(text).toContain(
+      "- [Agent skill](https://konfeti.mbattaloglu.com/skills/konfeti/SKILL.md)",
+    );
   });
 
   it("only links absolute URLs", () => {

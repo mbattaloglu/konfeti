@@ -1,4 +1,4 @@
-import { REPO_URL, SITE_URL } from "./siteInfo.ts";
+import { REPO_URL, SITE_URL, SKILL_PATH } from "./siteInfo.ts";
 import type { PackageInfo } from "./siteInfo.ts";
 
 /**
@@ -141,6 +141,7 @@ export function llmsTxt(info: PackageInfo, api: readonly ApiPage[]): string {
     "## Optional",
     "",
     `- [Full documentation in one file](${SITE_URL}${LLMS_FULL}): the guide and the API reference together`,
+    `- [Agent skill](${SITE_URL}${SKILL_PATH}): how to use konfeti, for coding agents (also shipped in the npm package as \`node_modules/konfeti/skills/konfeti\`)`,
     `- [Guide in Turkish](${SITE_URL}${GUIDE_TR_MD})`,
     `- [Changelog](${REPO_URL}/blob/main/packages/konfeti/CHANGELOG.md)`,
     "",

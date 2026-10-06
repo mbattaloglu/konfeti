@@ -86,7 +86,8 @@
   "files": [
     "dist",
     "!dist/**/*.map",
-    "README.tr.md"
+    "README.tr.md",
+    "skills"
   ],
   "scripts": {
     "build": "node scripts/build-worker.mjs && tsdown && cp src/worker/generated/konfeti.worker.js dist/konfeti.worker.js",
@@ -102,6 +103,7 @@
     "tsdown": "^0.23.0",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.13.1",
+    "typescript": "~6.0.3",
     "vitest": "^5.0.2",
     "vitest-canvas-mock": "^1.2.0"
   }

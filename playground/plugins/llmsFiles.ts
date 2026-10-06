@@ -12,7 +12,7 @@ import {
   siteMarkdown,
 } from "./llmsText.ts";
 import type { ApiPage } from "./llmsText.ts";
-import { readPackageInfo } from "./siteInfo.ts";
+import { readPackageInfo, SKILL_PATH } from "./siteInfo.ts";
 
 /**
  * API Reference Pages that TypeDoc Writes in Markdown (`typedoc.markdown.json`), by Module.
@@ -46,7 +46,8 @@ function readApiPages(apiDir: string): ApiPage[] {
 }
 
 /**
- * Emit the LLM-Readable Docs: llms.txt, llms-full.txt and the guide as Markdown (English and Turkish).
+ * Emit the LLM-Readable Docs: llms.txt, llms-full.txt, the guide as Markdown (English and Turkish) and the agent
+ * skill.
  *
  * @param packageDir - Library Package Folder (README and package.json)
  * @param apiDir - Folder with TypeDoc's Markdown API Reference
@@ -64,6 +65,7 @@ export function llmsFiles(packageDir: string, apiDir: string): Plugin {
         [LLMS_FULL]: llmsFullTxt(info, api),
         [GUIDE_MD]: siteMarkdown(info.readme),
         [GUIDE_TR_MD]: siteMarkdown(info.readmeTr),
+        [SKILL_PATH]: info.skill,
       };
 
       for (const [fileName, source] of Object.entries(files)) {
