@@ -323,11 +323,11 @@ Measured with [size-limit](https://github.com/ai/size-limit) (minified + brotli)
 
 | Usage                                | Size     |
 | ------------------------------------ | -------- |
-| `Konfeti` from `konfeti`             | ~19.3 kB |
-| everything from `konfeti`            | ~23.1 kB |
+| `Konfeti` from `konfeti`             | ~19.8 kB |
+| everything from `konfeti`            | ~23.9 kB |
 | `Konfeti` from `konfeti/lite`        | ~13.9 kB |
-| `createWorker` from `konfeti/worker` | ~21.4 kB |
-| worker script (loaded on first use)  | ~18.6 kB |
+| `createWorker` from `konfeti/worker` | ~21.9 kB |
+| worker script (loaded on first use)  | ~19.1 kB |
 
 ## Browser support
 
@@ -353,6 +353,10 @@ The [guide](https://konfeti.mbattaloglu.com/docs/#playable-ads--webviews) has th
 - **[Playground](https://konfeti.mbattaloglu.com/)** — tune every option live (Basic or Advanced), load any preset
   into the editor, then share a link or copy the `Konfeti.fire()` code
 - **[Changelog](packages/konfeti/CHANGELOG.md)**
+- **AI assistants** — an [Agent Skill](packages/konfeti/skills/konfeti/SKILL.md) ships in the package for coding
+  agents, and the site serves [`llms.txt`](https://konfeti.mbattaloglu.com/llms.txt) /
+  [`llms-full.txt`](https://konfeti.mbattaloglu.com/llms-full.txt) for chat assistants
+  ([how to use them](https://konfeti.mbattaloglu.com/docs/#ai-assistants))
 
 ## Development
 

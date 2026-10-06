@@ -87,6 +87,7 @@ Konfeti.fire(options);
 - [Custom shapes & physics](#custom-shapes--physics)
 - [Bundle size & `konfeti/lite`](#bundle-size--konfetilite)
 - [Units & ranges](#units--ranges)
+- [AI assistants](#ai-assistants)
 
 ## Basics
 
@@ -445,7 +446,7 @@ Element and click origins are measured on the main thread before sending; the po
 emitter follows or an attractor pulls toward is tracked there too and sent over while the burst runs. Use
 `await` on the handle instead of `onComplete`.
 
-The worker script itself (~18.6 kB brotli) is loaded only when the first worker instance is created. With a
+The worker script itself (~19.1 kB brotli) is loaded only when the first worker instance is created. With a
 bundler it is inlined as a `blob:` URL; the `<script>` build loads `konfeti.worker.js` from its own folder. For a
 strict Content-Security-Policy without `worker-src blob:`, host `konfeti/konfeti.worker.js` yourself:
 
@@ -461,7 +462,7 @@ Hooks cannot run inside a worker, so a worker instance counts for you: `stage.ge
 ## Playable ads & webviews
 
 konfeti works in single-file playable ads: it has no dependencies, makes no network requests of its own, uses
-no storage and no `eval`. `Konfeti.fire()` adds about 65 kB minified (19 kB brotli); ad networks usually count
+no storage and no `eval`. `Konfeti.fire()` adds about 65 kB minified (20 kB brotli); ad networks usually count
 uncompressed size. Keep these in mind:
 
 - **Images:** pass a `data:` URI or an image / canvas your engine already loaded — a URL like `/coin.png` is a
@@ -526,11 +527,11 @@ with the transform already applied.
 
 | Usage                                                | Size (min + brotli) |
 | ---------------------------------------------------- | ------------------- |
-| `Konfeti` from `konfeti`                             | ~19.3 kB            |
-| everything from `konfeti`                            | ~23.1 kB            |
+| `Konfeti` from `konfeti`                             | ~19.8 kB            |
+| everything from `konfeti`                            | ~23.9 kB            |
 | `Konfeti` from `konfeti/lite`                        | ~13.9 kB            |
-| `createWorker` from `konfeti/worker`                 | ~21.4 kB            |
-| worker script (loaded on the first `createWorker()`) | ~18.6 kB            |
+| `createWorker` from `konfeti/worker`                 | ~21.9 kB            |
+| worker script (loaded on the first `createWorker()`) | ~19.1 kB            |
 
 `konfeti` registers every built-in shape for you. `konfeti/lite` starts with **paper only** — register just the
 shapes you use and your bundler drops the rest:
@@ -557,6 +558,29 @@ Presets live in the full entry only (they use several shapes). Formations are op
 | `PixelsPerSecond(Squared)` | speed / acceleration            |
 
 Invalid options throw a `TypeError` that names the option (`"paper.width" must be a finite number`).
+
+## AI assistants
+
+konfeti ships an [Agent Skill](https://agentskills.io) in the package, `node_modules/konfeti/skills/konfeti`. It
+teaches coding agents (Claude Code, Codex, Cursor, GitHub Copilot …) the entries, the core API, recipes, every
+preset and shape, and the common pitfalls, and it always matches the installed version. Copy or link the folder
+into your agent's skills folder, e.g. for Claude Code:
+
+```sh
+mkdir -p .claude/skills && cp -r node_modules/konfeti/skills/konfeti .claude/skills/
+```
+
+For chat assistants, the site serves the docs as Markdown:
+
+- [`llms.txt`](https://konfeti.mbattaloglu.com/llms.txt): an index of the Markdown docs, for an assistant that
+  can read links
+- [`llms-full.txt`](https://konfeti.mbattaloglu.com/llms-full.txt): this guide and the whole API reference in one
+  file, to paste or upload
+- [`docs/index.md`](https://konfeti.mbattaloglu.com/docs/index.md): this guide alone
+
+The guide's sidebar opens ChatGPT or Claude with a prompt that points at `llms.txt`, and the playground's Share &
+Export tab copies a prompt with your current settings as JSON; paste the JSON an assistant returns into Options JSON
+and load it into the controls.
 
 ## License
 

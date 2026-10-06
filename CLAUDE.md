@@ -73,7 +73,9 @@ packages/
         generated/      # WorkerSource.ts + konfeti.worker.js — written by scripts/build-worker.mjs, git-ignored, never edit
       workerEntry.ts    # `konfeti/worker` entry: createWorker, WorkerKonfetiInstance, worker types (+ registers built-ins for the fallback)
       iife.ts           # <script> build entry: index + workerEntry; points the worker at konfeti.worker.js next to the script
-    test/
+    test/               # Skill.test.ts: the skill's preset/shape tables match the library, its ts samples type-check
+    skills/konfeti/     # Agent Skill (SKILL.md, agentskills.io format), shipped in the npm package (files: skills)
+    typedoc.markdown.json # API reference as Markdown next to the HTML one (`pnpm docs:api` runs both TypeDoc configs)
 playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`) on http://localhost:5199 — developer runs `pnpm dev`, never Claude
                         # i18n EN/TR: UI strings in src/i18n/messages.ts (both languages, TR type-checked for every key),
                         # control text in src/i18n/controlsTr.ts; the guide renders README.md / README.tr.md; API reference stays English
@@ -85,6 +87,11 @@ playground/             # site (playground `/`, guide `/docs/`, API `/docs/api/`
                         # test/: vitest + happy-dom (pnpm test runs it; resolved-equality comparer in test/helpers)
                         # src/analytics.ts (+ packages/konfeti/typedoc/analytics.js for the API pages via TypeDoc customJs): Vercel Web
                         # Analytics, root-relative /_vercel/insights/script.js, skipped on localhost; e2e answers that path with an empty stub
+                        # plugins/ (Vite, build only): prerenderGuide bakes the English guide into docs/index.html (same
+                        # guideRenderer as the browser; other languages render over it), crawlerFiles (robots.txt, sitemap.xml),
+                        # llmsFiles (llms.txt, llms-full.txt, docs/index.md + tr.md, the skill); src/site/ holds the URLs and the
+                        # README → Markdown step shared by browser and build. Imports reachable from vite.config use `.ts`
+                        # extensions (Vite's native config loader needs them)
 e2e/                    # Playwright browser tests: pages/ (esm, iife), support/site.ts (disk routing on http://konfeti.test), tests/
 vercel.json             # Vercel static site: `pnpm site:build` → playground/dist, base path /tools/konfeti/ rewritten to /
 docs/PLAN.md

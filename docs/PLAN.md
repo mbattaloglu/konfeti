@@ -139,6 +139,17 @@ Notes
   import in Node without a DOM (checked 2026-10-05)
 - ✅ Playground: live option editor + "copy config" button (editor v2: Basic/Advanced, min–max ranges, per-shape
   styles, burst tabs, lossless preset loading)
+- ✅ LLM and agent helpers (0.6.0, 2026-10-06):
+  - The site build bakes the English guide into `/docs/` (readers without JavaScript, such as LLM fetchers, saw
+    ~48 words before; now the whole guide). It also writes robots.txt, sitemap.xml and TypeDoc's API sitemap.
+  - `llms.txt` (llmstxt.org), `llms-full.txt` (guide + API reference, ~170 kB), and Markdown pages of the guide
+    and the API reference (`typedoc-plugin-markdown`, dev dependency only).
+  - An Agent Skill ships in the package (`skills/konfeti/SKILL.md`, agentskills.io format). A test checks its
+    preset and shape tables against the library and type-checks every `ts` sample.
+  - AI buttons: the guide copies itself as Markdown and opens ChatGPT / Claude with an `llms.txt` prompt; the
+    playground copies a prompt with the current settings as JSON.
+  - Note: as of 2026 the big crawlers rarely fetch `llms.txt`. The gain is for people who paste the link, for
+    coding agents reading `node_modules`, and for fetchers that need the prerendered guide.
 
 ---
 

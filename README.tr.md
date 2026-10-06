@@ -331,11 +331,11 @@ tree-shaking ile atılır.
 
 | Kullanım                                | Boyut    |
 | --------------------------------------- | -------- |
-| `konfeti` içinden `Konfeti`             | ~19.3 kB |
-| `konfeti` içinden her şey               | ~23.1 kB |
+| `konfeti` içinden `Konfeti`             | ~19.8 kB |
+| `konfeti` içinden her şey               | ~23.9 kB |
 | `konfeti/lite` içinden `Konfeti`        | ~13.9 kB |
-| `konfeti/worker` içinden `createWorker` | ~21.4 kB |
-| worker betiği (ilk kullanımda yüklenir) | ~18.6 kB |
+| `konfeti/worker` içinden `createWorker` | ~21.9 kB |
+| worker betiği (ilk kullanımda yüklenir) | ~19.1 kB |
 
 ## Tarayıcı desteği
 
@@ -363,6 +363,10 @@ en son parçacık sayısını düşürür. Tam kontrol listesi
 - **[Deneme Alanı](https://konfeti.mbattaloglu.com/?lang=tr)** — her seçeneği canlı ayarla (Temel ya da Gelişmiş),
   herhangi bir hazır ayarı düzenleyiciye yükle, sonra bir bağlantı paylaş ya da `Konfeti.fire()` kodunu kopyala
 - **[Değişiklik günlüğü](packages/konfeti/CHANGELOG.md)** (İngilizce)
+- **Yapay zekâ asistanları** — kodlama agent'ları için paketin içinde bir
+  [Agent Skill](packages/konfeti/skills/konfeti/SKILL.md) gelir; sohbet asistanları için site
+  [`llms.txt`](https://konfeti.mbattaloglu.com/llms.txt) / [`llms-full.txt`](https://konfeti.mbattaloglu.com/llms-full.txt)
+  sunar ([nasıl kullanılır](https://konfeti.mbattaloglu.com/docs/?lang=tr#yapay-zekâ-asistanları))
 
 ## Geliştirme
 
