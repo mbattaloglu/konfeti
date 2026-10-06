@@ -7,5 +7,5 @@
       "konfeti/worker": ["../packages/konfeti/src/workerEntry.ts"]
     }
   },
-  "include": ["src", "test", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "test", "plugins", "vite.config.ts", "vitest.config.ts"]
 }

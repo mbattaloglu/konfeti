@@ -192,3 +192,95 @@ test.describe("built site (share link and code export)", () => {
     expect(fired?.paper?.colors?.length).toBeGreaterThan(0);
   });
 });
+
+/**
+ * Fetch a File of the Built Site from Inside the Page (requests go through the disk routes).
+ *
+ * @param page - Page Open on the Site
+ * @param path - Path below the Base Path
+ * @returns Status and Text
+ */
+async function fetchSiteFile(page: Page, path: string): Promise<{ status: number; text: string }> {
+  return page.evaluate(async (url) => {
+    const response = await fetch(url);
+    return { status: response.status, text: await response.text() };
+  }, `${ORIGIN}/tools/konfeti/${path}`);
+}
+
+/**
+ * Count Guide Sections Removed from the Page (an English guide the build wrote must be kept, not re-rendered).
+ */
+const RECORD_REMOVED_SECTIONS = (): void => {
+  const removed = { count: 0 };
+  Object.assign(window, { removed });
+  new MutationObserver((records) => {
+    for (const record of records) {
+      for (const node of record.removedNodes) {
+        if (node instanceof Element && node.classList.contains("docs-section")) {
+          removed.count += 1;
+        }
+      }
+    }
+  }).observe(document, { childList: true, subtree: true });
+};
+
+test.describe("built site (guide without JavaScript)", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("the built page carries the whole English guide", async ({ page }) => {
+    await page.goto(`${ORIGIN}/tools/konfeti/docs/`);
+    const sections = page.locator("#docs-content .docs-section");
+
+    await expect(page.locator("#docs-content h2").first()).toContainText("API at a glance");
+    expect(await sections.count()).toBeGreaterThan(10);
+    expect(await page.locator("#docs-toc a").count()).toBe(await sections.count());
+    await expect(page.locator("#version")).toHaveText(/^v\d+\.\d+\.\d+/);
+  });
+});
+
+test.describe("built site (prerendered guide)", () => {
+  test("English keeps the built guide and its buttons work", async ({ page, site }) => {
+    await page.addInitScript(RECORD_CLIPBOARD);
+    await page.addInitScript(RECORD_REMOVED_SECTIONS);
+    await openSite(page, "docs/");
+
+    await expect(page.locator("#docs-content h2").first()).toBeVisible();
+    await expect(page.locator("#docs-toc a").first()).toBeVisible();
+    await page.locator('#docs-content [data-action="copy"]').first().click();
+    expect(await lastCopied(page)).not.toBe("");
+    await page.locator('#docs-content [data-action="run"]').first().click();
+
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { removed: { count: number } }).removed.count,
+      ),
+    ).toBe(0);
+    await expect(page.locator("#toast")).not.toHaveClass(/is-error/);
+    expect(site.errors).toEqual([]);
+  });
+
+  test("Turkish replaces the built English guide", async ({ page, site }) => {
+    await page.goto(`${ORIGIN}/tools/konfeti/docs/?lang=tr`);
+
+    await expect(page.locator("#docs-content h2").first()).toContainText("Bir bakışta API");
+    await expect(page.locator("#docs-content h2").first()).toBeVisible();
+    await expect(page.locator("#docs-toc a").first()).toBeVisible();
+    expect(site.errors).toEqual([]);
+  });
+});
+
+test.describe("built site (crawler files)", () => {
+  test("robots.txt and sitemap.xml are served from the site root", async ({ page }) => {
+    await openSite(page, "docs/");
+    const robots = await fetchSiteFile(page, "robots.txt");
+    const sitemap = await fetchSiteFile(page, "sitemap.xml");
+    const apiSitemap = await fetchSiteFile(page, "docs/api/sitemap.xml");
+
+    expect(robots.status).toBe(200);
+    expect(robots.text).toContain("Sitemap: https://konfeti.mbattaloglu.com/sitemap.xml");
+    expect(sitemap.text).toContain("<loc>https://konfeti.mbattaloglu.com/docs/</loc>");
+    expect(apiSitemap.text).toContain(
+      "<loc>https://konfeti.mbattaloglu.com/docs/api/index.html</loc>",
+    );
+  });
+});

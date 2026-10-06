@@ -6,6 +6,7 @@
   "out": "../../playground/public/docs/api",
   "readme": "none",
   "includeVersion": true,
+  "hostedBaseUrl": "https://konfeti.mbattaloglu.com/docs/api/",
   "excludePrivate": true,
   "excludeInternal": true,
   "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape", "WorkerConnector"],

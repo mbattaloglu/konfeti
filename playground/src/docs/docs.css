@@ -76,6 +76,12 @@ body.docs-page {
 }
 
 /* ---------- content ---------- */
+/* the built English guide waits for the script, which may swap in another language */
+.guide-pending .docs-content,
+.guide-pending #docs-toc {
+  visibility: hidden;
+}
+
 .docs-content {
   min-width: 0;
   max-width: 860px;

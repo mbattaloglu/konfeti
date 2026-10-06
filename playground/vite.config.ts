@@ -3,6 +3,9 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 
+import { crawlerFiles } from "./plugins/crawlerFiles";
+import { prerenderGuide } from "./plugins/prerenderGuide";
+
 /**
  * Resolve a Path Relative to This Config.
  *
@@ -55,7 +58,7 @@ function productionPaths(): Plugin {
  */
 export default defineConfig(({ command }) => ({
   base: command === "build" ? BASE : "/",
-  plugins: [productionPaths()],
+  plugins: [productionPaths(), prerenderGuide(local("../packages/konfeti/")), crawlerFiles()],
   server: {
     port: 5199,
     strictPort: true,

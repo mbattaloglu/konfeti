@@ -18,13 +18,17 @@
       href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap"
     />
     <link rel="stylesheet" href="/src/docs/docs.css" />
+    <!-- the built page carries the English guide; hide it until the script shows the reader's language -->
+    <script>
+      document.documentElement.classList.add("guide-pending");
+    </script>
   </head>
   <body class="docs-page">
     <header class="app-header">
       <div class="app-brand">
         <h1>konfeti</h1>
         <span class="app-tag" data-i18n="docs.tag">docs</span>
-        <span id="version" class="app-version"></span>
+        <span id="version" class="app-version"><!--prerender:version--></span>
       </div>
       <nav class="app-nav" aria-label="Site" data-i18n-aria-label="nav.site">
         <a href="%BASE_URL%" data-i18n="nav.playground">Playground</a>
@@ -43,7 +47,9 @@
           class="docs-toc"
           aria-label="Guide sections"
           data-i18n-aria-label="docs.guideSections"
-        ></nav>
+        >
+          <!--prerender:toc-->
+        </nav>
         <p class="docs-sidebar-title" data-i18n="docs.reference">Reference</p>
         <nav class="docs-toc" aria-label="Reference" data-i18n-aria-label="docs.reference">
           <a href="%BASE_URL%docs/api/" data-i18n="docs.apiReference">API reference ↗</a>
@@ -51,7 +57,7 @@
         </nav>
       </aside>
 
-      <main id="docs-content" class="docs-content"></main>
+      <main id="docs-content" class="docs-content"><!--prerender:guide--></main>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>

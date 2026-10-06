@@ -47,6 +47,9 @@ const CONTENT_TYPES: Readonly<Record<string, string>> = {
   ".map": "application/json",
   ".css": "text/css",
   ".svg": "image/svg+xml",
+  ".txt": "text/plain; charset=utf-8",
+  ".xml": "application/xml",
+  ".md": "text/markdown; charset=utf-8",
 };
 
 /**

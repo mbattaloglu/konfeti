@@ -324,7 +324,23 @@ export function isMessageKey(key: string): key is MessageKey {
  * @returns Translated Text
  */
 export function t(key: MessageKey, params: Readonly<Record<string, string | number>> = {}): string {
-  return MESSAGES[getLocale()][key].replace(/\{(\w+)\}/g, (match, name: string) =>
+  return translate(getLocale(), key, params);
+}
+
+/**
+ * Translate UI String into a Given Language (the site build has no active language).
+ *
+ * @param locale - Language
+ * @param key - Message Key
+ * @param params - Values for `{name}` Placeholders
+ * @returns Translated Text
+ */
+export function translate(
+  locale: Locale,
+  key: MessageKey,
+  params: Readonly<Record<string, string | number>> = {},
+): string {
+  return MESSAGES[locale][key].replace(/\{(\w+)\}/g, (match, name: string) =>
     name in params ? String(params[name]) : match,
   );
 }
