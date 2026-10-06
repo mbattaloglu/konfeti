@@ -311,6 +311,10 @@ test.describe("built site (LLM docs)", () => {
     expect(guide.text).not.toMatch(/^```ts run$/m);
     expect(full.text).toContain("## API at a glance");
     expect(full.text).toContain("# API reference: konfeti/worker");
+    // the sidebar links both files (the full one is what people upload to a chat)
+    for (const file of ["llms.txt", "llms-full.txt"]) {
+      await expect(page.locator(`.docs-sidebar a[href="/tools/konfeti/${file}"]`)).toHaveCount(1);
+    }
     await expect(page.locator('link[rel="alternate"][type="text/markdown"]')).toHaveAttribute(
       "href",
       "https://konfeti.mbattaloglu.com/docs/index.md",

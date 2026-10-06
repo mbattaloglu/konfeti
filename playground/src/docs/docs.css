@@ -323,7 +323,8 @@ body.docs-page {
     gap: 4px 14px;
   }
 
-  .docs-toc a {
+  .docs-toc a,
+  .docs-toc button {
     padding: 2px 0;
     border-left: 0;
   }
