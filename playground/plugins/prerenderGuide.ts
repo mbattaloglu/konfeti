@@ -1,9 +1,10 @@
 import type { Plugin } from "vite";
 
-import { PRERENDERED_LOCALE, renderGuide } from "../src/docs/guideRenderer";
-import { translate } from "../src/i18n/messages";
-import { readPackageInfo, REPO_URL, SITE_URL } from "./siteInfo";
-import type { PackageInfo } from "./siteInfo";
+import { PRERENDERED_LOCALE, renderGuide } from "../src/docs/guideRenderer.ts";
+import { translate } from "../src/i18n/messages.ts";
+import { GUIDE_MD } from "./llmsText.ts";
+import { readPackageInfo, REPO_URL, SITE_URL } from "./siteInfo.ts";
+import type { PackageInfo } from "./siteInfo.ts";
 
 /**
  * Put Markup in Place of a `<!--prerender:name-->` Marker.
@@ -74,6 +75,11 @@ export function prerenderGuide(packageDir: string): Plugin {
       return {
         html: page,
         tags: [
+          {
+            tag: "link",
+            attrs: { rel: "alternate", type: "text/markdown", href: SITE_URL + GUIDE_MD },
+            injectTo: "head",
+          },
           {
             tag: "script",
             attrs: { type: "application/ld+json" },

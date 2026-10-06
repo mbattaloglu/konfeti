@@ -284,3 +284,36 @@ test.describe("built site (crawler files)", () => {
     );
   });
 });
+
+test.describe("built site (LLM docs)", () => {
+  test("every site link in llms.txt resolves to a built file", async ({ page }) => {
+    await openSite(page, "docs/");
+    const llms = await fetchSiteFile(page, "llms.txt");
+    const siteLinks = [
+      ...llms.text.matchAll(/\]\((https:\/\/konfeti\.mbattaloglu\.com\/[^)]*)\)/g),
+    ].map((match) => (match[1] ?? "").slice("https://konfeti.mbattaloglu.com/".length));
+
+    expect(llms.status).toBe(200);
+    expect(siteLinks).toContain("docs/index.md");
+    expect(siteLinks).toContain("llms-full.txt");
+
+    for (const path of siteLinks) {
+      expect((await fetchSiteFile(page, path)).status, path).toBe(200);
+    }
+  });
+
+  test("the guide and the API reference are served as Markdown", async ({ page }) => {
+    await openSite(page, "docs/");
+    const guide = await fetchSiteFile(page, "docs/index.md");
+    const full = await fetchSiteFile(page, "llms-full.txt");
+
+    expect(guide.text).toContain("## API at a glance");
+    expect(guide.text).not.toMatch(/^```ts run$/m);
+    expect(full.text).toContain("## API at a glance");
+    expect(full.text).toContain("# API reference: konfeti/worker");
+    await expect(page.locator('link[rel="alternate"][type="text/markdown"]')).toHaveAttribute(
+      "href",
+      "https://konfeti.mbattaloglu.com/docs/index.md",
+    );
+  });
+});

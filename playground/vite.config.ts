@@ -3,8 +3,9 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 
-import { crawlerFiles } from "./plugins/crawlerFiles";
-import { prerenderGuide } from "./plugins/prerenderGuide";
+import { crawlerFiles } from "./plugins/crawlerFiles.ts";
+import { llmsFiles } from "./plugins/llmsFiles.ts";
+import { prerenderGuide } from "./plugins/prerenderGuide.ts";
 
 /**
  * Resolve a Path Relative to This Config.
@@ -58,7 +59,13 @@ function productionPaths(): Plugin {
  */
 export default defineConfig(({ command }) => ({
   base: command === "build" ? BASE : "/",
-  plugins: [productionPaths(), prerenderGuide(local("../packages/konfeti/")), crawlerFiles()],
+  plugins: [
+    productionPaths(),
+    prerenderGuide(local("../packages/konfeti/")),
+    crawlerFiles(),
+    // the markdown API reference is written next to the HTML one by `pnpm docs:api`
+    llmsFiles(local("../packages/konfeti/"), local("public/docs/api/")),
+  ],
   server: {
     port: 5199,
     strictPort: true,

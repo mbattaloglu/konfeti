@@ -1,0 +1,20 @@
+{
+  "$schema": "https://typedoc-plugin-markdown.org/schema.json",
+  "name": "konfeti",
+  "plugin": ["typedoc-plugin-markdown"],
+  "entryPoints": ["src/index.ts", "src/workerEntry.ts"],
+  "tsconfig": "./tsconfig.typedoc.json",
+  "out": "../../playground/public/docs/api",
+  "readme": "none",
+  "includeVersion": true,
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "intentionallyNotExported": ["ResolvedStyle", "ResolvedShape", "WorkerConnector"],
+  "hideGenerator": true,
+  "outputFileStrategy": "modules",
+  "sort": ["kind", "alphabetical"],
+  "cleanOutputDir": false,
+  "disableSources": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true
+}

@@ -93,7 +93,7 @@
     "prepublishOnly": "npm run build",
     "typecheck": "node scripts/build-worker.mjs && tsc --noEmit -p tsconfig.json",
     "test": "node scripts/build-worker.mjs && vitest run",
-    "docs": "typedoc",
+    "docs": "typedoc && typedoc --options typedoc.markdown.json",
     "build:worker": "node scripts/build-worker.mjs"
   },
   "devDependencies": {
@@ -101,6 +101,7 @@
     "rolldown": "1.2.11",
     "tsdown": "^0.23.0",
     "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.13.1",
     "vitest": "^5.0.2",
     "vitest-canvas-mock": "^1.2.0"
   }

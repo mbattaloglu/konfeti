@@ -1,5 +1,5 @@
-import { getLocale } from "./Locale";
-import type { Locale } from "./Locale";
+import { getLocale } from "./Locale.ts";
+import type { Locale } from "./Locale.ts";
 
 /**
  * English UI Strings (the source language; every other language must cover each key).

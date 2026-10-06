@@ -1,6 +1,8 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    // the Vite config and the modules it loads import with extensions (Vite's native config loader needs them)
+    "allowImportingTsExtensions": true,
     "types": ["vite/client", "node"],
     "paths": {
       "konfeti": ["../packages/konfeti/src/index.ts"],
